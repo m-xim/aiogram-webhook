@@ -37,7 +37,7 @@ Repository = "https://github.com/m-xim/aiogram-webhook"
 Issues = "https://github.com/m-xim/aiogram-webhook/issues"
 Documentation = "https://github.com/m-xim/aiogram-webhook#readme"
 
-[dependency-groups]
+[project.optional-dependencies]
 fastapi = [
     "fastapi>=0.128.0",
 ]
