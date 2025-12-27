@@ -1,0 +1,54 @@
+name: Release & Publish
+
+on: workflow_dispatch
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: ${{ github.workflow }}-release-${{ github.ref_name }}
+      cancel-in-progress: true
+
+    permissions:
+      id-token: write
+      contents: write
+
+    steps:
+      - name: 🛎️ Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - name: 🏷️ Semantic Version Release
+        id: release
+        uses: python-semantic-release/python-semantic-release@v10.5.3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          git_committer_name: "github-actions"
+          git_committer_email: "actions@users.noreply.github.com"
+
+      - name: 🐍 Setup uv & venv
+        if: steps.release.outputs.released == 'true'
+        uses: astral-sh/setup-uv@v5
+
+      - name: 📦 Update uv.lock
+        if: steps.release.outputs.released == 'true'
+        run: uv lock
+
+      - name: 🏗️ Build package (sdist & wheel)
+        if: steps.release.outputs.released == 'true'
+        run: uv build --no-sources
+
+      - name: 🚀 Publish | Upload to GitHub Release Assets
+        if: steps.release.outputs.released == 'true'
+        uses: python-semantic-release/publish-action@v10.5.3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ steps.release.outputs.tag }}
+
+      - name: 🐍 Publish to PyPI
+        if: steps.release.outputs.released == 'true'
+        env:
+          UV_PUBLISH_TOKEN: ${{ secrets.PYPI_TOKEN }}
+        run: uv publish

@@ -1,0 +1,116 @@
+[project]
+name = "aiogram-webhook"
+version = "0.0.1"
+description = "A python library for integrating webhook support with multiple web frameworks in aiogram. Organizes bot operation via webhooks for both single and multi-bot setups."
+readme = "README.md"
+license = { text = "MIT" }
+authors = [
+    { name = "m-xim", email = "i@m-xim.ru" },
+]
+requires-python = ">=3.10"
+packages = [{ include = "aiogram_webhook" }]
+dependencies = [
+    "aiogram>=3.23.0",
+    "yarl>=1.22.0",
+]
+
+keywords = [
+    "aiogram",
+    "telegram",
+    "webhook",
+    "fastapi",
+    "multibot",
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Libraries",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+Homepage = "https://github.com/m-xim/aiogram-webhook"
+Repository = "https://github.com/m-xim/aiogram-webhook"
+Issues = "https://github.com/m-xim/aiogram-webhook/issues"
+Documentation = "https://github.com/m-xim/aiogram-webhook#readme"
+
+[dependency-groups]
+fastapi = [
+    "fastapi>=0.128.0",
+]
+dev = [
+    "ruff",
+    "ty"
+#    "pytest",
+]
+#aiohttp = [
+#    "aiohttp>=3.9.0",
+#]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build]
+sources = ["src"]
+
+[tool.semantic_release]
+allow_zero_version = tr
+version_source = "pyproject"
+commit_message = "chore(release): {version}"
+version_toml = [
+    "pyproject.toml:project.version",
+]
+
+[tool.semantic_release.branches.main]
+match = "main"
+
+[tool.semantic_release.branches.dev]
+match = "dev"
+prerelease = true
+
+[tool.ruff]
+line-length = 120
+exclude = [".venv", "__pycache__"]
+
+[tool.ruff.format]
+skip-magic-trailing-comma = false
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+    "D",
+    "ANN",
+    "PLR09",
+    "COM812",
+
+    "ERA001",
+    "T201",
+    "RUF059",
+    "BLE001",
+    "RUF001",
+    "RUF003",
+
+    "TRY003",
+    "EM101",
+
+    "RUF002",
+    "EM102",
+
+    "FBT001",
+    "FBT002",
+    "TD002",
+    "FIX002",
+
+    "TD003",
+    "PLR2004",
+    "N806",
+    "E501",
+    "N815"
+]
+
+[tool.ruff.lint.flake8-tidy-imports]
+ban-relative-imports = "all"
