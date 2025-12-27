@@ -1,6 +1,6 @@
 [project]
 name = "aiogram-webhook"
-version = "0.0.1"
+version = "0.0.2"
 description = "A python library for integrating webhook support with multiple web frameworks in aiogram. Organizes bot operation via webhooks for both single and multi-bot setups."
 readme = "README.md"
 license = { text = "MIT" }
