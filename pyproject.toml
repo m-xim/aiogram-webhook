@@ -43,8 +43,9 @@ fastapi = [
 ]
 dev = [
     "ruff",
-    "ty"
-#    "pytest",
+    "ty",
+    "pytest",
+    "pytest-asyncio"
 ]
 #aiohttp = [
 #    "aiohttp>=3.9.0",

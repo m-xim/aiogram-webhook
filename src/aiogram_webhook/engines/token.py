@@ -86,8 +86,9 @@ class TokenEngine(WebhookEngine):
     async def set_webhook(self, token: str, **kwargs) -> Bot:
         """Sets the webhook for the Bot instance resolved by token."""
         bot = self.resolve_bot(token)
+        secret_token = await self.security.get_secret_token(bot=bot) if self.security else None
 
-        await bot.set_webhook(url=self.routing.webhook_point(bot), secret_token=None, **kwargs)
+        await bot.set_webhook(url=self.routing.webhook_point(bot), secret_token=secret_token, **kwargs)
         return bot
 
     def resolve_bot(self, token: str) -> Bot:

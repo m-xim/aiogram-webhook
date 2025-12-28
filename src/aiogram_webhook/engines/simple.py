@@ -102,5 +102,7 @@ class SimpleEngine(WebhookEngine):
         Returns:
             The Bot instance after setting webhook.
         """
-        await self.bot.set_webhook(url=self.routing.webhook_point(self.bot), secret_token=None, **kwargs)
+        secret_token = await self.security.get_secret_token(bot=self.bot) if self.security else None
+
+        await self.bot.set_webhook(url=self.routing.webhook_point(self.bot), secret_token=secret_token, **kwargs)
         return self.bot
