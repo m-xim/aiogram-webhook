@@ -6,18 +6,20 @@
 [![Release Status](https://github.com/m-xim/aiogram-webhook/actions/workflows/release.yml/badge.svg)](https://github.com/m-xim/aiogram-webhook/actions)
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/m-xim/aiogram-webhook)
 
-**aiogram-webhook** is a Python library for seamless webhook integration with multiple web frameworks in aiogram. It enables both single and multi-bot operation via webhooks, with flexible routing and security features.
+**aiogram-webhook** is a modular Python library for seamless webhook integration with multiple web frameworks in aiogram. It enables both single and multi-bot operation via webhooks, with flexible routing and security features.
 
-<br>
+---
 
 ## ✨ Features
 
 - 🧱 Modular and extensible webhook engine
-- 🔀 Flexible routing (static and token-based)
-- 🤖 Supports single and multi-bot setups
-- ⚡ FastAPI adapters out of the box
-- 🔒 Security best practices: secret tokens, IP checks
-- 🧩 Easy to extend with custom adapters and routing
+- 🔀 Flexible routing (static, tokenized, custom)
+- 🤖 Single-bot and multi-bot support
+- ⚡ Adapters for FastAPI and (coming soon) aiohttp
+- 🔒 Security: secret tokens, IP checks, custom security
+- 🧩 Easily extendable with your own adapters, routing, and security
+
+---
 
 ## 🚀 Installation
 
