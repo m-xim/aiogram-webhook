@@ -7,7 +7,7 @@ class DummyAdapter(WebAdapter):
     def bind(self, request):
         raise NotImplementedError
 
-    def register(self, app, path, handler):
+    def register(self, app, path, handler, on_startup=None, on_shutdown=None):
         raise NotImplementedError
 
 

@@ -79,7 +79,13 @@ class WebhookEngine(ABC):
         return await self._handle_request(bot=bot, bound_request=bound_request)
 
     def register(self, app: Any) -> None:
-        self.web_adapter.register(app=app, path=self.routing.path, handler=self.handle_request)
+        self.web_adapter.register(
+            app=app,
+            path=self.routing.path,
+            handler=self.handle_request,
+            on_startup=self.on_startup,
+            on_shutdown=self.on_shutdown,
+        )
 
     async def _handle_request(self, bot: Bot, bound_request: BoundRequest) -> dict[str, Any]:
         result = await self.dispatcher.feed_webhook_update(bot=bot, update=await bound_request.json())

@@ -63,5 +63,12 @@ class WebAdapter(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def register(self, app: Any, path: str, handler: Callable[[BoundRequest], Awaitable[Any]]) -> None:
+    def register(
+        self,
+        app: Any,
+        path: str,
+        handler: Callable[[BoundRequest], Awaitable[Any]],
+        on_startup: Callable[[], Awaitable[Any]] | None = None,
+        on_shutdown: Callable[[], Awaitable[Any]] | None = None,
+    ) -> None:
         raise NotImplementedError

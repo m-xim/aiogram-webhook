@@ -1,8 +1,7 @@
-from collections.abc import Awaitable, Callable
 from ipaddress import IPv4Address, IPv6Address
 from typing import Any
 
-from fastapi import Request
+from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
 from aiogram_webhook.adapters.base import BoundRequest, WebAdapter
@@ -31,11 +30,11 @@ class FastAPIBoundRequest(BoundRequest):
 
 
 class FastApiWebAdapter(WebAdapter):
-    def bind(self, request: Request) -> BoundRequest:
+    def bind(self, request: Request) -> FastAPIBoundRequest:
         return FastAPIBoundRequest(adapter=self, request=request)
 
-    def register(self, app: Any, path: str, handler: Callable[[BoundRequest], Awaitable[Any]]) -> None:
+    def register(self, app: FastAPI, path, handler, on_startup=None, on_shutdown=None) -> None:  # noqa: ARG002
         async def endpoint(request: Request):
             return await handler(self.bind(request))
 
-        app.add_api_route(path, endpoint, methods=["POST"])
+        app.add_api_route(path=path, endpoint=endpoint, methods=["POST"])

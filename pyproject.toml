@@ -19,6 +19,7 @@ keywords = [
     "telegram",
     "webhook",
     "fastapi",
+    "aiohttp",
     "multibot",
 ]
 classifiers = [
@@ -45,11 +46,9 @@ dev = [
     "ruff",
     "ty",
     "pytest",
-    "pytest-asyncio"
+    "pytest-asyncio",
+    "httpx"
 ]
-#aiohttp = [
-#    "aiohttp>=3.9.0",
-#]
 
 [build-system]
 requires = ["hatchling"]
