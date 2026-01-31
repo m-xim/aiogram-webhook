@@ -42,6 +42,9 @@ Documentation = "https://github.com/m-xim/aiogram-webhook#readme"
 fastapi = [
     "fastapi>=0.128.0",
 ]
+aiohttp = [
+    "aiohttp>=3.9.0",
+]
 dev = [
     "ruff",
     "ty",
