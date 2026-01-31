@@ -64,19 +64,12 @@ class TokenEngine(WebhookEngine):
         """Called on application startup. Emits dispatcher startup event for all bots."""
         all_bots = set(bots) | set(self._bots.values()) if bots else set(self._bots.values())
 
-        await self.dispatcher.emit_startup(
-            dispatcher=self.dispatcher,
-            bots=all_bots,
-            webhook_engine=self,
-            **kwargs,
-        )
+        await self.dispatcher.emit_startup(dispatcher=self.dispatcher, bots=all_bots, webhook_engine=self, **kwargs)
 
     async def on_shutdown(self) -> None:
         """Called on application shutdown. Emits dispatcher shutdown event and closes all bot sessions."""
         await self.dispatcher.emit_shutdown(
-            dispatcher=self.dispatcher,
-            bots=set(self._bots.values()),
-            webhook_engine=self,
+            dispatcher=self.dispatcher, bots=set(self._bots.values()), webhook_engine=self
         )
 
         for bot in self._bots.values():

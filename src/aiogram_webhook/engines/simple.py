@@ -75,22 +75,13 @@ class SimpleEngine(WebhookEngine):
             **kwargs: Additional keyword arguments for dispatcher.
         """
         all_bots = set(bots) | {self.bot} if bots else {self.bot}
-        await self.dispatcher.emit_startup(
-            dispatcher=self.dispatcher,
-            bots=all_bots,
-            webhook_engine=self,
-            **kwargs,
-        )
+        await self.dispatcher.emit_startup(dispatcher=self.dispatcher, bots=all_bots, webhook_engine=self, **kwargs)
 
     async def on_shutdown(self) -> None:
         """
         Called on application shutdown. Emits dispatcher shutdown event and closes bot session.
         """
-        await self.dispatcher.emit_shutdown(
-            dispatcher=self.dispatcher,
-            bots={self.bot},
-            webhook_engine=self,
-        )
+        await self.dispatcher.emit_shutdown(dispatcher=self.dispatcher, bots={self.bot}, webhook_engine=self)
         await self.bot.session.close()
 
     async def set_webhook(self, **kwargs) -> Bot:
