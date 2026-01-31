@@ -10,8 +10,8 @@ authors = [
 requires-python = ">=3.10"
 packages = [{ include = "aiogram_webhook" }]
 dependencies = [
-    "aiogram>=3.23.0",
-    "yarl>=1.22.0",
+    "aiogram>=3.14.0",
+    "yarl>=1.17.0",
 ]
 
 keywords = [
