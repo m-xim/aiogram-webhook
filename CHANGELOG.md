@@ -2,6 +2,25 @@
 
 <!-- version list -->
 
+## v0.2.0 (2026-01-31)
+
+### Chores
+
+- **pyproject**: Relax aiogram and yarl version requirements
+  ([`b8eb941`](https://github.com/m-xim/aiogram-webhook/commit/b8eb9415bd154672b11a65183c42177087cc1618))
+
+### Code Style
+
+- **simple, token**: Condense dispatcher event calls to single lines
+  ([`55e997b`](https://github.com/m-xim/aiogram-webhook/commit/55e997b95564bfc76ffca43a92d2aab5481a3782))
+
+### Features
+
+- **aiohttp, docs**: Add aiohttp optional dependency, update adapter import, and expand README with
+  aiohttp usage and engine details
+  ([`fbd7247`](https://github.com/m-xim/aiogram-webhook/commit/fbd72478d64df8171107222ced7c087c59875ae8))
+
+
 ## v0.1.0 (2026-01-15)
 
 ### Chores
