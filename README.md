@@ -80,7 +80,7 @@ app = FastAPI(lifespan=lifespan)
 from aiogram import Bot, Dispatcher, Router
 from aiogram.filters import CommandStart
 from aiogram.types import Message
-from aiogram_webhook import SimpleEngine, FastApiWebAdapter
+from aiogram_webhook import SimpleEngine, AiohttpWebAdapter
 from aiogram_webhook.routing import PathRouting
 from aiohttp import web
 
@@ -97,7 +97,7 @@ bot = Bot("BOT_TOKEN")
 engine = SimpleEngine( # or other engine
     dispatcher,
     bot,
-    web_adapter=FastApiWebAdapter(),
+    web_adapter=AiohttpWebAdapter(),
     routing=PathRouting(url="/webhook"),
     # security=Security(...)
 )
