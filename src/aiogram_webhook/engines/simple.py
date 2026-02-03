@@ -20,9 +20,6 @@ class SimpleEngine(WebhookEngine):
 
     Uses a single Bot instance for all webhook requests.
     Ideal for applications that handle only one bot.
-
-    Attributes:
-        bot: The Bot instance to use for all requests.
     """
 
     def __init__(
@@ -36,7 +33,7 @@ class SimpleEngine(WebhookEngine):
         handle_in_background: bool = True,
     ) -> None:
         """
-        Initialize the SimpleEngine for one bot.
+        Initialize the SimpleEngine for a single bot.
 
         Args:
             dispatcher: Dispatcher instance for update processing.

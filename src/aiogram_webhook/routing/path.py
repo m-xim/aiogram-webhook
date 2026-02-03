@@ -1,28 +1,13 @@
-from aiogram import Bot
-
-from aiogram_webhook.adapters.base import BoundRequest
-from aiogram_webhook.routing.base import BaseRouting
+from aiogram_webhook.routing.base import TokenRouting
 
 
-class PathRouting(BaseRouting):
+class PathRouting(TokenRouting):
     """
-    URL path-based routing strategy.
+    Routing strategy based on the URL path parameter.
 
-    Extracts bot token from URL path parameters.
-    Example: /webhook/{token} -> extracts token from path.
+    Extracts the bot token from a path parameter in the URL.
+    Example: /webhook/{token} will extract the token from the path segment.
     """
 
-    def __init__(self, url: str, param: str | None = None) -> None:
-        super().__init__(url=url)
-        self.param = param
-
-    def webhook_point(self, bot: Bot) -> str:
-        url = self.url.human_repr()
-        if self.param is None:
-            return url
-        return url.format_map({self.param: bot.token})
-
-    def extract_key(self, bound_request: BoundRequest) -> str | None:
-        if self.param is None:
-            return None
+    def extract_token(self, bound_request) -> str | None:
         return bound_request.path_param(self.param)

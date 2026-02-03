@@ -11,7 +11,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
 
     from aiogram_webhook.adapters.base import BoundRequest, WebAdapter
-    from aiogram_webhook.routing.base import BaseRouting
+    from aiogram_webhook.routing.base import TokenRouting
     from aiogram_webhook.security.security import Security
 
 
@@ -28,7 +28,7 @@ class TokenEngine(WebhookEngine):
         dispatcher: Dispatcher,
         /,
         web_adapter: WebAdapter,
-        routing: BaseRouting,
+        routing: TokenRouting,
         security: Security | bool | None = None,
         bot_settings: dict[str, Any] | None = None,
         handle_in_background: bool = True,
@@ -51,17 +51,32 @@ class TokenEngine(WebhookEngine):
             security=security,
             handle_in_background=handle_in_background,
         )
+        self.routing: TokenRouting = routing  # for type checker
         self.bot_settings = bot_settings
         self._bots: dict[int, Bot] = {}
 
     def resolve_bot_from_request(self, bound_request: BoundRequest) -> Bot | None:
-        token = self.routing.extract_key(bound_request)
+        """
+        Resolve a Bot instance from the incoming request using the token.
+
+        Args:
+            bound_request: The incoming bound request.
+        Returns:
+            The resolved Bot instance or None if not found.
+        """
+        token = self.routing.extract_token(bound_request)
         if not token:
             return None
         return self.resolve_bot(token)
 
     async def on_startup(self, bots: Iterable[Bot] | None = None, **kwargs: Any) -> None:
-        """Called on application startup. Emits dispatcher startup event for all bots."""
+        """
+        Called on application startup. Emits dispatcher startup event for all bots.
+
+        Args:
+            bots: Optional iterable of Bot instances.
+            **kwargs: Additional keyword arguments for dispatcher.
+        """
         all_bots = set(bots) | set(self._bots.values()) if bots else set(self._bots.values())
 
         await self.dispatcher.emit_startup(dispatcher=self.dispatcher, bots=all_bots, webhook_engine=self, **kwargs)
@@ -77,7 +92,15 @@ class TokenEngine(WebhookEngine):
         # self._bots.clear()
 
     async def set_webhook(self, token: str, **kwargs) -> Bot:
-        """Sets the webhook for the Bot instance resolved by token."""
+        """
+        Set the webhook for the Bot instance resolved by token.
+
+        Args:
+            token: The bot token.
+            **kwargs: Additional arguments for set_webhook.
+        Returns:
+            The Bot instance after setting webhook.
+        """
         bot = self.resolve_bot(token)
         secret_token = await self.security.get_secret_token(bot=bot) if self.security else None
 
@@ -85,7 +108,14 @@ class TokenEngine(WebhookEngine):
         return bot
 
     def resolve_bot(self, token: str) -> Bot:
-        """Resolve or create a Bot instance by token and cache it."""
+        """
+        Resolve or create a Bot instance by token and cache it.
+
+        Args:
+            token: The bot token.
+        Returns:
+            The resolved Bot instance.
+        """
         bot = self._bots.get(extract_bot_id(token))
         if not bot:
             bot = Bot(token=token, **(self.bot_settings or {}))
