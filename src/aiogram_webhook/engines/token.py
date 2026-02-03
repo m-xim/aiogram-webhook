@@ -69,6 +69,37 @@ class TokenEngine(WebhookEngine):
             return None
         return self.resolve_bot(token)
 
+    def resolve_bot(self, token: str) -> Bot:
+        """
+        Resolve or create a Bot instance by token and cache it.
+
+        Args:
+            token: The bot token.
+        Returns:
+            The resolved Bot instance.
+        """
+        bot = self._bots.get(extract_bot_id(token))
+        if not bot:
+            bot = Bot(token=token, **(self.bot_settings or {}))
+            self._bots[bot.id] = bot
+        return bot
+
+    async def set_webhook(self, token: str, **kwargs) -> Bot:
+        """
+        Set the webhook for the Bot instance resolved by token.
+
+        Args:
+            token: The bot token.
+            **kwargs: Additional arguments for set_webhook.
+        Returns:
+            The Bot instance after setting webhook.
+        """
+        bot = self.resolve_bot(token)
+        secret_token = await self.security.get_secret_token(bot=bot) if self.security else None
+
+        await bot.set_webhook(url=self.routing.webhook_point(bot), secret_token=secret_token, **kwargs)
+        return bot
+
     async def on_startup(self, bots: Iterable[Bot] | None = None, **kwargs: Any) -> None:
         """
         Called on application startup. Emits dispatcher startup event for all bots.
@@ -90,34 +121,3 @@ class TokenEngine(WebhookEngine):
         for bot in self._bots.values():
             await bot.session.close()
         # self._bots.clear()
-
-    async def set_webhook(self, token: str, **kwargs) -> Bot:
-        """
-        Set the webhook for the Bot instance resolved by token.
-
-        Args:
-            token: The bot token.
-            **kwargs: Additional arguments for set_webhook.
-        Returns:
-            The Bot instance after setting webhook.
-        """
-        bot = self.resolve_bot(token)
-        secret_token = await self.security.get_secret_token(bot=bot) if self.security else None
-
-        await bot.set_webhook(url=self.routing.webhook_point(bot), secret_token=secret_token, **kwargs)
-        return bot
-
-    def resolve_bot(self, token: str) -> Bot:
-        """
-        Resolve or create a Bot instance by token and cache it.
-
-        Args:
-            token: The bot token.
-        Returns:
-            The resolved Bot instance.
-        """
-        bot = self._bots.get(extract_bot_id(token))
-        if not bot:
-            bot = Bot(token=token, **(self.bot_settings or {}))
-            self._bots[bot.id] = bot
-        return bot

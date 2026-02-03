@@ -63,6 +63,20 @@ class SimpleEngine(WebhookEngine):
         """
         return self.bot
 
+    async def set_webhook(self, **kwargs) -> Bot:
+        """
+        Sets the webhook for the single Bot instance.
+
+        Args:
+            **kwargs: Additional arguments for set_webhook.
+        Returns:
+            The Bot instance after setting webhook.
+        """
+        secret_token = await self.security.get_secret_token(bot=self.bot) if self.security else None
+
+        await self.bot.set_webhook(url=self.routing.webhook_point(self.bot), secret_token=secret_token, **kwargs)
+        return self.bot
+
     async def on_startup(self, bots: Iterable[Bot] | None = None, **kwargs: Any) -> None:
         """
         Called on application startup. Emits dispatcher startup event for all bots.
@@ -80,17 +94,3 @@ class SimpleEngine(WebhookEngine):
         """
         await self.dispatcher.emit_shutdown(dispatcher=self.dispatcher, bots={self.bot}, webhook_engine=self)
         await self.bot.session.close()
-
-    async def set_webhook(self, **kwargs) -> Bot:
-        """
-        Sets the webhook for the single Bot instance.
-
-        Args:
-            **kwargs: Additional arguments for set_webhook.
-        Returns:
-            The Bot instance after setting webhook.
-        """
-        secret_token = await self.security.get_secret_token(bot=self.bot) if self.security else None
-
-        await self.bot.set_webhook(url=self.routing.webhook_point(self.bot), secret_token=secret_token, **kwargs)
-        return self.bot

@@ -56,6 +56,10 @@ class WebhookEngine(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    async def set_webhook(self, *args, **kwargs):
+        raise NotImplementedError
+
+    @abstractmethod
     async def on_startup(self, bots: Iterable[Bot] | None = None, **kwargs: Any) -> None:
         raise NotImplementedError
 
@@ -107,10 +111,7 @@ class WebhookEngine(ABC):
 
     async def _handle_request_background(self, bot: Bot, bound_request: BoundRequest):
         feed_update_task = asyncio.create_task(
-            self._background_feed_update(
-                bot=bot,
-                update=await bound_request.json(),
-            ),
+            self._background_feed_update(bot=bot, update=await bound_request.json()),
         )
         self._background_feed_update_tasks.add(feed_update_task)
         feed_update_task.add_done_callback(self._background_feed_update_tasks.discard)
