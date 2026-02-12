@@ -41,7 +41,7 @@ from aiogram import Bot, Dispatcher, Router
 from aiogram.filters import CommandStart
 from aiogram.types import Message
 from aiogram_webhook import SimpleEngine, FastApiWebAdapter
-from aiogram_webhook.routing import PathRouting
+from aiogram_webhook.routing import StaticRouting
 
 router = Router()
 
@@ -57,7 +57,7 @@ engine = SimpleEngine( # or other engine
     dispatcher,
     bot,
     web_adapter=FastApiWebAdapter(),
-    routing=PathRouting(url="/webhook"),
+    routing=StaticRouting(url="/webhook"),
     # security=Security(...)
 )
 
@@ -81,7 +81,7 @@ from aiogram import Bot, Dispatcher, Router
 from aiogram.filters import CommandStart
 from aiogram.types import Message
 from aiogram_webhook import SimpleEngine, AiohttpWebAdapter
-from aiogram_webhook.routing import PathRouting
+from aiogram_webhook.routing import StaticRouting
 from aiohttp import web
 
 router = Router()
@@ -98,7 +98,7 @@ engine = SimpleEngine( # or other engine
     dispatcher,
     bot,
     web_adapter=AiohttpWebAdapter(),
-    routing=PathRouting(url="/webhook"),
+    routing=StaticRouting(url="/webhook"),
     # security=Security(...)
 )
 app = web.Application()
@@ -123,7 +123,7 @@ Used for serving a single Telegram bot. Suitable for most standard scenarios whe
 ```python
 from aiogram import Bot, Dispatcher
 from aiogram_webhook import SimpleEngine, FastApiWebAdapter
-from aiogram_webhook.routing import PathRouting
+from aiogram_webhook.routing import StaticRouting
 
 bot = Bot("BOT_TOKEN")
 dispatcher = Dispatcher()
@@ -131,7 +131,7 @@ engine = SimpleEngine(
     dispatcher,
     bot,
     web_adapter=FastApiWebAdapter(),
-    routing=PathRouting(url="/webhook"),
+    routing=StaticRouting(url="/webhook"),
     # security=Security(...)
 )
 ```
@@ -199,9 +199,55 @@ Adapters connect the engine to your web framework.
 
 ## 🛣️ Routing
 
-- **PathRouting** — static path or path with parameter (e.g. `/webhook/{bot_token}`)
-- **QueryRouting** — via query parameters (e.g. `/webhook?bot_token={bot_token}`)
-- **CustomRouting** — implement your own routing logic (see [routing examples](/src/aiogram_webhook/routing))
+aiogram-webhook provides several routing strategies to determine webhook URLs and extract bot tokens from requests:
+
+### BaseRouting (Abstract)
+Base class for all routing strategies. Defines the webhook URL template and provides the interface for extracting information from requests.
+
+### StaticRouting (Single-bot)
+Used with **SimpleEngine** for static webhook URLs without token extraction.
+- Returns the webhook URL as-is
+- No parameter extraction needed
+- Example: `/webhook`
+
+```python
+from aiogram_webhook.routing import StaticRouting
+
+routing = StaticRouting(url="/webhook")
+```
+
+### TokenRouting (Multi-bot, Abstract)
+Base class for token-based routing strategies. Used with **TokenEngine** to serve multiple bots.
+- Requires a URL template with a parameter placeholder (e.g. `{bot_token}`)
+- Extracts bot token from incoming requests
+- Automatically formats webhook URL using the bot token
+
+### PathRouting (Multi-bot)
+Extracts bot token from the URL path parameter.
+- Parameter is read from the path segment
+- Example: `/webhook/{bot_token}` → token extracted from path
+
+```python
+from aiogram_webhook.routing import PathRouting
+
+routing = PathRouting(url="/webhook/{bot_token}", param="bot_token")
+```
+
+### QueryRouting (Multi-bot)
+Extracts bot token from URL query parameters.
+- Parameter is read from the query string
+- Example: `/webhook?bot_token=123:ABC` → token extracted from query
+
+```python
+from aiogram_webhook.routing import QueryRouting
+
+routing = QueryRouting(url="/webhook", param="bot_token")
+```
+
+### Custom Routing
+You can implement your own routing by inheriting from `BaseRouting` or `TokenRouting` and implementing the `webhook_point()` method (and `extract_token()` if using token-based routing).
+
+See [routing examples](/src/aiogram_webhook/routing) for implementation details.
 
 ---
 
