@@ -61,7 +61,6 @@ build-backend = "hatchling.build"
 sources = ["src"]
 
 [tool.semantic_release]
-allow_zero_version = true
 version_source = "pyproject"
 commit_message = "chore(release): {version}"
 version_toml = [
