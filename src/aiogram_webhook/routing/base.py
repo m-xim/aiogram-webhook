@@ -36,7 +36,7 @@ class TokenRouting(BaseRouting, ABC):
         super().__init__(url)
         self.param = param
 
-        if self.param not in self._url_str:
+        if f"{{{self.param}}}" not in self._url_str:
             raise KeyError(f"Parameter '{self.param}' not found in url template: {self._url_str}")
 
     def webhook_point(self, bot: Bot) -> str:
