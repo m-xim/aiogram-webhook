@@ -52,7 +52,7 @@ class WebhookEngine(ABC):
         self._background_feed_update_tasks: set[asyncio.Task[Any]] = set()
 
     @abstractmethod
-    def resolve_bot_from_request(self, bound_request: BoundRequest) -> Bot | None:
+    def _get_bot_from_request(self, bound_request: BoundRequest) -> Bot | None:
         raise NotImplementedError
 
     @abstractmethod
@@ -68,7 +68,7 @@ class WebhookEngine(ABC):
         raise NotImplementedError
 
     async def handle_request(self, bound_request: BoundRequest):
-        bot = self.resolve_bot_from_request(bound_request)
+        bot = self._get_bot_from_request(bound_request)
         if bot is None:
             return bound_request.json_response(status=400, payload={"detail": "Bot not found"})
 

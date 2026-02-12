@@ -55,7 +55,7 @@ class TokenEngine(WebhookEngine):
         self.bot_settings = bot_settings
         self._bots: dict[int, Bot] = {}
 
-    def resolve_bot_from_request(self, bound_request: BoundRequest) -> Bot | None:
+    def _get_bot_from_request(self, bound_request: BoundRequest) -> Bot | None:
         """
         Resolve a Bot instance from the incoming request using the token.
 
@@ -67,9 +67,9 @@ class TokenEngine(WebhookEngine):
         token = self.routing.extract_token(bound_request)
         if not token:
             return None
-        return self.resolve_bot(token)
+        return self.get_bot(token)
 
-    def resolve_bot(self, token: str) -> Bot:
+    def get_bot(self, token: str) -> Bot:
         """
         Resolve or create a Bot instance by token and cache it.
 
@@ -94,7 +94,7 @@ class TokenEngine(WebhookEngine):
         Returns:
             The Bot instance after setting webhook.
         """
-        bot = self.resolve_bot(token)
+        bot = self.get_bot(token)
         secret_token = await self.security.get_secret_token(bot=bot) if self.security else None
 
         await bot.set_webhook(url=self.routing.webhook_point(bot), secret_token=secret_token, **kwargs)
