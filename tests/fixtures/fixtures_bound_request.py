@@ -10,12 +10,13 @@ class DummyAdapter(WebAdapter):
 
 
 class DummyBoundRequest(BoundRequest):
-    def __init__(self, path_params=None, query_params=None, secret_token=None, ip=None):
+    def __init__(self, path_params=None, query_params=None, secret_token=None, ip=None, headers=None):
         super().__init__(request=None, adapter=DummyAdapter())
         self._path_params = path_params or {}
         self._query_params = query_params or {}
         self._secret_token = secret_token
         self._ip = ip
+        self._headers = headers or {}
 
     async def json(self):
         return {}
@@ -23,7 +24,7 @@ class DummyBoundRequest(BoundRequest):
     def header(self, name):
         if name == self.adapter.secret_header:
             return self._secret_token
-        return None
+        return self._headers.get(name)
 
     def query_param(self, name):
         return self._query_params.get(name)
@@ -31,7 +32,7 @@ class DummyBoundRequest(BoundRequest):
     def path_param(self, name):
         return self._path_params.get(name)
 
-    def ip(self):
+    def _get_direct_ip(self):
         return self._ip
 
     def json_response(self, status, payload):
