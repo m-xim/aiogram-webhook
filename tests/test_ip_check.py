@@ -141,3 +141,80 @@ async def test_ip_check_verify_ipaddress_objects(ip_object, request_ip, expected
     ip_check = IPCheck(ip_object, include_default=False)
     req = DummyBoundRequest(ip=request_ip)
     assert await ip_check.verify(bot, req) is expected
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    ("allowed_ip", "forwarded_for", "expected"),
+    [
+        # Single X-Forwarded-For value
+        ("8.8.8.8", "8.8.8.8", True),
+        ("8.8.8.8", "1.2.3.4", False),
+        # Multiple X-Forwarded-For values (should use left-most)
+        ("8.8.8.8", "8.8.8.8, 1.1.1.1, 2.2.2.2", True),
+        ("1.1.1.1", "8.8.8.8, 1.1.1.1, 2.2.2.2", False),  # left-most is 8.8.8.8
+        # X-Forwarded-For with network
+        ("192.168.1.0/24", "192.168.1.100, 1.1.1.1", True),
+        ("192.168.1.0/24", "192.168.2.100, 1.1.1.1", False),
+        # X-Forwarded-For with IPv6
+        ("2001:4860:4860::8888", "2001:4860:4860::8888, ::1", True),
+        ("2001:4860:4860::8888", "2001:4860:4860::1, ::1", False),
+        # X-Forwarded-For with whitespace
+        ("8.8.8.8", " 8.8.8.8 , 1.1.1.1 ", True),
+    ],
+    ids=[
+        "single-forwarded-match",
+        "single-forwarded-mismatch",
+        "multiple-forwarded-left-most-match",
+        "multiple-forwarded-left-most-mismatch",
+        "network-forwarded-match",
+        "network-forwarded-mismatch",
+        "ipv6-forwarded-match",
+        "ipv6-forwarded-mismatch",
+        "whitespace-forwarded-match",
+    ],
+)
+async def test_ip_check_verify_x_forwarded_for(allowed_ip, forwarded_for, expected, bot, localhost_ip):
+    ip_check = IPCheck(allowed_ip, include_default=False)
+    req = DummyBoundRequest(ip=localhost_ip, headers={"X-Forwarded-For": forwarded_for})
+    assert await ip_check.verify(bot, req) is expected
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    ("allowed_ip", "forwarded_for", "expected"),
+    [
+        ("8.8.8.8", "8.8.8.8", True),  # X-Forwarded-For is used, matches
+        ("127.0.0.1", "8.8.8.8", False),  # X-Forwarded-For is used (8.8.8.8), doesn't match 127.0.0.1
+        ("192.168.1.0/24", "192.168.1.100", True),  # X-Forwarded-For is used, matches network
+    ],
+    ids=[
+        "x-forwarded-used-matches",
+        "x-forwarded-used-no-match",
+        "x-forwarded-used-network-match",
+    ],
+)
+async def test_ip_check_x_forwarded_for_not_trusted_by_default(allowed_ip, forwarded_for, expected, bot, localhost_ip):
+    ip_check = IPCheck(allowed_ip, include_default=False)
+    req = DummyBoundRequest(ip=localhost_ip, headers={"X-Forwarded-For": forwarded_for})
+    assert await ip_check.verify(bot, req) is expected
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    ("allowed_ip", "forwarded_for", "expected"),
+    [
+        ("8.8.8.8", "8.8.8.8", True),
+        ("8.8.8.8", "1.1.1.1", False),
+        ("192.168.1.0/24", "192.168.1.100", True),
+    ],
+    ids=[
+        "x-forwarded-trusted-match",
+        "x-forwarded-trusted-mismatch",
+        "x-forwarded-trusted-network",
+    ],
+)
+async def test_ip_check_x_forwarded_for_trusted_when_enabled(allowed_ip, forwarded_for, expected, bot, localhost_ip):
+    ip_check = IPCheck(allowed_ip, include_default=False)
+    req = DummyBoundRequest(ip=localhost_ip, headers={"X-Forwarded-For": forwarded_for})
+    assert await ip_check.verify(bot, req) is expected
