@@ -119,5 +119,12 @@ ignore = [
 ban-relative-imports = "all"
 
 [tool.ruff.lint.per-file-ignores]
-"tests/**/*" = ["PLR2004", "S101", "TID252", "S106", "S105"]
+"tests/**/*" = [
+    "PLR2004",
+    "S101",
+    "TID252",
+    "S106",
+    "S105",
+    "ARG002"
+]
 
