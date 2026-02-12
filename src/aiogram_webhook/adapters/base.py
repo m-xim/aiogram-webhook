@@ -49,7 +49,7 @@ class BoundRequest(ABC):
     def path_param(self, name: str) -> Any | None:
         raise NotImplementedError
 
-    def ip(self) -> IPv4Address | IPv6Address | None:
+    def ip(self) -> IPv4Address | IPv6Address | str | None:
         """Get client IP, first trying X-Forwarded-For header, then direct connection."""
         # Try to resolve client IP over reverse proxy
         if forwarded_for := self._extract_ip_from_x_forwarded_for():
