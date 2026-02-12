@@ -226,22 +226,32 @@ Base class for token-based routing strategies. Used with **TokenEngine** to serv
 Extracts bot token from the URL path parameter.
 - Parameter is read from the path segment
 - Example: `/webhook/{bot_token}` → token extracted from path
+- Default parameter name: `"bot_token"`
 
 ```python
 from aiogram_webhook.routing import PathRouting
 
-routing = PathRouting(url="/webhook/{bot_token}", param="bot_token")
+# Using default parameter name "token"
+routing = PathRouting(url="/webhook/{bot_token}")
+
+# Or with custom parameter name
+routing = PathRouting(url="/webhook/{token}", param="token")
 ```
 
 ### QueryRouting (Multi-bot)
 Extracts bot token from URL query parameters.
 - Parameter is read from the query string
-- Example: `/webhook?bot_token=123:ABC` → token extracted from query
+- Example: `/webhook?token=123:ABC` → token extracted from query
+- Default parameter name: `"bot_token"`
 
 ```python
 from aiogram_webhook.routing import QueryRouting
 
-routing = QueryRouting(url="/webhook", param="bot_token")
+# Using default parameter name "token"
+routing = QueryRouting(url="/webhook")
+
+# Or with custom parameter name
+routing = QueryRouting(url="/webhook", param="token")
 ```
 
 ### Custom Routing

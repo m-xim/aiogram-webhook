@@ -8,4 +8,4 @@ class StaticRouting(BaseRouting):
         super().__init__(url=url)
 
     def webhook_point(self, bot) -> str:  # noqa: ARG002
-        return self.url.human_repr()
+        return self._url_str

@@ -21,6 +21,7 @@ class BaseRouting(ABC):
         self.url = URL(url)
         self.base = self.url.origin()
         self.path = self.url.path
+        self._url_str = self.url.human_repr()
 
     @abstractmethod
     def webhook_point(self, bot: Bot) -> str:
@@ -31,17 +32,15 @@ class BaseRouting(ABC):
 class TokenRouting(BaseRouting, ABC):
     """Routing by token parameter."""
 
-    def __init__(self, url: str, param: str) -> None:
+    def __init__(self, url: str, param: str = "bot_token") -> None:
         super().__init__(url)
         self.param = param
 
-        url_str = self.url.human_repr()
-        if self.param not in url_str:
-            raise KeyError(f"Parameter '{self.param}' not found in url template: {url_str}")
+        if self.param not in self._url_str:
+            raise KeyError(f"Parameter '{self.param}' not found in url template: {self._url_str}")
 
     def webhook_point(self, bot: Bot) -> str:
-        url = self.url.human_repr()
-        return url.format_map({self.param: bot.token})
+        return self._url_str.format_map({self.param: bot.token})
 
     @abstractmethod
     def extract_token(self, bound_request: BoundRequest) -> str | None:
