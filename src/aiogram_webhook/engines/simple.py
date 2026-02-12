@@ -5,8 +5,6 @@ from typing import TYPE_CHECKING, Any
 from aiogram_webhook.engines.base import WebhookEngine
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
-
     from aiogram import Bot, Dispatcher
 
     from aiogram_webhook.adapters.base import BoundRequest, WebAdapter
@@ -63,6 +61,18 @@ class SimpleEngine(WebhookEngine):
         """
         return self.bot
 
+    async def on_startup(self, **kwargs: Any) -> None:
+        """
+        Called on application startup. Emits dispatcher startup event.
+
+        SimpleEngine ignores the bots parameter since it's single-bot only.
+
+        Args:
+            **kwargs: Additional keyword arguments for dispatcher.
+        """
+        workflow_data = self._build_workflow_data(bot=self.bot, **kwargs)
+        await self.dispatcher.emit_startup(**workflow_data)
+
     async def set_webhook(self, **kwargs) -> Bot:
         """
         Sets the webhook for the single Bot instance.
@@ -77,20 +87,10 @@ class SimpleEngine(WebhookEngine):
         await self.bot.set_webhook(url=self.routing.webhook_point(self.bot), secret_token=secret_token, **kwargs)
         return self.bot
 
-    async def on_startup(self, bots: Iterable[Bot] | None = None, **kwargs: Any) -> None:
-        """
-        Called on application startup. Emits dispatcher startup event for all bots.
-
-        Args:
-            bots: Optional iterable of Bot instances.
-            **kwargs: Additional keyword arguments for dispatcher.
-        """
-        all_bots = set(bots) | {self.bot} if bots else {self.bot}
-        await self.dispatcher.emit_startup(dispatcher=self.dispatcher, bots=all_bots, webhook_engine=self, **kwargs)
-
-    async def on_shutdown(self) -> None:
+    async def on_shutdown(self, **kwargs) -> None:
         """
         Called on application shutdown. Emits dispatcher shutdown event and closes bot session.
         """
-        await self.dispatcher.emit_shutdown(dispatcher=self.dispatcher, bots={self.bot}, webhook_engine=self)
+        workflow_data = self._build_workflow_data(bot=self.bot, **kwargs)
+        await self.dispatcher.emit_shutdown(**workflow_data)
         await self.bot.session.close()

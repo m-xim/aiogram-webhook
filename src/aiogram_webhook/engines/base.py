@@ -1,6 +1,5 @@
 import asyncio
 from abc import ABC, abstractmethod
-from collections.abc import Iterable
 from typing import TYPE_CHECKING, Any
 
 from aiogram import Bot, Dispatcher
@@ -56,16 +55,25 @@ class WebhookEngine(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    async def set_webhook(self, *args, **kwargs):
+    async def set_webhook(self, *args, **kwargs) -> Bot:
         raise NotImplementedError
 
     @abstractmethod
-    async def on_startup(self, bots: Iterable[Bot] | None = None, **kwargs: Any) -> None:
+    async def on_startup(self, **kwargs: Any) -> None:
         raise NotImplementedError
 
     @abstractmethod
-    async def on_shutdown(self) -> None:
+    async def on_shutdown(self, **kwargs: Any) -> None:
         raise NotImplementedError
+
+    def _build_workflow_data(self, **kwargs: Any) -> dict[str, Any]:
+        """Build workflow data for startup/shutdown events."""
+        return {
+            "dispatcher": self.dispatcher,
+            "webhook_engine": self,
+            **self.dispatcher.workflow_data,
+            **kwargs,
+        }
 
     async def handle_request(self, bound_request: BoundRequest):
         bot = self._get_bot_from_request(bound_request)
