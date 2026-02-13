@@ -22,7 +22,7 @@ class FastAPIBoundRequest(BoundRequest):
     def path_param(self, name: str) -> Any | None:
         return self.request.path_params.get(name)
 
-    def _get_direct_ip(self) -> IPv4Address | IPv6Address | str | None:
+    def ip(self) -> IPv4Address | IPv6Address | str | None:
         # When reverse proxy is not configured IP address can be resolved from incoming connection
         if self.request.client:
             return self.request.client.host

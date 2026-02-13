@@ -32,7 +32,7 @@ class DummyBoundRequest(BoundRequest):
     def path_param(self, name):
         return self._path_params.get(name)
 
-    def _get_direct_ip(self):
+    def ip(self):
         return self._ip
 
     def json_response(self, status, payload):

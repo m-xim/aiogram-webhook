@@ -26,8 +26,7 @@ class AiohttpBoundRequest(BoundRequest):
     def path_param(self, name: str) -> Any | None:
         return self.request.match_info.get(name)
 
-    def _get_direct_ip(self) -> IPv4Address | IPv6Address | str | None:
-        # When reverse proxy is not configured IP address can be resolved from incoming connection
+    def ip(self) -> IPv4Address | IPv6Address | str | None:
         if peer_name := cast("Transport", self.request.transport).get_extra_info("peername"):
             return peer_name[0]
 

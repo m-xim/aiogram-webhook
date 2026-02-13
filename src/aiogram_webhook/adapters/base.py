@@ -20,19 +20,6 @@ class BoundRequest(ABC):
     request: Any
     adapter: WebAdapter
 
-    def _extract_ip_from_x_forwarded_for(self) -> IPv4Address | IPv6Address | str | None:
-        """
-        Extract client IP from X-Forwarded-For header.
-
-        Request got through multiple proxy/load balancers
-        https://github.com/aiogram/aiogram/issues/672
-        """
-        header_value = self.header("X-Forwarded-For")
-        if not header_value:
-            return None
-        forwarded_for, *_ = header_value.split(",", maxsplit=1)
-        return forwarded_for.strip()
-
     @abstractmethod
     async def json(self) -> dict[str, Any]:
         raise NotImplementedError
@@ -49,17 +36,8 @@ class BoundRequest(ABC):
     def path_param(self, name: str) -> Any | None:
         raise NotImplementedError
 
-    def ip(self) -> IPv4Address | IPv6Address | str | None:
-        """Get client IP, first trying X-Forwarded-For header, then direct connection."""
-        # Try to resolve client IP over reverse proxy
-        if forwarded_for := self._extract_ip_from_x_forwarded_for():
-            return forwarded_for
-
-        # Get direct IP from connection (implemented by subclasses)
-        return self._get_direct_ip()
-
     @abstractmethod
-    def _get_direct_ip(self) -> IPv4Address | IPv6Address | str | None:
+    def ip(self) -> IPv4Address | IPv6Address | str | None:
         """Get IP directly from client connection (implementation-specific)."""
         raise NotImplementedError
 
