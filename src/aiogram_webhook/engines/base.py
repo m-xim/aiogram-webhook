@@ -106,11 +106,12 @@ class WebhookEngine(ABC):
         if not isinstance(result, TelegramMethod):
             return bound_request.json_response(status=200, payload={})
 
-        if self._has_files(bot, result):
+        payload = self._build_webhook_payload(bot, result)
+        if payload is None:
+            # Has new files (InputFile) — execute directly via API
             await self.dispatcher.silent_call_request(bot=bot, result=result)
             return bound_request.json_response(status=200, payload={})
 
-        payload = self._to_webhook_json(bot, result)
         return bound_request.json_response(status=200, payload=payload)
 
     async def _background_feed_update(self, bot: Bot, update: dict[str, Any]) -> None:
@@ -128,18 +129,19 @@ class WebhookEngine(ABC):
         return bound_request.json_response(status=200, payload={})
 
     @staticmethod
-    def _has_files(bot: Bot, method: TelegramMethod[TelegramType]) -> bool:
-        files: dict[str, InputFile] = {}
-        for v in method.model_dump(warnings=False).values():
-            bot.session.prepare_value(v, bot=bot, files=files)
-        return bool(files)
+    def _build_webhook_payload(bot: Bot, method: TelegramMethod[TelegramType]) -> dict[str, Any] | None:
+        """
+        Convert TelegramMethod to webhook response payload.
 
-    @staticmethod
-    def _to_webhook_json(bot: Bot, method: TelegramMethod[TelegramType]) -> dict[str, Any]:
+        See: https://core.telegram.org/bots/faq#how-can-i-make-requests-in-response-to-updates
+        """
         files: dict[str, InputFile] = {}
         params: dict[str, Any] = {}
         for k, v in method.model_dump(warnings=False).items():
             pv = bot.session.prepare_value(v, bot=bot, files=files)
+            # New files detected — can't use webhook response
+            if files:
+                return None
             if pv is not None:
                 params[k] = pv
         return {"method": method.__api_method__, **params}
