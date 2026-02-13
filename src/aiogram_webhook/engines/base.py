@@ -66,7 +66,7 @@ class WebhookEngine(ABC):
     async def on_shutdown(self, app: Any, *args, **kwargs) -> None:
         raise NotImplementedError
 
-    def _build_workflow_data(self, app, **kwargs) -> dict[str, Any]:
+    def _build_workflow_data(self, app: Any, **kwargs) -> dict[str, Any]:
         """Build workflow data for startup/shutdown events."""
         return {
             "app": app,

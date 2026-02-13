@@ -64,15 +64,8 @@ class SimpleEngine(WebhookEngine):
     async def on_startup(self, app: Any, *args, **kwargs) -> None:  # noqa: ARG002
         """
         Called on application startup. Emits dispatcher startup event.
-
-        SimpleEngine ignores the bots parameter since it's single-bot only.
-
-        Args:
-            app: The web application instance.
-            *args: Additional positional arguments from the web framework.
-            **kwargs: Additional keyword arguments for dispatcher.
         """
-        workflow_data = self._build_workflow_data(bot=self.bot, app=app, **kwargs)
+        workflow_data = self._build_workflow_data(app=app, bot=self.bot, **kwargs)
         await self.dispatcher.emit_startup(**workflow_data)
 
     async def set_webhook(self, **kwargs) -> Bot:
@@ -92,11 +85,6 @@ class SimpleEngine(WebhookEngine):
     async def on_shutdown(self, app: Any, *args, **kwargs) -> None:  # noqa: ARG002
         """
         Called on application shutdown. Emits dispatcher shutdown event and closes bot session.
-
-        Args:
-            app: The web application instance.
-            *args: Additional positional arguments from the web framework.
-            **kwargs: Additional keyword arguments for dispatcher.
         """
         workflow_data = self._build_workflow_data(app=app, bot=self.bot, **kwargs)
         await self.dispatcher.emit_shutdown(**workflow_data)

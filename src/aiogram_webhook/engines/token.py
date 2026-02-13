@@ -8,8 +8,6 @@ from aiogram.utils.token import extract_bot_id
 from aiogram_webhook.engines.base import WebhookEngine
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
-
     from aiogram_webhook.adapters.base import BoundRequest, WebAdapter
     from aiogram_webhook.routing.base import TokenRouting
     from aiogram_webhook.security.security import Security
@@ -100,30 +98,19 @@ class TokenEngine(WebhookEngine):
         await bot.set_webhook(url=self.routing.webhook_point(bot), secret_token=secret_token, **kwargs)
         return bot
 
-    async def on_startup(self, app: Any, *args, bots: Iterable[Bot] | None = None, **kwargs) -> None:  # noqa: ARG002
+    async def on_startup(self, app: Any, *args, bots: set[Bot] | None = None, **kwargs) -> None:  # noqa: ARG002
         """
         Called on application startup. Emits dispatcher startup event for all bots.
-
-        Args:
-            *args: Positional arguments (e.g., app from aiohttp).
-            app: The web application instance.
-            bots: Optional iterable of Bot instances.
-            **kwargs: Additional keyword arguments for dispatcher.
         """
         all_bots = set(bots) | set(self._bots.values()) if bots else set(self._bots.values())
-        workflow_data = self._build_workflow_data(bots=all_bots, app=app, **kwargs)
+        workflow_data = self._build_workflow_data(app=app, bots=all_bots, **kwargs)
         await self.dispatcher.emit_startup(**workflow_data)
 
     async def on_shutdown(self, app: Any, *args, **kwargs) -> None:  # noqa: ARG002
         """
         Called on application shutdown. Emits dispatcher shutdown event and closes all bot sessions.
-
-        Args:
-            *args: Positional arguments (e.g., app from aiohttp).
-            app: The web application instance.
-            **kwargs: Additional keyword arguments for dispatcher.
         """
-        workflow_data = self._build_workflow_data(bots=set(self._bots.values()), app=app, **kwargs)
+        workflow_data = self._build_workflow_data(app=app, bots=set(self._bots.values()), **kwargs)
         await self.dispatcher.emit_shutdown(**workflow_data)
 
         for bot in self._bots.values():

@@ -69,7 +69,7 @@ class WebAdapter(ABC):
         app: Any,
         path: str,
         handler: Callable[[BoundRequest], Awaitable[Any]],
-        on_startup: Callable[[], Awaitable[Any]] | None = None,
-        on_shutdown: Callable[[], Awaitable[Any]] | None = None,
+        on_startup: Callable[..., Awaitable[Any]] | None = None,
+        on_shutdown: Callable[..., Awaitable[Any]] | None = None,
     ) -> None:
         raise NotImplementedError
