@@ -27,7 +27,7 @@ class TokenEngine(WebhookEngine):
         /,
         web_adapter: WebAdapter,
         routing: TokenRouting,
-        security: Security | bool | None = None,
+        security: Security | None = None,
         bot_settings: dict[str, Any] | None = None,
         handle_in_background: bool = True,
     ) -> None:

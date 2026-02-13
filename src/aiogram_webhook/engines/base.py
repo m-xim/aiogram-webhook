@@ -8,7 +8,6 @@ from aiogram.methods.base import TelegramType
 
 from aiogram_webhook.adapters.base import BoundRequest, WebAdapter
 from aiogram_webhook.routing.base import BaseRouting
-from aiogram_webhook.security.checks.ip import IPCheck
 from aiogram_webhook.security.security import Security
 
 if TYPE_CHECKING:
@@ -37,13 +36,10 @@ class WebhookEngine(ABC):
         /,
         web_adapter: WebAdapter,
         routing: BaseRouting,
-        security: Security | bool | None = None,
+        security: Security | None = None,
         handle_in_background: bool = True,
     ) -> None:
-        if security is True:
-            self.security = Security(IPCheck())
-        else:
-            self.security = security
+        self.security = security
         self.dispatcher = dispatcher
         self.web_adapter = web_adapter
         self.routing = routing

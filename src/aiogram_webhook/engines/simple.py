@@ -27,7 +27,7 @@ class SimpleEngine(WebhookEngine):
         /,
         web_adapter: WebAdapter,
         routing: BaseRouting,
-        security: Security | bool | None = None,
+        security: Security | None = None,
         handle_in_background: bool = True,
     ) -> None:
         """
