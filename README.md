@@ -90,8 +90,12 @@ router = Router()
 async def start(message: Message):
     await message.answer("OK")
 
+async def on_startup(bot: Bot, webhook_engine:SimpleEngine) -> None:
+    await webhook_engine.set_webhook()
+
 dispatcher = Dispatcher()
 dispatcher.include_router(router)
+dispatcher.startup.register(on_startup)
 bot = Bot("BOT_TOKEN")
 
 engine = SimpleEngine( # or other engine
