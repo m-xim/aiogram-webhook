@@ -311,8 +311,6 @@ You can combine as many addresses and networks as needed. The check supports bot
 
 **Features:**
 - Automatic detection of client IP from direct connection or `X-Forwarded-For` header (for reverse proxy scenarios)
-- Support for multiple IP addresses in `X-Forwarded-For` (uses the leftmost IP as per RFC 7239)
-- Efficient caching of IP/network parsing for performance
 - Works seamlessly with load balancers and reverse proxies
 
 **Example:**
