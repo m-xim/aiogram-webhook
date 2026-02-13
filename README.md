@@ -68,9 +68,9 @@ async def lifespan(app: FastAPI):
         drop_pending_updates=True,
         allowed_updates=("message", "callback_query"),
     )
-    await engine.on_startup()
+    await engine.on_startup(app)
     yield
-    await engine.on_shutdown()
+    await engine.on_shutdown(app)
 
 app = FastAPI(lifespan=lifespan)
 ```

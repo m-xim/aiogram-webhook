@@ -100,21 +100,30 @@ class TokenEngine(WebhookEngine):
         await bot.set_webhook(url=self.routing.webhook_point(bot), secret_token=secret_token, **kwargs)
         return bot
 
-    async def on_startup(self, *, bots: Iterable[Bot] | None = None, **kwargs: Any) -> None:
+    async def on_startup(self, app: Any, *args, bots: Iterable[Bot] | None = None, **kwargs) -> None:  # noqa: ARG002
         """
         Called on application startup. Emits dispatcher startup event for all bots.
 
         Args:
+            *args: Positional arguments (e.g., app from aiohttp).
+            app: The web application instance.
             bots: Optional iterable of Bot instances.
             **kwargs: Additional keyword arguments for dispatcher.
         """
         all_bots = set(bots) | set(self._bots.values()) if bots else set(self._bots.values())
-        workflow_data = self._build_workflow_data(bots=all_bots, **kwargs)
+        workflow_data = self._build_workflow_data(bots=all_bots, app=app, **kwargs)
         await self.dispatcher.emit_startup(**workflow_data)
 
-    async def on_shutdown(self, **kwargs) -> None:
-        """Called on application shutdown. Emits dispatcher shutdown event and closes all bot sessions."""
-        workflow_data = self._build_workflow_data(bots=set(self._bots.values()), **kwargs)
+    async def on_shutdown(self, app: Any, *args, **kwargs) -> None:  # noqa: ARG002
+        """
+        Called on application shutdown. Emits dispatcher shutdown event and closes all bot sessions.
+
+        Args:
+            *args: Positional arguments (e.g., app from aiohttp).
+            app: The web application instance.
+            **kwargs: Additional keyword arguments for dispatcher.
+        """
+        workflow_data = self._build_workflow_data(bots=set(self._bots.values()), app=app, **kwargs)
         await self.dispatcher.emit_shutdown(**workflow_data)
 
         for bot in self._bots.values():
