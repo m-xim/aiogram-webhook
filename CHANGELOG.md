@@ -2,6 +2,96 @@
 
 <!-- version list -->
 
+## v1.0.0 (2026-02-13)
+
+### Bug Fixes
+
+- **query routing**: Replace extend_query with update_query for parameter override
+  ([`e2da44b`](https://github.com/m-xim/aiogram-webhook/commit/e2da44bd0b035901aa9c8dd38a147c2149d5280d))
+
+- **readme**: Update web adapter for aiohttp
+  ([`4eac869`](https://github.com/m-xim/aiogram-webhook/commit/4eac8696e1094997493eedcf951f1adedace566a))
+
+- **token**: Update on_startup method to use keyword-only arguments
+  ([`9633886`](https://github.com/m-xim/aiogram-webhook/commit/9633886971923268c23e6ecdb366ff88de6448f4))
+
+- **webhook**: Implement set_webhook method in base
+  ([`94bd9dc`](https://github.com/m-xim/aiogram-webhook/commit/94bd9dcceed3ba216b2e8ef692d872a8ce206791))
+
+### Chores
+
+- **ci**: Update actions/checkout and astral-sh/setup-uv versions in workflows
+  ([`1e1468b`](https://github.com/m-xim/aiogram-webhook/commit/1e1468be0eaa5cf4eda12024fefb7e3c4a8a21c0))
+
+- **pyproject**: Remove allow_zero_version setting
+  ([`1ba993d`](https://github.com/m-xim/aiogram-webhook/commit/1ba993d1955d4a7a370b05177711f4a5a553768a))
+
+### Documentation
+
+- **CONTRIBUTING**: Add contributing guidelines
+  ([`a0171c2`](https://github.com/m-xim/aiogram-webhook/commit/a0171c29730f7e3af9ff0d6277e97168ebee782a))
+
+- **example**: Add startup function to register webhook on bot initialization
+  ([`d010e67`](https://github.com/m-xim/aiogram-webhook/commit/d010e67a4c3c4ace94aeb9b80465053646804bcf))
+
+- **README**: Correct
+  ([`c3e8465`](https://github.com/m-xim/aiogram-webhook/commit/c3e8465fa509ff5e28a1336ab16908f9c0dfbe27))
+
+### Features
+
+- **ip**: Add support for X-Forwarded-For header
+  ([`3c80341`](https://github.com/m-xim/aiogram-webhook/commit/3c80341eb088b06414a201af2826324d0097ce8a))
+
+- **routing**: Add default parameter name for PathRouting and QueryRouting
+  ([`22b5379`](https://github.com/m-xim/aiogram-webhook/commit/22b5379e6be2aa6386433b8d8851706eb3b47f10))
+
+- **routing**: Introduce TokenRouting and StaticRouting, refactor PathRouting and QueryRouting to
+  inherit from TokenRouting
+  ([`3a02200`](https://github.com/m-xim/aiogram-webhook/commit/3a022003d9b2cb228e03bd73344a308b876775f7))
+
+- **tests**: Add Python 3.15
+  ([`322859b`](https://github.com/m-xim/aiogram-webhook/commit/322859b6e7dd409b479f4d9ce446d9f1c04f394a))
+
+- **tests**: Add StaticRouting tests and refactor PathRouting and QueryRouting tests
+  ([`f45bb99`](https://github.com/m-xim/aiogram-webhook/commit/f45bb992597b5eca745fee1f6b5bd924ff4abd99))
+
+- **tests**: Add tests
+  ([`edb4cec`](https://github.com/m-xim/aiogram-webhook/commit/edb4cec773a1592b5fd0f0ce80faaab4bdff58e2))
+
+- **tests**: Add tests for IPCheck with X-Forwarded-For header
+  ([`a4b9517`](https://github.com/m-xim/aiogram-webhook/commit/a4b9517baf8fdd80cfcb4eca0ef309baf66dc678))
+
+### Refactoring
+
+- **bot**: Rename resolve_bot_from_request to _get_bot_from_request and update related methods
+  ([`f31bd8c`](https://github.com/m-xim/aiogram-webhook/commit/f31bd8c1042affcd9cb4dc155226f95b4d5d765b))
+
+- **docs**: Add about new routing
+  ([`8c62ad9`](https://github.com/m-xim/aiogram-webhook/commit/8c62ad97a93da4a7e4bb6cb5507d097262822b39))
+
+- **ip**: Unify IP retrieval methods and enhance X-Forwarded-For extraction
+  ([`9e84588`](https://github.com/m-xim/aiogram-webhook/commit/9e845881726895b03eed2a1aa8fcf06078c2d4d8))
+
+- **routing**: Enhance URL handling and token extraction in routing classes
+  ([`bc6f656`](https://github.com/m-xim/aiogram-webhook/commit/bc6f6566bdf7d03988d091e07538eabe7e015164))
+
+- **routing**: Improve initialization and token handling in routing classes
+  ([`84491ca`](https://github.com/m-xim/aiogram-webhook/commit/84491ca21e0571a8f657c1c830d5a6a7bdcb8b5a))
+
+- **security**: Simplify security parameter handling in constructors
+  ([`f134fd0`](https://github.com/m-xim/aiogram-webhook/commit/f134fd071b613a4661656d78594d9940bc517301))
+
+- **startup**: Update on_startup and on_shutdown methods to accept app argument
+  ([`a4e624b`](https://github.com/m-xim/aiogram-webhook/commit/a4e624bed8f0aadd76e3266b7cd2f051a7748c95))
+
+- **webhook**: Simplify signature of on_startup and on_shutdown methods; add _build_workflow_data
+  helper
+  ([`a3ef6b6`](https://github.com/m-xim/aiogram-webhook/commit/a3ef6b6cfba127ac7c46e98f508559e937ff1c40))
+
+- **webhook**: Streamline payload building and enhance file handling in webhook response
+  ([`900ec00`](https://github.com/m-xim/aiogram-webhook/commit/900ec0079f56896e8ad86624dc82b13daca137f9))
+
+
 ## v0.2.0 (2026-01-31)
 
 ### Chores
