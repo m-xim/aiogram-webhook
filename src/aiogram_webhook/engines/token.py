@@ -100,7 +100,7 @@ class TokenEngine(WebhookEngine):
         await bot.set_webhook(url=self.routing.webhook_point(bot), secret_token=secret_token, **kwargs)
         return bot
 
-    async def on_startup(self, bots: Iterable[Bot] | None = None, **kwargs: Any) -> None:
+    async def on_startup(self, *, bots: Iterable[Bot] | None = None, **kwargs: Any) -> None:
         """
         Called on application startup. Emits dispatcher startup event for all bots.
 
