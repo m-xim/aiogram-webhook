@@ -1,4 +1,3 @@
-from aiogram_webhook.adapters.aiohttp import AiohttpWebAdapter
 from aiogram_webhook.adapters.base import WebAdapter
 from aiogram_webhook.engines.simple import SimpleEngine
 from aiogram_webhook.engines.token import TokenEngine

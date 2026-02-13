@@ -23,7 +23,10 @@ class FastAPIBoundRequest(BoundRequest):
         return self.request.path_params.get(name)
 
     def ip(self) -> IPv4Address | IPv6Address | str | None:
-        return self.request.client.host if self.request.client else None
+        if self.request.client:
+            return self.request.client.host
+
+        return None
 
     def json_response(self, status: int, payload: dict[str, Any]) -> JSONResponse:
         return JSONResponse(status_code=status, content=payload)

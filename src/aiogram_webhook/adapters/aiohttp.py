@@ -29,6 +29,7 @@ class AiohttpBoundRequest(BoundRequest):
     def ip(self) -> IPv4Address | IPv6Address | str | None:
         if peer_name := cast("Transport", self.request.transport).get_extra_info("peername"):
             return peer_name[0]
+
         return None
 
     def json_response(self, status: int, payload: dict[str, Any]) -> Response:

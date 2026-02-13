@@ -38,6 +38,7 @@ class BoundRequest(ABC):
 
     @abstractmethod
     def ip(self) -> IPv4Address | IPv6Address | str | None:
+        """Get IP directly from client connection (implementation-specific)."""
         raise NotImplementedError
 
     def secret_token(self) -> str | None:
@@ -68,7 +69,7 @@ class WebAdapter(ABC):
         app: Any,
         path: str,
         handler: Callable[[BoundRequest], Awaitable[Any]],
-        on_startup: Callable[[], Awaitable[Any]] | None = None,
-        on_shutdown: Callable[[], Awaitable[Any]] | None = None,
+        on_startup: Callable[..., Awaitable[Any]] | None = None,
+        on_shutdown: Callable[..., Awaitable[Any]] | None = None,
     ) -> None:
         raise NotImplementedError

@@ -1,35 +1,18 @@
 from aiogram import Bot
 
-from aiogram_webhook.adapters.base import BoundRequest
-from aiogram_webhook.routing.base import BaseRouting
+from aiogram_webhook.routing.base import TokenRouting
 
 
-class QueryRouting(BaseRouting):
+class QueryRouting(TokenRouting):
     """
-    URL query parameter-based routing strategy.
+    Routing strategy based on the URL query parameter.
 
-    Extracts bot token from query parameters.
-    Example: /webhook?token=123:ABC -> extracts token from query.
+    Extracts the bot token from a query parameter in the URL.
+    Example: https://example.com/webhook?token=123:ABC will extract the token from the query string.
     """
-
-    def __init__(self, url: str, param: str) -> None:
-        """
-        Initialize the query parameter-based routing strategy.
-
-        Args:
-            url: The URL template for webhook endpoints.
-            param: The query parameter name for the bot token.
-        """
-        super().__init__(url=url)
-        self.param = param
 
     def webhook_point(self, bot: Bot) -> str:
-        url = self.url.human_repr()
-        if self.param is None:
-            return url
-        return url.format_map({self.param: bot.token})
+        return self.url.update_query({self.param: bot.token}).human_repr()
 
-    def extract_key(self, bound_request: BoundRequest) -> str | None:
-        if self.param is None:
-            return None
+    def extract_token(self, bound_request) -> str | None:
         return bound_request.query_param(self.param)
