@@ -29,7 +29,7 @@ class TokenRouting(BaseRouting, ABC):
     """Routing by token parameter."""
 
     def __init__(self, url: str, param: str = "bot_token") -> None:
-        super().__init__(url)
+        super().__init__(url=url)
         self.param = param
 
     @abstractmethod

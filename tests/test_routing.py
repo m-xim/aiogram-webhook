@@ -140,7 +140,6 @@ def test_path_routing(url, param, token, path_params, expected_url, expected_tok
     ],
 )
 def test_query_routing(url, param, token, query_params, expected_url, expected_token):
-    """Test that QueryRouting correctly handles query parameters and token extraction."""
     routing = QueryRouting(url=url, param=param)
     webhook_url = routing.webhook_point(Bot(token))
 

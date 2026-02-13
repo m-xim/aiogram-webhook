@@ -1,4 +1,4 @@
-from aiogram_webhook.routing import BaseRouting
+from aiogram_webhook.routing.base import BaseRouting
 
 
 class StaticRouting(BaseRouting):
