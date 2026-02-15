@@ -1,9 +1,12 @@
+import re
 from hmac import compare_digest
 from typing import Protocol
 
 from aiogram import Bot
 
 from aiogram_webhook.adapters.base import BoundRequest
+
+SECRET_TOKEN_PATTERN = re.compile(r"^[A-Za-z0-9_-]{1,256}$")
 
 
 class SecretToken(Protocol):
@@ -27,9 +30,14 @@ class SecretToken(Protocol):
 class StaticSecretToken(SecretToken):
     """
     Static secret token implementation for webhook security.
+
+    Token format: 1-256 characters, only A-Z, a-z, 0-9, _, - are allowed.
+    See: https://core.telegram.org/bots/api#setwebhook
     """
 
     def __init__(self, token: str) -> None:
+        if not SECRET_TOKEN_PATTERN.match(token):
+            raise ValueError("Invalid secret token format. Must be 1-256 characters, only A-Z, a-z, 0-9, _, -.")
         self._token = token
 
     async def verify(self, bot: Bot, bound_request: BoundRequest) -> bool:  # noqa: ARG002
