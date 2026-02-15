@@ -2,6 +2,52 @@
 
 <!-- version list -->
 
+## v1.1.0 (2026-02-15)
+
+### Bug Fixes
+
+- **IPCheck**: IPCheck and tests
+  ([`f6de7d6`](https://github.com/m-xim/aiogram-webhook/commit/f6de7d6712ae560dd61a090300a8257ca7a83f6a))
+
+- **security**: Check to SecurityCheck
+  ([`8952893`](https://github.com/m-xim/aiogram-webhook/commit/89528937bb690847198efb4bf1034c18a83ab3d6))
+
+- **webhook**: Only set secret_token param if not None
+  ([`7dbe835`](https://github.com/m-xim/aiogram-webhook/commit/7dbe835c2b63927a34f8246f8db3334fce07d798))
+
+### Chores
+
+- **build**: Remove packages field from pyproject.toml
+  ([`12cc4dd`](https://github.com/m-xim/aiogram-webhook/commit/12cc4ddb4e5a4b65a2f1410ff9108974f5dfac1e))
+
+- **build**: Switch to uv_build backend and migrate ruff config to ruff.toml
+  ([`25dcc43`](https://github.com/m-xim/aiogram-webhook/commit/25dcc432fe55f17801f819af343e772b2633087f))
+
+- **pyproject**: Add support for Python 3.14
+  ([`cb5e710`](https://github.com/m-xim/aiogram-webhook/commit/cb5e7106dace85d00ebcffb78d495fbcdf4a221f))
+
+### Documentation
+
+- **core**: Add and improve docstrings for adapters, routing, security, and checks
+  ([`fee7007`](https://github.com/m-xim/aiogram-webhook/commit/fee70078491824607e85aaffc5ce258756c9f083))
+
+### Features
+
+- **secret_token**: Add secret token format validation and update tests
+  ([`fb46f4d`](https://github.com/m-xim/aiogram-webhook/commit/fb46f4d4fc3def30f79cc293916b645a468bf233))
+
+- **webhook_config**: Add WebhookConfig for default webhook parameters and update engine interfaces
+  ([`1b319e1`](https://github.com/m-xim/aiogram-webhook/commit/1b319e1bd2d0a340162acaa871cfaf7b43ae3fe6))
+
+### Refactoring
+
+- **ip**: Unify IPAddress and IPNetwork types, update adapters and checks
+  ([`8c26d7e`](https://github.com/m-xim/aiogram-webhook/commit/8c26d7e8f3f28c8a1b5dc0cc5b2d1929d1128688))
+
+- **security**: Rename Check protocol to SecurityCheck
+  ([`f95ad95`](https://github.com/m-xim/aiogram-webhook/commit/f95ad955fd503c78168c60b68f01be374b0f1865))
+
+
 ## v1.0.0 (2026-02-13)
 
 ### Bug Fixes
