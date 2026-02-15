@@ -5,7 +5,7 @@ from aiogram_webhook.routing.base import TokenRouting
 
 class PathRouting(TokenRouting):
     """
-    Routing strategy based on the URL path parameter.
+    Path-based routing for webhook requests.
 
     Extracts the bot token from a path parameter in the URL.
     Example: https://example.com/webhook/{token} will extract the token from the path segment.

@@ -37,6 +37,12 @@ class AiohttpBoundRequest(BoundRequest):
 
 
 class AiohttpWebAdapter(WebAdapter):
+    """
+    Adapter for aiohttp web servers.
+
+    This adapter integrates with aiohttp to handle webhook requests.
+    """
+
     def bind(self, request: Request) -> AiohttpBoundRequest:
         return AiohttpBoundRequest(adapter=self, request=request)
 

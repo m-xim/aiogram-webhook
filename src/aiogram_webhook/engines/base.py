@@ -1,18 +1,21 @@
+from __future__ import annotations
+
 import asyncio
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any
 
-from aiogram import Bot, Dispatcher
 from aiogram.methods import TelegramMethod
-from aiogram.methods.base import TelegramType
 
-from aiogram_webhook.adapters.base import BoundRequest, WebAdapter
 from aiogram_webhook.config import WebhookConfig
-from aiogram_webhook.routing.base import BaseRouting
-from aiogram_webhook.security.security import Security
 
 if TYPE_CHECKING:
+    from aiogram import Bot, Dispatcher
+    from aiogram.methods.base import TelegramType
     from aiogram.types import InputFile
+
+    from aiogram_webhook.adapters.base import BoundRequest, WebAdapter
+    from aiogram_webhook.routing.base import BaseRouting
+    from aiogram_webhook.security.security import Security
 
 
 class WebhookEngine(ABC):
@@ -22,14 +25,6 @@ class WebhookEngine(ABC):
     Handles incoming webhook requests, bot resolution, security checks,
     routing, and dispatching updates to the aiogram dispatcher. Supports
     both synchronous and background processing.
-
-    Constructor arguments:
-        dispatcher: aiogram.Dispatcher instance for update processing.
-        web_adapter: Web framework adapter class.
-        routing: Webhook routing strategy.
-        security: True — protect by IP (IPCheck), False/None — not protect, Security — custom protect.
-        webhook_config: Default webhook configuration
-        handle_in_background: Whether to process updates in background (default: True).
     """
 
     def __init__(

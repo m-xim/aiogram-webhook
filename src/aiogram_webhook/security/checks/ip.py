@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 from ipaddress import IPv4Address, IPv4Network, IPv6Address, IPv6Network, ip_address, ip_network
-from typing import Final
+from typing import TYPE_CHECKING, Final
 
 from aiogram_webhook.security.checks.check import Check
+
+if TYPE_CHECKING:
+    from aiogram_webhook.adapters.base import BoundRequest
 
 DEFAULT_TELEGRAM_NETWORKS: Final[tuple[IPv4Network | IPv6Network, ...]] = (
     IPv4Network("149.154.160.0/20"),
@@ -16,6 +19,8 @@ IPAddressOrNetwork = IPv4Network | IPv6Network | IPv4Address | IPv6Address
 class IPCheck(Check):
     """
     Security check for validating client IP address against allowed networks and addresses.
+
+    Allows requests only from specified IP networks.
     """
 
     def __init__(self, *ip_entries: IPAddressOrNetwork | str, include_default: bool = True) -> None:
@@ -44,7 +49,7 @@ class IPCheck(Check):
         self._networks: set[IPv4Network | IPv6Network] = networks
         self._addresses: set[IPv4Address | IPv6Address] = addresses
 
-    def _extract_ip_from_x_forwarded_for(self, bound_request) -> IPv4Address | IPv6Address | str | None:
+    def _extract_ip_from_x_forwarded_for(self, bound_request: BoundRequest) -> IPv4Address | IPv6Address | str | None:
         """
         Extract client IP from X-Forwarded-For header.
 
@@ -57,7 +62,7 @@ class IPCheck(Check):
         forwarded_for, *_ = header_value.split(",", maxsplit=1)
         return forwarded_for.strip()
 
-    def _get_client_ip(self, bound_request) -> IPv4Address | IPv6Address | str | None:
+    def _get_client_ip(self, bound_request: BoundRequest) -> IPv4Address | IPv6Address | str | None:
         """Get client IP, first trying X-Forwarded-For header, then direct connection."""
         # Try to resolve client IP over reverse proxy
         if forwarded_for := self._extract_ip_from_x_forwarded_for(bound_request):
