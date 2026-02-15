@@ -8,6 +8,7 @@ if TYPE_CHECKING:
     from aiogram import Bot, Dispatcher
 
     from aiogram_webhook.adapters.base import BoundRequest, WebAdapter
+    from aiogram_webhook.config import WebhookConfig
     from aiogram_webhook.routing.base import BaseRouting
     from aiogram_webhook.security.security import Security
 
@@ -28,6 +29,7 @@ class SimpleEngine(WebhookEngine):
         web_adapter: WebAdapter,
         routing: BaseRouting,
         security: Security | None = None,
+        webhook_config: WebhookConfig | None = None,
         handle_in_background: bool = True,
     ) -> None:
         """
@@ -39,6 +41,7 @@ class SimpleEngine(WebhookEngine):
             web_adapter: Web framework adapter class.
             routing: Webhook routing strategy.
             security: Security settings and checks.
+            webhook_config: Default webhook configuration
             handle_in_background: Whether to process updates in background.
         """
         self.bot = bot
@@ -47,6 +50,7 @@ class SimpleEngine(WebhookEngine):
             web_adapter=web_adapter,
             routing=routing,
             security=security,
+            webhook_config=webhook_config,
             handle_in_background=handle_in_background,
         )
 
@@ -68,18 +72,36 @@ class SimpleEngine(WebhookEngine):
         workflow_data = self._build_workflow_data(app=app, bot=self.bot, **kwargs)
         await self.dispatcher.emit_startup(**workflow_data)
 
-    async def set_webhook(self, **kwargs) -> Bot:
+    async def set_webhook(
+        self,
+        *,
+        max_connections: int | None = None,
+        drop_pending_updates: bool | None = None,
+        allowed_updates: list[str] | None = None,
+        request_timeout: int | None = None,
+    ) -> Bot:
         """
-        Sets the webhook for the single Bot instance.
+        Set the webhook for the Bot instance.
 
-        Args:
-            **kwargs: Additional arguments for set_webhook.
-        Returns:
-            The Bot instance after setting webhook.
+        Source: https://core.telegram.org/bots/api#setwebhook
+
+        :param max_connections: The maximum allowed number of simultaneous HTTPS connections to the webhook for update delivery, 1-100. Defaults to *40*. Use lower values to limit the load on your bot's server, and higher values to increase your bot's throughput.
+        :param allowed_updates: A JSON-serialized list of the update types you want your bot to receive. For example, specify :code:`["message", "edited_channel_post", "callback_query"]` to only receive updates of these types. See :class:`aiogram.types.update.Update` for a complete list of available update types. Specify an empty list to receive all update types except *chat_member*, *message_reaction*, and *message_reaction_count* (default). If not specified, the previous setting will be used.
+        :param drop_pending_updates: Pass :code:`True` to drop all pending updates
+        :param request_timeout: Request timeout
+        :return: Bot
         """
-        secret_token = await self.security.get_secret_token(bot=self.bot) if self.security else None
+        config = self._build_webhook_config(
+            max_connections=max_connections,
+            drop_pending_updates=drop_pending_updates,
+            allowed_updates=allowed_updates,
+        )
+        params = config.model_dump(exclude_none=True)
 
-        await self.bot.set_webhook(url=self.routing.webhook_point(self.bot), secret_token=secret_token, **kwargs)
+        if self.security:
+            params["secret_token"] = await self.security.get_secret_token(bot=self.bot)
+
+        await self.bot.set_webhook(url=self.routing.webhook_point(self.bot), request_timeout=request_timeout, **params)
         return self.bot
 
     async def on_shutdown(self, app: Any, *args, **kwargs) -> None:  # noqa: ARG002
