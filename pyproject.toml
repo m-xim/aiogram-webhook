@@ -6,7 +6,6 @@ readme = "README.md"
 license = { text = "MIT" }
 authors = [{ name = "m-xim", email = "i@m-xim.ru" }]
 requires-python = ">=3.10"
-packages = [{ include = "aiogram_webhook" }]
 dependencies = [
     "aiogram>=3.14.0",
     "yarl>=1.17.0",
