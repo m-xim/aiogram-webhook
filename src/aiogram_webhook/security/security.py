@@ -1,7 +1,7 @@
 from aiogram import Bot
 
 from aiogram_webhook.adapters.base import BoundRequest
-from aiogram_webhook.security.checks.check import Check
+from aiogram_webhook.security.checks.check import SecurityCheck
 from aiogram_webhook.security.secret_token import SecretToken
 
 
@@ -12,7 +12,7 @@ class Security:
     Provides methods to verify requests and manage secret tokens.
     """
 
-    def __init__(self, *checks: Check, secret_token: SecretToken | None = None) -> None:
+    def __init__(self, *checks: SecurityCheck, secret_token: SecretToken | None = None) -> None:
         self._secret_token = secret_token
         self._checks: tuple[SecurityCheck, ...] = checks
 

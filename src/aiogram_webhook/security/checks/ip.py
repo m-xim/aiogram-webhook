@@ -3,7 +3,7 @@ from __future__ import annotations
 from ipaddress import IPv4Address, IPv4Network, IPv6Address, IPv6Network, ip_address, ip_network
 from typing import TYPE_CHECKING, Final
 
-from aiogram_webhook.security.checks.check import Check
+from aiogram_webhook.security.checks.check import SecurityCheck
 
 if TYPE_CHECKING:
     from aiogram_webhook.adapters.base import BoundRequest
@@ -16,7 +16,7 @@ DEFAULT_TELEGRAM_NETWORKS: Final[tuple[IPv4Network | IPv6Network, ...]] = (
 IPAddressOrNetwork = IPv4Network | IPv6Network | IPv4Address | IPv6Address
 
 
-class IPCheck(Check):
+class IPCheck(SecurityCheck):
     """
     Security check for validating client IP address against allowed networks and addresses.
 
