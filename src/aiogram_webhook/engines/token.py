@@ -33,18 +33,6 @@ class TokenEngine(WebhookEngine):
         webhook_config: WebhookConfig | None = None,
         handle_in_background: bool = True,
     ) -> None:
-        """
-        Initialize the TokenEngine for multi-bot applications.
-
-        Args:
-            dispatcher: Dispatcher instance for update processing.
-            web_adapter: Web framework adapter class.
-            routing: Webhook routing strategy.
-            security: Security settings and checks.
-            bot_settings: Default settings for creating Bot instances.
-            webhook_config: Default webhook configuration
-            handle_in_background: Whether to process updates in background.
-        """
         super().__init__(
             dispatcher,
             web_adapter=web_adapter,
@@ -59,12 +47,11 @@ class TokenEngine(WebhookEngine):
 
     def _get_bot_from_request(self, bound_request: BoundRequest) -> Bot | None:
         """
-        Resolve a Bot instance from the incoming request using the token.
+        Get a :class:`Bot` instance from request by token.
+        If the bot is not yet created, it will be created automatically.
 
-        Args:
-            bound_request: The incoming bound request.
-        Returns:
-            The resolved Bot instance or None if not found.
+        :param bound_request: Incoming request
+        :return: Bot instance or None
         """
         token = self.routing.extract_token(bound_request)
         if not token:
@@ -75,10 +62,11 @@ class TokenEngine(WebhookEngine):
         """
         Resolve or create a Bot instance by token and cache it.
 
-        Args:
-            token: The bot token.
-        Returns:
-            The resolved Bot instance.
+        :param token: The bot token
+        :return: Bot
+
+        .. note::
+            To connect the bot to Telegram API and set up webhook, use :meth:`set_webhook`.
         """
         bot = self._bots.get(extract_bot_id(token))
         if not bot:
@@ -105,7 +93,7 @@ class TokenEngine(WebhookEngine):
         :param allowed_updates: A JSON-serialized list of the update types you want your bot to receive. For example, specify :code:`["message", "edited_channel_post", "callback_query"]` to only receive updates of these types. See :class:`aiogram.types.update.Update` for a complete list of available update types. Specify an empty list to receive all update types except *chat_member*, *message_reaction*, and *message_reaction_count* (default). If not specified, the previous setting will be used.
         :param drop_pending_updates: Pass :code:`True` to drop all pending updates
         :param request_timeout: Request timeout
-        :return: Bot
+        :return: Bot instance
         """
         bot = self.get_bot(token)
         config = self._build_webhook_config(
@@ -124,17 +112,11 @@ class TokenEngine(WebhookEngine):
         return bot
 
     async def on_startup(self, app: Any, *args, bots: set[Bot] | None = None, **kwargs) -> None:  # noqa: ARG002
-        """
-        Called on application startup. Emits dispatcher startup event for all bots.
-        """
         all_bots = set(bots) | set(self._bots.values()) if bots else set(self._bots.values())
         workflow_data = self._build_workflow_data(app=app, bots=all_bots, **kwargs)
         await self.dispatcher.emit_startup(**workflow_data)
 
     async def on_shutdown(self, app: Any, *args, **kwargs) -> None:  # noqa: ARG002
-        """
-        Called on application shutdown. Emits dispatcher shutdown event and closes all bot sessions.
-        """
         workflow_data = self._build_workflow_data(app=app, bots=set(self._bots.values()), **kwargs)
         await self.dispatcher.emit_shutdown(**workflow_data)
 

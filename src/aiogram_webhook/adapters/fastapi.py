@@ -1,10 +1,10 @@
-from ipaddress import IPv4Address, IPv6Address
 from typing import Any
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
 from aiogram_webhook.adapters.base import BoundRequest, WebAdapter
+from aiogram_webhook.security.checks.ip import IPAddress
 
 
 class FastAPIBoundRequest(BoundRequest):
@@ -22,7 +22,7 @@ class FastAPIBoundRequest(BoundRequest):
     def path_param(self, name: str) -> Any | None:
         return self.request.path_params.get(name)
 
-    def ip(self) -> IPv4Address | IPv6Address | str | None:
+    def ip(self) -> IPAddress | str | None:
         if self.request.client:
             return self.request.client.host
 

@@ -32,18 +32,6 @@ class SimpleEngine(WebhookEngine):
         webhook_config: WebhookConfig | None = None,
         handle_in_background: bool = True,
     ) -> None:
-        """
-        Initialize the SimpleEngine for a single bot.
-
-        Args:
-            dispatcher: Dispatcher instance for update processing.
-            bot: The Bot instance to use for all requests.
-            web_adapter: Web framework adapter class.
-            routing: Webhook routing strategy.
-            security: Security settings and checks.
-            webhook_config: Default webhook configuration
-            handle_in_background: Whether to process updates in background.
-        """
         self.bot = bot
         super().__init__(
             dispatcher,
@@ -58,10 +46,8 @@ class SimpleEngine(WebhookEngine):
         """
         Always returns the single Bot instance for any request.
 
-        Args:
-            bound_request: The incoming bound request.
-        Returns:
-            The single Bot instance.
+        :param bound_request: The incoming bound request.
+        :return: The single Bot instance
         """
         return self.bot
 

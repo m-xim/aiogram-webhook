@@ -6,7 +6,8 @@ from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable
-    from ipaddress import IPv4Address, IPv6Address
+
+    from aiogram_webhook.security.checks.ip import IPAddress
 
 
 @dataclass(slots=True)
@@ -41,7 +42,7 @@ class BoundRequest(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def ip(self) -> IPv4Address | IPv6Address | str | None:
+    def ip(self) -> IPAddress | str | None:
         """Get IP directly from client connection (implementation-specific)."""
         raise NotImplementedError
 
