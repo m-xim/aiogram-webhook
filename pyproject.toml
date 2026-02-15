@@ -4,11 +4,8 @@ version = "1.0.0"
 description = "A python library for integrating webhook support with multiple web frameworks in aiogram. Organizes bot operation via webhooks for both single and multi-bot setups."
 readme = "README.md"
 license = { text = "MIT" }
-authors = [
-    { name = "m-xim", email = "i@m-xim.ru" },
-]
+authors = [{ name = "m-xim", email = "i@m-xim.ru" }]
 requires-python = ">=3.10"
-packages = [{ include = "aiogram_webhook" }]
 dependencies = [
     "aiogram>=3.14.0",
     "yarl>=1.17.0",
@@ -55,11 +52,12 @@ dev = [
 ]
 
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["uv_build"]
+build-backend = "uv_build"
 
-[tool.hatch.build]
-sources = ["src"]
+[tool.uv]
+package = true
+
 
 [tool.semantic_release]
 version_source = "pyproject"
@@ -71,59 +69,6 @@ version_toml = [
 [tool.semantic_release.branches.main]
 match = "main"
 
-[tool.semantic_release.branches.dev]
-match = "dev"
+[tool.semantic_release.branches.develop]
+match = "develop"
 prerelease = true
-
-[tool.ruff]
-line-length = 120
-exclude = [".venv", "__pycache__"]
-
-[tool.ruff.format]
-skip-magic-trailing-comma = false
-
-[tool.ruff.lint]
-select = ["ALL"]
-ignore = [
-    "D",
-    "ANN",
-    "PLR09",
-    "COM812",
-
-    "ERA001",
-    "T201",
-    "RUF059",
-    "BLE001",
-    "RUF001",
-    "RUF003",
-
-    "TRY003",
-    "EM101",
-
-    "RUF002",
-    "EM102",
-
-    "FBT001",
-    "FBT002",
-    "TD002",
-    "FIX002",
-
-    "TD003",
-    "PLR2004",
-    "N806",
-    "E501",
-    "N815"
-]
-
-[tool.ruff.lint.flake8-tidy-imports]
-ban-relative-imports = "all"
-
-[tool.ruff.lint.per-file-ignores]
-"tests/**/*" = [
-    "PLR2004",
-    "S101",
-    "TID252",
-    "S106",
-    "S105",
-    "ARG002"
-]

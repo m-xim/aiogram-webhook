@@ -1,50 +1,53 @@
 from __future__ import annotations
 
 from ipaddress import IPv4Address, IPv4Network, IPv6Address, IPv6Network, ip_address, ip_network
-from typing import Final
+from typing import TYPE_CHECKING, Final
 
-from aiogram_webhook.security.checks.check import Check
+from aiogram_webhook.security.checks.check import SecurityCheck
 
-DEFAULT_TELEGRAM_NETWORKS: Final[tuple[IPv4Network | IPv6Network, ...]] = (
+if TYPE_CHECKING:
+    from aiogram_webhook.adapters.base import BoundRequest
+
+IPNetwork = IPv4Network | IPv6Network
+IPAddress = IPv4Address | IPv6Address
+
+
+DEFAULT_TELEGRAM_NETWORKS: Final[tuple[IPNetwork, ...]] = (
     IPv4Network("149.154.160.0/20"),
     IPv4Network("91.108.4.0/22"),
 )
 
-IPAddressOrNetwork = IPv4Network | IPv6Network | IPv4Address | IPv6Address
 
-
-class IPCheck(Check):
+class IPCheck(SecurityCheck):
     """
     Security check for validating client IP address against allowed networks and addresses.
+
+    Allows requests only from specified IP networks.
     """
 
-    def __init__(self, *ip_entries: IPAddressOrNetwork | str, include_default: bool = True) -> None:
+    def __init__(self, *ip_entries: IPNetwork | IPAddress | str, include_default: bool = True) -> None:
         """
         Initialize the IPCheck with allowed IP addresses and networks.
 
-        Args:
-            *ip_entries: IP addresses or networks to allow.
-            include_default: Whether to include default Telegram IP networks.
+        :param *ip_entries: IP addresses or networks to allow.
+        :param include_default: Whether to include default Telegram IP networks.
         """
-        networks: set[IPv4Network | IPv6Network] = set()
-        addresses: set[IPv4Address | IPv6Address] = set()
+        self._networks: set[IPNetwork] = set()
+        self._addresses: set[IPAddress] = set()
 
         if include_default:
-            networks.update(DEFAULT_TELEGRAM_NETWORKS)
+            self._networks.update(DEFAULT_TELEGRAM_NETWORKS)
 
         for item in ip_entries:
             parsed = self._parse(item)
             if parsed is None:
                 continue
-            if isinstance(parsed, (IPv4Network, IPv6Network)):
-                networks.add(parsed)
+            if isinstance(parsed, IPNetwork):
+                self._networks.add(parsed)
             else:
-                addresses.add(parsed)
+                self._addresses.add(parsed)
 
-        self._networks: set[IPv4Network | IPv6Network] = networks
-        self._addresses: set[IPv4Address | IPv6Address] = addresses
-
-    def _extract_ip_from_x_forwarded_for(self, bound_request) -> IPv4Address | IPv6Address | str | None:
+    def _extract_ip_from_x_forwarded_for(self, bound_request: BoundRequest) -> IPv4Address | IPv6Address | str | None:
         """
         Extract client IP from X-Forwarded-For header.
 
@@ -57,7 +60,7 @@ class IPCheck(Check):
         forwarded_for, *_ = header_value.split(",", maxsplit=1)
         return forwarded_for.strip()
 
-    def _get_client_ip(self, bound_request) -> IPv4Address | IPv6Address | str | None:
+    def _get_client_ip(self, bound_request: BoundRequest) -> IPAddress | str | None:
         """Get client IP, first trying X-Forwarded-For header, then direct connection."""
         # Try to resolve client IP over reverse proxy
         if forwarded_for := self._extract_ip_from_x_forwarded_for(bound_request):
@@ -71,18 +74,14 @@ class IPCheck(Check):
         if not raw_ip:
             return False
         try:
-            addr = ip_address(raw_ip)
+            ip_addr = ip_address(raw_ip)
         except ValueError:
             return False
-
-        if addr in self._addresses:
-            return True
-
-        return any(addr in net for net in self._networks)
+        return (ip_addr in self._addresses) or any(ip_addr in network for network in self._networks)
 
     @staticmethod
-    def _parse(item: IPAddressOrNetwork | str) -> IPAddressOrNetwork | None:
-        if isinstance(item, (IPv4Network, IPv6Network, IPv4Address, IPv6Address)):
+    def _parse(item: IPAddress | IPNetwork | str) -> IPAddress | IPNetwork | None:
+        if isinstance(item, (IPNetwork, IPAddress)):
             return item
         if isinstance(item, str):
             return ip_network(item, strict=False) if "/" in item else ip_address(item)

@@ -1,10 +1,10 @@
-from ipaddress import IPv4Address, IPv6Address
 from typing import TYPE_CHECKING, Any, cast
 
 from aiohttp.web import Application, Request
 from aiohttp.web_response import Response, json_response
 
 from aiogram_webhook.adapters.base import BoundRequest, WebAdapter
+from aiogram_webhook.security.checks.ip import IPAddress
 
 if TYPE_CHECKING:
     from asyncio import Transport
@@ -26,7 +26,7 @@ class AiohttpBoundRequest(BoundRequest):
     def path_param(self, name: str) -> Any | None:
         return self.request.match_info.get(name)
 
-    def ip(self) -> IPv4Address | IPv6Address | str | None:
+    def ip(self) -> IPAddress | str | None:
         if peer_name := cast("Transport", self.request.transport).get_extra_info("peername"):
             return peer_name[0]
 
@@ -37,6 +37,12 @@ class AiohttpBoundRequest(BoundRequest):
 
 
 class AiohttpWebAdapter(WebAdapter):
+    """
+    Adapter for aiohttp web servers.
+
+    This adapter integrates with aiohttp to handle webhook requests.
+    """
+
     def bind(self, request: Request) -> AiohttpBoundRequest:
         return AiohttpBoundRequest(adapter=self, request=request)
 

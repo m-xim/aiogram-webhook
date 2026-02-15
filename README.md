@@ -40,37 +40,42 @@ from fastapi import FastAPI
 from aiogram import Bot, Dispatcher, Router
 from aiogram.filters import CommandStart
 from aiogram.types import Message
-from aiogram_webhook import SimpleEngine, FastApiWebAdapter
+from aiogram_webhook import SimpleEngine, FastApiWebAdapter, WebhookConfig
 from aiogram_webhook.routing import StaticRouting
 
 router = Router()
+
 
 @router.message(CommandStart())
 async def start(message: Message):
     await message.answer("OK")
 
+
 dispatcher = Dispatcher()
 dispatcher.include_router(router)
 bot = Bot("BOT_TOKEN")
 
-engine = SimpleEngine( # or other engine
+
+engine = SimpleEngine(
     dispatcher,
     bot,
     web_adapter=FastApiWebAdapter(),
     routing=StaticRouting(url="https://example.com/webhook"),
+    webhook_config=WebhookConfig(allowed_updates=["message", "callback_query"], drop_pending_updates=True),
     # security=Security(...)
 )
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     engine.register(app)
-    await engine.set_webhook(
-        drop_pending_updates=True,
-        allowed_updates=("message", "callback_query"),
-    )
+    await engine.set_webhook()  # Uses webhook_config defaults
+    # Or override specific params:
+    # await engine.set_webhook(max_connections=100)
     await engine.on_startup(app)
     yield
     await engine.on_shutdown(app)
+
 
 app = FastAPI(lifespan=lifespan)
 ```
@@ -80,29 +85,33 @@ app = FastAPI(lifespan=lifespan)
 from aiogram import Bot, Dispatcher, Router
 from aiogram.filters import CommandStart
 from aiogram.types import Message
-from aiogram_webhook import SimpleEngine, AiohttpWebAdapter
+from aiogram_webhook import SimpleEngine, AiohttpWebAdapter, WebhookConfig
 from aiogram_webhook.routing import StaticRouting
 from aiohttp import web
 
 router = Router()
 
+
 @router.message(CommandStart())
 async def start(message: Message):
     await message.answer("OK")
 
-async def on_startup(bot: Bot, webhook_engine:SimpleEngine) -> None:
+
+async def on_startup(bot: Bot, webhook_engine: SimpleEngine) -> None:
     await webhook_engine.set_webhook()
+
 
 dispatcher = Dispatcher()
 dispatcher.include_router(router)
 dispatcher.startup.register(on_startup)
 bot = Bot("BOT_TOKEN")
 
-engine = SimpleEngine( # or other engine
+engine = SimpleEngine(
     dispatcher,
     bot,
     web_adapter=AiohttpWebAdapter(),
     routing=StaticRouting(url="https://example.com/webhook"),
+    webhook_config=WebhookConfig(allowed_updates=["message", "callback_query"]),
     # security=Security(...)
 )
 app = web.Application()
@@ -121,21 +130,23 @@ Used for serving a single Telegram bot. Suitable for most standard scenarios whe
 
 - Connects aiogram `Dispatcher` and `Bot` to the selected web framework (FastAPI, aiohttp, etc.)
 - Handles webhook requests for a single bot
-- Requires explicit dispatcher, bot, web_adapter, and routing (security is optional)
+- Requires explicit dispatcher, bot, web_adapter, and routing (security and webhook_config are optional)
 
 **Example:**
 ```python
 from aiogram import Bot, Dispatcher
-from aiogram_webhook import SimpleEngine, FastApiWebAdapter
+from aiogram_webhook import SimpleEngine, FastApiWebAdapter, WebhookConfig
 from aiogram_webhook.routing import StaticRouting
 
 bot = Bot("BOT_TOKEN")
 dispatcher = Dispatcher()
+
 engine = SimpleEngine(
     dispatcher,
     bot,
     web_adapter=FastApiWebAdapter(),
     routing=StaticRouting(url="https://example.com/webhook"),
+    webhook_config=WebhookConfig(allowed_updates=["message", "callback_query"], drop_pending_updates=True),
     # security=Security(...)
 )
 ```
@@ -146,7 +157,7 @@ Allows you to serve multiple Telegram bots in a single application. Useful if yo
 
 - Allows serving multiple bots via a single endpoint
 - Uses the bot token for request routing
-- Requires dispatcher, web_adapter, routing, bot_settings (a dict with bot settings), security (optional)
+- Requires dispatcher, web_adapter, routing, bot_settings (optional), webhook_config (optional), and security (optional)
 
 **Example:**
 
@@ -155,10 +166,11 @@ from aiogram import Dispatcher, Router
 from aiogram.client.default import DefaultBotProperties
 from aiogram.types import Message
 from aiogram.filters import Command, CommandObject
-from aiogram_webhook import TokenEngine, FastApiWebAdapter
+from aiogram_webhook import TokenEngine, FastApiWebAdapter, WebhookConfig
 from aiogram_webhook.routing import PathRouting
 
 router = Router()
+
 
 @router.message(Command("addbot"))
 async def add_bot_handler(message: Message, command: CommandObject, webhook_engine: TokenEngine):
@@ -169,14 +181,17 @@ async def add_bot_handler(message: Message, command: CommandObject, webhook_engi
     new_bot = await webhook_engine.set_webhook(token)
     await message.answer(f"Bot #{new_bot.id} started!")
 
+
 dispatcher = Dispatcher()
 dispatcher.include_router(router)
+
 
 engine = TokenEngine(
     dispatcher,
     web_adapter=FastApiWebAdapter(),
     routing=PathRouting(url="https://example.com/webhook/{bot_token}"),
     bot_settings={"default": DefaultBotProperties(parse_mode="HTML")},
+    webhook_config=WebhookConfig(allowed_updates=["message", "callback_query"]),
     # security=Security(...)
 )
 ```
@@ -268,6 +283,12 @@ See [routing examples](/src/aiogram_webhook/routing) for implementation details.
 
 ---
 
+## ⚙️ Webhook Configuration
+
+`WebhookConfig` allows you to set default parameters for the Telegram [`setWebhook`](https://core.telegram.org/bots/api#setwebhook) API call. All parameters are optional and can be overridden when calling `engine.set_webhook()`.
+
+---
+
 ## 🛡️ Security
 
 aiogram-webhook provides a flexible and extensible security system for processing webhook requests. You can use built-in mechanisms, combine them, or implement your own checks.
@@ -276,8 +297,8 @@ aiogram-webhook provides a flexible and extensible security system for processin
 from aiogram_webhook.security import Security, StaticSecretToken, IPCheck
 
 security = Security(
-    IPCheck(), # and other checks...
-    secret_token=StaticSecretToken("YOUR_SECRET_TOKEN")
+    IPCheck(),  # and other checks...
+    secret_token=StaticSecretToken("YOUR_SECRET_TOKEN"),
 )
 ```
 

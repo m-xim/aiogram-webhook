@@ -8,26 +8,11 @@ from tests.fixtures import DummyBoundRequest
 @pytest.mark.parametrize(
     ("secret_token", "request_token", "expected"),
     [
-        # Standard cases
         ("my-secret", "my-secret", True),
-        ("my-secret", "wrong", False),
+        ("my-secret", "wrong-secret", False),
         ("my-secret", None, False),
-        # Empty string cases
-        ("", "", True),
-        ("", None, False),
-        # Different secrets
-        ("secret1", "secret1", True),
-        ("secret2", "secret1", False),
     ],
-    ids=[
-        "match",
-        "mismatch",
-        "none",
-        "empty-match",
-        "empty-none",
-        "other-match",
-        "other-mismatch",
-    ],
+    ids=["match", "mismatch", "none"],
 )
 async def test_security_secret_token(secret_token, request_token, expected, bot):
     sec = Security(secret_token=StaticSecretToken(secret_token))

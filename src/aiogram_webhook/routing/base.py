@@ -8,7 +8,7 @@ from aiogram_webhook.adapters.base import BoundRequest
 
 class BaseRouting(ABC):
     """
-    Abstract base class for webhook routing strategies.
+    Abstract base class for webhook routing.
 
     Defines how webhook URLs are constructed and how keys (tokens)
     are extracted from incoming requests.
@@ -21,7 +21,7 @@ class BaseRouting(ABC):
 
     @abstractmethod
     def webhook_point(self, bot: Bot) -> str:
-        """Return the webhook URL for the given bot."""
+        """Get the webhook URL for the given bot."""
         raise NotImplementedError
 
 

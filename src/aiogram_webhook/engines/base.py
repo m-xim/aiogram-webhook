@@ -1,17 +1,21 @@
+from __future__ import annotations
+
 import asyncio
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any
 
-from aiogram import Bot, Dispatcher
 from aiogram.methods import TelegramMethod
-from aiogram.methods.base import TelegramType
 
-from aiogram_webhook.adapters.base import BoundRequest, WebAdapter
-from aiogram_webhook.routing.base import BaseRouting
-from aiogram_webhook.security.security import Security
+from aiogram_webhook.config import WebhookConfig
 
 if TYPE_CHECKING:
+    from aiogram import Bot, Dispatcher
+    from aiogram.methods.base import TelegramType
     from aiogram.types import InputFile
+
+    from aiogram_webhook.adapters.base import BoundRequest, WebAdapter
+    from aiogram_webhook.routing.base import BaseRouting
+    from aiogram_webhook.security.security import Security
 
 
 class WebhookEngine(ABC):
@@ -21,13 +25,6 @@ class WebhookEngine(ABC):
     Handles incoming webhook requests, bot resolution, security checks,
     routing, and dispatching updates to the aiogram dispatcher. Supports
     both synchronous and background processing.
-
-    Constructor arguments:
-        dispatcher: aiogram.Dispatcher instance for update processing.
-        web_adapter: Web framework adapter class.
-        routing: Webhook routing strategy.
-        security: True — protect by IP (IPCheck), False/None — not protect, Security — custom protect.
-        handle_in_background: Whether to process updates in background (default: True).
     """
 
     def __init__(
@@ -37,12 +34,14 @@ class WebhookEngine(ABC):
         web_adapter: WebAdapter,
         routing: BaseRouting,
         security: Security | None = None,
+        webhook_config: WebhookConfig | None = None,
         handle_in_background: bool = True,
     ) -> None:
         self.security = security
         self.dispatcher = dispatcher
         self.web_adapter = web_adapter
         self.routing = routing
+        self.webhook_config = webhook_config or WebhookConfig()
         self.handle_in_background = handle_in_background
         self._background_feed_update_tasks: set[asyncio.Task[Any]] = set()
 
@@ -141,3 +140,19 @@ class WebhookEngine(ABC):
             if pv is not None:
                 params[k] = pv
         return {"method": method.__api_method__, **params}
+
+    def _build_webhook_config(
+        self,
+        *,
+        max_connections: int | None = None,
+        drop_pending_updates: bool | None = None,
+        allowed_updates: list[str] | None = None,
+    ) -> WebhookConfig:
+        overrides = {}
+        if max_connections is not None:
+            overrides["max_connections"] = max_connections
+        if drop_pending_updates is not None:
+            overrides["drop_pending_updates"] = drop_pending_updates
+        if allowed_updates is not None:
+            overrides["allowed_updates"] = allowed_updates
+        return self.webhook_config.model_copy(update=overrides) if overrides else self.webhook_config

@@ -1,0 +1,49 @@
+line-length = 120
+exclude = [".venv", "__pycache__"]
+extend-include = ["*.md"]
+
+[format]
+skip-magic-trailing-comma = false
+preview = true
+
+[lint]
+select = ["ALL"]
+ignore = [
+    "D",
+    "ANN",
+    "PLR09",
+    "COM812",
+    "ERA001",
+    "T201",
+    "RUF059",
+    "BLE001",
+    "RUF001",
+    "RUF003",
+    "TRY003",
+    "EM101",
+    "RUF002",
+    "EM102",
+    "FBT001",
+    "FBT002",
+    "TD002",
+    "FIX002",
+    "TD003",
+    "PLR2004",
+    "N806",
+    "E501",
+    "N815"
+]
+
+[lint.flake8-tidy-imports]
+ban-relative-imports = "all"
+
+[lint.per-file-ignores]
+"tests/**/*" = [
+    "PLR2004",
+    "S101",
+    "TID252",
+    "S106",
+    "S105",
+    "ARG002"
+]
+
