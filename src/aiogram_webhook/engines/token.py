@@ -116,7 +116,9 @@ class TokenEngine(WebhookEngine):
         params = config.model_dump(exclude_none=True)
 
         if self.security:
-            params["secret_token"] = await self.security.get_secret_token(bot=bot)
+            secret_token = await self.security.get_secret_token(bot=bot)
+            if secret_token is not None:
+                params["secret_token"] = secret_token
 
         await bot.set_webhook(url=self.routing.webhook_point(bot), request_timeout=request_timeout, **params)
         return bot

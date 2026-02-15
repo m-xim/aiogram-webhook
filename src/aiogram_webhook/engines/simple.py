@@ -99,7 +99,9 @@ class SimpleEngine(WebhookEngine):
         params = config.model_dump(exclude_none=True)
 
         if self.security:
-            params["secret_token"] = await self.security.get_secret_token(bot=self.bot)
+            secret_token = await self.security.get_secret_token(bot=self.bot)
+            if secret_token is not None:
+                params["secret_token"] = secret_token
 
         await self.bot.set_webhook(url=self.routing.webhook_point(self.bot), request_timeout=request_timeout, **params)
         return self.bot
