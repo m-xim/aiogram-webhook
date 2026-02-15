@@ -76,14 +76,10 @@ class IPCheck(SecurityCheck):
         if not raw_ip:
             return False
         try:
-            addr = ip_address(raw_ip)
+            ip_addr = ip_address(raw_ip)
         except ValueError:
             return False
-
-        if addr in self._addresses:
-            return True
-
-        return any(addr in net for net in self._networks)
+        return (ip_addr in self._addresses) or any(ip_addr in network for network in self._networks)
 
     @staticmethod
     def _parse(item: IPAddressOrNetwork | str) -> IPAddressOrNetwork | None:
