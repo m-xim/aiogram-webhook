@@ -43,7 +43,7 @@ class TokenEngine(WebhookEngine):
             handle_in_background=handle_in_background,
         )
         self.routing: TokenRouting = routing  # for type checker
-        self.bot_config_dict = bot_config.model_dump(exclude_none=True) if bot_config else {}
+        self.bot_config = bot_config or BotConfig()
         self._bots: dict[int, Bot] = {}
 
     def _get_bot_from_request(self, bound_request: BoundRequest) -> Bot | None:
@@ -71,7 +71,7 @@ class TokenEngine(WebhookEngine):
         """
         bot = self._bots.get(extract_bot_id(token))
         if not bot:
-            bot = Bot(token=token, **self.bot_config_dict)
+            bot = Bot(token=token, session=self.bot_config.session, default=self.bot_config.default)
             self._bots[bot.id] = bot
         return bot
 
