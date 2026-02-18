@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Any
 
 from aiogram.methods import TelegramMethod
 
-from aiogram_webhook.config import WebhookConfig
+from aiogram_webhook.config.webhook import WebhookConfig
 
 if TYPE_CHECKING:
     from aiogram import Bot, Dispatcher

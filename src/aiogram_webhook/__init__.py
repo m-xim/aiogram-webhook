@@ -1,9 +1,10 @@
 from aiogram_webhook.adapters.base import WebAdapter
-from aiogram_webhook.config import WebhookConfig
+from aiogram_webhook.config.bot import BotConfig
+from aiogram_webhook.config.webhook import WebhookConfig
 from aiogram_webhook.engines.simple import SimpleEngine
 from aiogram_webhook.engines.token import TokenEngine
 
-__all__ = ["SimpleEngine", "TokenEngine", "WebAdapter", "WebhookConfig"]
+__all__ = ["BotConfig", "SimpleEngine", "TokenEngine", "WebAdapter", "WebhookConfig"]
 
 
 try:

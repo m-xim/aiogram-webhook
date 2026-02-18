@@ -166,7 +166,7 @@ from aiogram import Dispatcher, Router
 from aiogram.client.default import DefaultBotProperties
 from aiogram.types import Message
 from aiogram.filters import Command, CommandObject
-from aiogram_webhook import TokenEngine, FastApiWebAdapter, WebhookConfig
+from aiogram_webhook import TokenEngine, FastApiWebAdapter, WebhookConfig, BotConfig
 from aiogram_webhook.routing import PathRouting
 
 router = Router()
@@ -190,7 +190,7 @@ engine = TokenEngine(
     dispatcher,
     web_adapter=FastApiWebAdapter(),
     routing=PathRouting(url="https://example.com/webhook/{bot_token}"),
-    bot_settings={"default": DefaultBotProperties(parse_mode="HTML")},
+    bot_config=BotConfig(default=DefaultBotProperties(parse_mode="HTML")),
     webhook_config=WebhookConfig(allowed_updates=["message", "callback_query"]),
     # security=Security(...)
 )

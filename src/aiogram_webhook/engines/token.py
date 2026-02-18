@@ -9,7 +9,8 @@ from aiogram_webhook.engines.base import WebhookEngine
 
 if TYPE_CHECKING:
     from aiogram_webhook.adapters.base import BoundRequest, WebAdapter
-    from aiogram_webhook.config import WebhookConfig
+    from aiogram_webhook.config.bot import BotConfig
+    from aiogram_webhook.config.webhook import WebhookConfig
     from aiogram_webhook.routing.base import TokenRouting
     from aiogram_webhook.security.security import Security
 
@@ -29,7 +30,7 @@ class TokenEngine(WebhookEngine):
         web_adapter: WebAdapter,
         routing: TokenRouting,
         security: Security | None = None,
-        bot_settings: dict[str, Any] | None = None,
+        bot_config: BotConfig | None = None,
         webhook_config: WebhookConfig | None = None,
         handle_in_background: bool = True,
     ) -> None:
@@ -42,7 +43,7 @@ class TokenEngine(WebhookEngine):
             handle_in_background=handle_in_background,
         )
         self.routing: TokenRouting = routing  # for type checker
-        self.bot_settings = bot_settings
+        self.bot_config_dict = bot_config.model_dump(exclude_none=True) if bot_config else {}
         self._bots: dict[int, Bot] = {}
 
     def _get_bot_from_request(self, bound_request: BoundRequest) -> Bot | None:
@@ -70,7 +71,7 @@ class TokenEngine(WebhookEngine):
         """
         bot = self._bots.get(extract_bot_id(token))
         if not bot:
-            bot = Bot(token=token, **(self.bot_settings or {}))
+            bot = Bot(token=token, **self.bot_config_dict)
             self._bots[bot.id] = bot
         return bot
 
@@ -107,7 +108,6 @@ class TokenEngine(WebhookEngine):
             secret_token = await self.security.get_secret_token(bot=bot)
             if secret_token is not None:
                 params["secret_token"] = secret_token
-
         await bot.set_webhook(url=self.routing.webhook_point(bot), request_timeout=request_timeout, **params)
         return bot
 
