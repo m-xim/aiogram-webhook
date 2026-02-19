@@ -80,10 +80,12 @@ class WebhookEngine(ABC):
         if not is_allowed:
             return self.web_adapter.create_json_response(status=403, payload={"detail": "Forbidden"})
 
-        if self.handle_in_background:
-            return await self._handle_request_background(bot=bot, bound_request=bound_request)
+        update = await bound_request.json()
 
-        return await self._handle_request(bot=bot, bound_request=bound_request)
+        if self.handle_in_background:
+            return await self._handle_request_background(bot=bot, update=update)
+
+        return await self._handle_request(bot=bot, update=update)
 
     def register(self, app: Any) -> None:
         self.web_adapter.register(
@@ -94,8 +96,8 @@ class WebhookEngine(ABC):
             on_shutdown=self.on_shutdown,
         )
 
-    async def _handle_request(self, bot: Bot, bound_request: BoundRequest) -> dict[str, Any]:
-        result = await self.dispatcher.feed_webhook_update(bot=bot, update=await bound_request.json())
+    async def _handle_request(self, bot: Bot, update: dict[str, Any]) -> dict[str, Any]:
+        result = await self.dispatcher.feed_webhook_update(bot=bot, update=update)
 
         if not isinstance(result, TelegramMethod):
             return self.web_adapter.create_json_response(status=200, payload={})
@@ -113,9 +115,9 @@ class WebhookEngine(ABC):
         if isinstance(result, TelegramMethod):
             await self.dispatcher.silent_call_request(bot=bot, result=result)
 
-    async def _handle_request_background(self, bot: Bot, bound_request: BoundRequest):
+    async def _handle_request_background(self, bot: Bot, update: dict[str, Any]):
         feed_update_task = asyncio.create_task(
-            self._background_feed_update(bot=bot, update=await bound_request.json()),
+            self._background_feed_update(bot=bot, update=update),
         )
         self._background_feed_update_tasks.add(feed_update_task)
         feed_update_task.add_done_callback(self._background_feed_update_tasks.discard)
