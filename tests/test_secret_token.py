@@ -1,7 +1,7 @@
 import pytest
 
 from aiogram_webhook.security import Security, StaticSecretToken
-from tests.fixtures import DummyBoundRequest
+from tests.fixtures import DummyBoundRequest, DummyRequest
 
 
 @pytest.mark.asyncio
@@ -16,7 +16,8 @@ from tests.fixtures import DummyBoundRequest
 )
 async def test_security_secret_token(secret_token, request_token, expected, bot):
     sec = Security(secret_token=StaticSecretToken(secret_token))
-    req = DummyBoundRequest(secret_token=request_token)
+    headers = {"x-telegram-bot-api-secret-token": request_token} if request_token is not None else {}
+    req = DummyBoundRequest(DummyRequest(headers=headers))
     assert await sec.verify(bot, req) is expected
 
 

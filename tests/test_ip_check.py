@@ -1,7 +1,7 @@
 import pytest
 
 from aiogram_webhook.security.checks.ip import IPCheck
-from tests.fixtures import DummyBoundRequest
+from tests.fixtures import DummyBoundRequest, DummyRequest
 
 
 @pytest.mark.asyncio
@@ -23,7 +23,7 @@ from tests.fixtures import DummyBoundRequest
     ],
 )
 async def test_ip_check_direct(allowed_ips, request_ip, expected, bot):
-    req = DummyBoundRequest(ip=request_ip)
+    req = DummyBoundRequest(DummyRequest(ip=request_ip))
     ip_check = IPCheck(*allowed_ips, include_default=False)
     assert await ip_check.verify(bot, req) is expected
 
@@ -52,7 +52,7 @@ async def test_ip_check_direct(allowed_ips, request_ip, expected, bot):
 )
 async def test_ip_check_forwarded(allowed_ips, x_forwarded_for, expected, bot):
     headers = {"X-Forwarded-For": x_forwarded_for} if x_forwarded_for is not None else None
-    req = DummyBoundRequest(ip="127.0.0.1", headers=headers)
+    req = DummyBoundRequest(DummyRequest(ip="127.0.0.1", headers=headers))
     ip_check = IPCheck(*allowed_ips, include_default=False)
     assert await ip_check.verify(bot, req) is expected
 
@@ -77,7 +77,7 @@ async def test_ip_check_forwarded(allowed_ips, x_forwarded_for, expected, bot):
 )
 async def test_ip_check_both_priority(allowed_ips, request_ip, x_forwarded_for, expected, bot):
     headers = {"X-Forwarded-For": x_forwarded_for}
-    req = DummyBoundRequest(ip=request_ip, headers=headers)
+    req = DummyBoundRequest(DummyRequest(ip=request_ip, headers=headers))
     ip_check = IPCheck(*allowed_ips, include_default=False)
     assert await ip_check.verify(bot, req) is expected
 
@@ -96,6 +96,6 @@ async def test_ip_check_both_priority(allowed_ips, request_ip, x_forwarded_for, 
 )
 async def test_ip_check_edge_cases(allowed_ips, request_ip, x_forwarded_for, expected, bot):
     headers = {"X-Forwarded-For": x_forwarded_for}
-    req = DummyBoundRequest(ip=request_ip, headers=headers)
+    req = DummyBoundRequest(DummyRequest(ip=request_ip, headers=headers))
     ip_check = IPCheck(*allowed_ips, include_default=False)
     assert await ip_check.verify(bot, req) is expected
