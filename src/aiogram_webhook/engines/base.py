@@ -74,11 +74,11 @@ class WebhookEngine(ABC):
     async def handle_request(self, bound_request: BoundRequest):
         bot = self._get_bot_from_request(bound_request)
         if bot is None:
-            return bound_request.json_response(status=400, payload={"detail": "Bot not found"})
+            return self.web_adapter.create_json_response(status=400, payload={"detail": "Bot not found"})
 
         is_allowed = await self.security.verify(bot=bot, bound_request=bound_request)
         if not is_allowed:
-            return bound_request.json_response(status=403, payload={"detail": "Forbidden"})
+            return self.web_adapter.create_json_response(status=403, payload={"detail": "Forbidden"})
 
         if self.handle_in_background:
             return await self._handle_request_background(bot=bot, bound_request=bound_request)
@@ -98,15 +98,15 @@ class WebhookEngine(ABC):
         result = await self.dispatcher.feed_webhook_update(bot=bot, update=await bound_request.json())
 
         if not isinstance(result, TelegramMethod):
-            return bound_request.json_response(status=200, payload={})
+            return self.web_adapter.create_json_response(status=200, payload={})
 
         payload = self._build_webhook_payload(bot, result)
         if payload is None:
             # Has new files (InputFile) — execute directly via API
             await self.dispatcher.silent_call_request(bot=bot, result=result)
-            return bound_request.json_response(status=200, payload={})
+            return self.web_adapter.create_json_response(status=200, payload={})
 
-        return bound_request.json_response(status=200, payload=payload)
+        return self.web_adapter.create_json_response(status=200, payload=payload)
 
     async def _background_feed_update(self, bot: Bot, update: dict[str, Any]) -> None:
         result = await self.dispatcher.feed_raw_update(bot=bot, update=update)  # **self.data
@@ -120,7 +120,7 @@ class WebhookEngine(ABC):
         self._background_feed_update_tasks.add(feed_update_task)
         feed_update_task.add_done_callback(self._background_feed_update_tasks.discard)
 
-        return bound_request.json_response(status=200, payload={})
+        return self.web_adapter.create_json_response(status=200, payload={})
 
     @staticmethod
     def _build_webhook_payload(bot: Bot, method: TelegramMethod[TelegramType]) -> dict[str, Any] | None:

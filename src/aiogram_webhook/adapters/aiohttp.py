@@ -10,10 +10,7 @@ if TYPE_CHECKING:
     from asyncio import Transport
 
 
-class AiohttpBoundRequest(BoundRequest):
-    adapter: "AiohttpWebAdapter"
-    request: Request
-
+class AiohttpBoundRequest(BoundRequest[Request]):
     async def json(self) -> dict[str, Any]:
         return await self.request.json()
 
@@ -32,9 +29,6 @@ class AiohttpBoundRequest(BoundRequest):
 
         return None
 
-    def json_response(self, status: int, payload: dict[str, Any]) -> Response:
-        return json_response(status=status, data=payload)
-
 
 class AiohttpWebAdapter(WebAdapter):
     """
@@ -44,7 +38,7 @@ class AiohttpWebAdapter(WebAdapter):
     """
 
     def bind(self, request: Request) -> AiohttpBoundRequest:
-        return AiohttpBoundRequest(adapter=self, request=request)
+        return AiohttpBoundRequest(request=request)
 
     def register(self, app: Application, path, handler, on_startup=None, on_shutdown=None) -> None:
         async def endpoint(request: Request):
@@ -55,3 +49,6 @@ class AiohttpWebAdapter(WebAdapter):
             app.on_startup.append(on_startup)
         if on_shutdown is not None:
             app.on_shutdown.append(on_shutdown)
+
+    def create_json_response(self, status: int, payload: dict[str, Any]) -> Response:
+        return json_response(status=status, data=payload)

@@ -1,8 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Generic, Protocol, TypeVar
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable
@@ -10,16 +9,20 @@ if TYPE_CHECKING:
     from aiogram_webhook.security.checks.ip import IPAddress
 
 
-@dataclass(slots=True)
-class BoundRequest(ABC):
+R = TypeVar("R")
+
+
+class BoundRequest(ABC, Generic[R]):
     """
     Abstract base class for a request bound to a web adapter.
 
     Provides interface for extracting data from incoming requests and generating responses.
     """
 
-    request: Any
-    adapter: WebAdapter
+    __slots__ = ("request",)
+
+    def __init__(self, request: R) -> None:
+        self.request = request
 
     @abstractmethod
     async def json(self) -> dict[str, Any]:
@@ -46,25 +49,13 @@ class BoundRequest(ABC):
         """Get IP directly from client connection (implementation-specific)."""
         raise NotImplementedError
 
-    def secret_token(self) -> str | None:
-        """Get the secret token from the request header."""
-        return self.header(self.adapter.secret_header)
 
-    @abstractmethod
-    def json_response(self, status: int, payload: dict[str, Any]) -> Any:
-        """Create a JSON response with the given status and payload."""
-        raise NotImplementedError
-
-
-@dataclass
-class WebAdapter(ABC):
+class WebAdapter(Protocol):
     """
-    Abstract base class for web framework adapters.
+    Protocol for web framework adapters using structural subtyping.
 
     Provides interface for binding requests and registering webhook handlers.
     """
-
-    secret_header: str = "x-telegram-bot-api-secret-token"  # noqa: S105
 
     @abstractmethod
     def bind(self, request: Any) -> BoundRequest:
@@ -89,4 +80,9 @@ class WebAdapter(ABC):
         :param on_startup: Optional startup callback.
         :param on_shutdown: Optional shutdown callback.
         """
+        raise NotImplementedError
+
+    @abstractmethod
+    def create_json_response(self, status: int, payload: dict[str, Any]) -> Any:
+        """Create a JSON response with the given status and payload."""
         raise NotImplementedError
