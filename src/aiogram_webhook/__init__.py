@@ -1,4 +1,3 @@
-from aiogram_webhook.adapters.base import WebAdapter
 from aiogram_webhook.config.bot import BotConfig
 from aiogram_webhook.config.webhook import WebhookConfig
 from aiogram_webhook.engines.simple import SimpleEngine
