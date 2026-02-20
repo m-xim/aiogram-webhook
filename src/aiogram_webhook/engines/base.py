@@ -7,7 +7,6 @@ from typing import TYPE_CHECKING, Any
 from aiogram.methods import TelegramMethod
 
 from aiogram_webhook.config.webhook import WebhookConfig
-from aiogram_webhook.security.security import Security
 
 if TYPE_CHECKING:
     from aiogram import Bot, Dispatcher
@@ -16,6 +15,7 @@ if TYPE_CHECKING:
 
     from aiogram_webhook.adapters.base import BoundRequest, WebAdapter
     from aiogram_webhook.routing.base import BaseRouting
+    from aiogram_webhook.security.security import Security
 
 
 class WebhookEngine(ABC):
@@ -40,7 +40,7 @@ class WebhookEngine(ABC):
         self.dispatcher = dispatcher
         self.web_adapter = web_adapter
         self.routing = routing
-        self.security = security or Security()
+        self.security = security
         self.webhook_config = webhook_config or WebhookConfig()
         self.handle_in_background = handle_in_background
         self._background_feed_update_tasks: set[asyncio.Task[Any]] = set()
@@ -76,8 +76,7 @@ class WebhookEngine(ABC):
         if bot is None:
             return self.web_adapter.create_json_response(status=400, payload={"detail": "Bot not found"})
 
-        is_allowed = await self.security.verify(bot=bot, bound_request=bound_request)
-        if not is_allowed:
+        if self.security is not None and not await self.security.verify(bot=bot, bound_request=bound_request):
             return self.web_adapter.create_json_response(status=403, payload={"detail": "Forbidden"})
 
         update = await bound_request.json()

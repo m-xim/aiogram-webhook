@@ -28,8 +28,7 @@ class Security:
                 return False
 
         for checker in self._checks:
-            ok = await checker.verify(bot=bot, bound_request=bound_request)
-            if not ok:
+            if not await checker.verify(bot=bot, bound_request=bound_request):
                 return False
 
         return True
