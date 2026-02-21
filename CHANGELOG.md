@@ -2,6 +2,60 @@
 
 <!-- version list -->
 
+## v2.0.0 (2026-02-21)
+
+### Bug Fixes
+
+- Remove WebAdapter import
+  ([`07a6498`](https://github.com/m-xim/aiogram-webhook/commit/07a6498547405b3cf4e29a024be3846b82526ced))
+
+- **token**: Move BotConfig import from TYPE_CHECKING
+  ([`82bb210`](https://github.com/m-xim/aiogram-webhook/commit/82bb210df2cf942fffa072b812d9c96f268c4d64))
+
+### Features
+
+- **base_mapping**: Implement len and iter in mapping interface
+  ([`bc50c41`](https://github.com/m-xim/aiogram-webhook/commit/bc50c41e16b3d9bfac604e0867250049735c3a93))
+
+### Refactoring
+
+- Move on_startup
+  ([`519c7d2`](https://github.com/m-xim/aiogram-webhook/commit/519c7d2f4d7e7c4815bf726436e65c5fb7a204d9))
+
+- Remove WebAdapter from public API exports
+  ([`1ef8bbd`](https://github.com/m-xim/aiogram-webhook/commit/1ef8bbd03100191612feccd897a9509c403bc3fe))
+
+- Unify response creation via WebAdapter and update BoundRequest interface
+  ([`3f30edc`](https://github.com/m-xim/aiogram-webhook/commit/3f30edc82d3f9e9eaf653c90c99695e3bb5f9e93))
+
+- **adapters**: Cache headers and query params mappings in BoundRequest implementations
+  ([`72c0216`](https://github.com/m-xim/aiogram-webhook/commit/72c02161a0f4767d233324faabc4c0fb01b30bf9))
+
+- **adapters**: Unify BoundRequest interface and introduce framework-specific mappings
+  ([`ca3693c`](https://github.com/m-xim/aiogram-webhook/commit/ca3693c104caab61c7cbc3b101cd611b9a2fbf97))
+
+- **ip**: Refactoring
+  ([`3292a0f`](https://github.com/m-xim/aiogram-webhook/commit/3292a0f2c3b074f5ad22a0d09e889605310a856a))
+
+- **security**: Remove redundant security checks and default to Security instance
+  ([`5214a65`](https://github.com/m-xim/aiogram-webhook/commit/5214a657ab01e76e566b728de0c6ce11a23ea995))
+
+- **security**: Update type hints for BoundRequest and clarify SecretToken docstring
+  ([`e5a0509`](https://github.com/m-xim/aiogram-webhook/commit/e5a0509a91943aa1fd49bab9523ee817a956de0a))
+
+- **tests**: Introduce DummyRequest and update DummyBoundRequest
+  ([`abba2a0`](https://github.com/m-xim/aiogram-webhook/commit/abba2a09cc132e5d72016d8a2ec5136efe460647))
+
+- **token**: Use BotConfig instance for bot initialization
+  ([`aedd111`](https://github.com/m-xim/aiogram-webhook/commit/aedd111659bab4bdf1bbf6e403df675188c2a8c6))
+
+- **WebhookEngine**: Make security optional and update secret token handling
+  ([`e0d8fb3`](https://github.com/m-xim/aiogram-webhook/commit/e0d8fb393860a94f872bc9320210af2f4c4bd2ee))
+
+- **WebhookEngine**: Pass parsed update dict instead of BoundRequest to handler methods
+  ([`c50af89`](https://github.com/m-xim/aiogram-webhook/commit/c50af890a04b41223221b28edfc52f8177c787ab))
+
+
 ## v1.1.0 (2026-02-15)
 
 ### Bug Fixes
