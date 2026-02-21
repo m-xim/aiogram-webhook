@@ -25,4 +25,4 @@ class PathRouting(TokenRouting):
         return self.url_template.format_map({self.param: bot.token})
 
     def extract_token(self, bound_request) -> str | None:
-        return bound_request.path_param(self.param)
+        return bound_request.path_params.get(self.param)

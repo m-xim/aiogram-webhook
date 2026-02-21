@@ -1,4 +1,6 @@
-from aiogram_webhook.adapters.base import BoundRequest, WebAdapter
+from typing import Any
+
+from aiogram_webhook.adapters.base_adapter import BoundRequest, WebAdapter
 
 
 class DummyAdapter(WebAdapter):
@@ -8,32 +10,37 @@ class DummyAdapter(WebAdapter):
     def register(self, app, path, handler, on_startup=None, on_shutdown=None):
         raise NotImplementedError("DummyAdapter.register is not implemented")
 
+    def create_json_response(self, status, payload):
+        return status, payload
 
-class DummyBoundRequest(BoundRequest):
-    def __init__(self, path_params=None, query_params=None, secret_token=None, ip=None, headers=None):
-        super().__init__(request=None, adapter=DummyAdapter())
-        self._path_params = path_params or {}
-        self._query_params = query_params or {}
-        self._secret_token = secret_token
-        self._ip = ip
-        self._headers = headers or {}
 
-    async def json(self):
+class DummyRequest:
+    def __init__(self, *, path_params=None, query_params=None, headers=None, ip=None):
+        self.path_params = path_params or {}
+        self.query_params = query_params or {}
+        self.headers = headers or {}
+        self.ip = ip
+
+
+class DummyBoundRequest(BoundRequest[DummyRequest]):
+    def __init__(self, request: DummyRequest | None = None):
+        super().__init__(request or DummyRequest())
+
+    async def json(self) -> dict[str, Any]:
         return {}
 
-    def header(self, name):
-        if name == self.adapter.secret_header:
-            return self._secret_token
-        return self._headers.get(name)
+    @property
+    def client_ip(self) -> str | None:
+        return self.request.ip
 
-    def query_param(self, name):
-        return self._query_params.get(name)
+    @property
+    def headers(self):
+        return self.request.headers
 
-    def path_param(self, name):
-        return self._path_params.get(name)
+    @property
+    def query_params(self):
+        return self.request.query_params
 
-    def ip(self):
-        return self._ip
-
-    def json_response(self, status, payload):
-        return status, payload
+    @property
+    def path_params(self):
+        return self.request.path_params

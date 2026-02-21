@@ -7,8 +7,8 @@ from aiogram_webhook.engines.base import WebhookEngine
 if TYPE_CHECKING:
     from aiogram import Bot, Dispatcher
 
-    from aiogram_webhook.adapters.base import BoundRequest, WebAdapter
-    from aiogram_webhook.config import WebhookConfig
+    from aiogram_webhook.adapters.base_adapter import BoundRequest, WebAdapter
+    from aiogram_webhook.config.webhook import WebhookConfig
     from aiogram_webhook.routing.base import BaseRouting
     from aiogram_webhook.security.security import Security
 
@@ -51,13 +51,6 @@ class SimpleEngine(WebhookEngine):
         """
         return self.bot
 
-    async def on_startup(self, app: Any, *args, **kwargs) -> None:  # noqa: ARG002
-        """
-        Called on application startup. Emits dispatcher startup event.
-        """
-        workflow_data = self._build_workflow_data(app=app, bot=self.bot, **kwargs)
-        await self.dispatcher.emit_startup(**workflow_data)
-
     async def set_webhook(
         self,
         *,
@@ -84,13 +77,20 @@ class SimpleEngine(WebhookEngine):
         )
         params = config.model_dump(exclude_none=True)
 
-        if self.security:
+        if self.security is not None:
             secret_token = await self.security.get_secret_token(bot=self.bot)
             if secret_token is not None:
                 params["secret_token"] = secret_token
 
         await self.bot.set_webhook(url=self.routing.webhook_point(self.bot), request_timeout=request_timeout, **params)
         return self.bot
+
+    async def on_startup(self, app: Any, *args, **kwargs) -> None:  # noqa: ARG002
+        """
+        Called on application startup. Emits dispatcher startup event.
+        """
+        workflow_data = self._build_workflow_data(app=app, bot=self.bot, **kwargs)
+        await self.dispatcher.emit_startup(**workflow_data)
 
     async def on_shutdown(self, app: Any, *args, **kwargs) -> None:  # noqa: ARG002
         """

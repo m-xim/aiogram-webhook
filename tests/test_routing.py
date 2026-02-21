@@ -5,7 +5,7 @@ from yarl import URL
 from aiogram_webhook.routing.path import PathRouting
 from aiogram_webhook.routing.query import QueryRouting
 from aiogram_webhook.routing.static import StaticRouting
-from tests.fixtures import DummyBoundRequest
+from tests.fixtures import DummyBoundRequest, DummyRequest
 
 
 @pytest.mark.parametrize(
@@ -56,7 +56,7 @@ def test_static_routing(url, bot):
 def test_path_routing(url, param, token, path_params, expected_url, expected_token):
     routing = PathRouting(url=url, param=param)
     assert routing.webhook_point(Bot(token)) == expected_url
-    req = DummyBoundRequest(path_params=path_params)
+    req = DummyBoundRequest(DummyRequest(path_params=path_params))
     assert routing.extract_token(req) == expected_token
 
 
@@ -153,5 +153,5 @@ def test_query_routing(url, param, token, query_params, expected_url, expected_t
     )
 
     # Check token extraction
-    req = DummyBoundRequest(query_params=query_params)
+    req = DummyBoundRequest(DummyRequest(query_params=query_params))
     assert routing.extract_token(req) == expected_token

@@ -1,6 +1,6 @@
 from aiogram import Bot
 
-from aiogram_webhook.adapters.base import BoundRequest
+from aiogram_webhook.adapters.base_adapter import BoundRequest
 from aiogram_webhook.security.checks.check import SecurityCheck
 from aiogram_webhook.security.secret_token import SecretToken
 
@@ -28,8 +28,7 @@ class Security:
                 return False
 
         for checker in self._checks:
-            ok = await checker.verify(bot=bot, bound_request=bound_request)
-            if not ok:
+            if not await checker.verify(bot=bot, bound_request=bound_request):
                 return False
 
         return True

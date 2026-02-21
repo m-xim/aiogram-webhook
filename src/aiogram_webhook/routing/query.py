@@ -15,4 +15,4 @@ class QueryRouting(TokenRouting):
         return self.url.update_query({self.param: bot.token}).human_repr()
 
     def extract_token(self, bound_request) -> str | None:
-        return bound_request.query_param(self.param)
+        return bound_request.query_params.get(self.param)
