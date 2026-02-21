@@ -1,8 +1,7 @@
-from __future__ import annotations
-
 from ipaddress import IPv4Address, IPv4Network, IPv6Address, IPv6Network, ip_address, ip_network
 from typing import Final
 
+from aiogram_webhook.adapters.base_adapter import BoundRequest
 from aiogram_webhook.security.checks.check import SecurityCheck
 
 IPNetwork = IPv4Network | IPv6Network
@@ -44,7 +43,7 @@ class IPCheck(SecurityCheck):
             else:
                 self._addresses.add(parsed)
 
-    async def verify(self, bot, bound_request) -> bool:  # noqa: ARG002
+    async def verify(self, bot, bound_request: BoundRequest) -> bool:  # noqa: ARG002
         raw_ip = self._get_client_ip(bound_request)
         if not raw_ip:
             return False
@@ -54,7 +53,7 @@ class IPCheck(SecurityCheck):
             return False
         return (ip_addr in self._addresses) or any(ip_addr in network for network in self._networks)
 
-    def _get_client_ip(self, bound_request) -> IPAddress | str | None:
+    def _get_client_ip(self, bound_request: BoundRequest) -> IPAddress | str | None:
         # Try to resolve client IP over reverse proxy
         # See: https://github.com/aiogram/aiogram/issues/672
         if forwarded_for := self._extract_first_ip_from_header(bound_request.headers.get("X-Forwarded-For")):

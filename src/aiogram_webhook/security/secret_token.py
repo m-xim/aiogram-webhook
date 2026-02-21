@@ -11,7 +11,7 @@ SECRET_TOKEN_PATTERN = re.compile(r"^[A-Za-z0-9_-]{1,256}$")
 
 class SecretToken(ABC):
     """
-    Protocol for secret token verification in webhook requests.
+    Abstract base class for secret token verification in webhook requests.
     """
 
     secret_header: str = "x-telegram-bot-api-secret-token"  # noqa: S105
