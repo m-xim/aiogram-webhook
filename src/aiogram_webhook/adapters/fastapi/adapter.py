@@ -8,6 +8,11 @@ from aiogram_webhook.adapters.fastapi.mapping import FastAPIHeadersMapping, Fast
 
 
 class FastAPIBoundRequest(BoundRequest[Request]):
+    def __init__(self, request: Request):
+        super().__init__(request)
+        self._headers = FastAPIHeadersMapping(self.request.headers)
+        self._query_params = FastAPIQueryMapping(self.request.query_params)
+
     async def json(self) -> dict[str, Any]:
         return await self.request.json()
 
@@ -19,11 +24,11 @@ class FastAPIBoundRequest(BoundRequest[Request]):
 
     @property
     def headers(self) -> FastAPIHeadersMapping:
-        return FastAPIHeadersMapping(self.request.headers)
+        return self._headers
 
     @property
     def query_params(self) -> FastAPIQueryMapping:
-        return FastAPIQueryMapping(self.request.query_params)
+        return self._query_params
 
     @property
     def path_params(self):

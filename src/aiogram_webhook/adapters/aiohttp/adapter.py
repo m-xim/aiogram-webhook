@@ -11,6 +11,11 @@ if TYPE_CHECKING:
 
 
 class AiohttpBoundRequest(BoundRequest[Request]):
+    def __init__(self, request: Request):
+        super().__init__(request)
+        self._headers = AiohttpHeadersMapping(self.request.headers)
+        self._query_params = AiohttpQueryMapping(self.request.query)
+
     async def json(self):
         return await self.request.json()
 
@@ -22,11 +27,11 @@ class AiohttpBoundRequest(BoundRequest[Request]):
 
     @property
     def headers(self) -> AiohttpHeadersMapping:
-        return AiohttpHeadersMapping(self.request.headers)
+        return self._headers
 
     @property
     def query_params(self) -> AiohttpQueryMapping:
-        return AiohttpQueryMapping(self.request.query)
+        return self._query_params
 
     @property
     def path_params(self):
