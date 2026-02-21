@@ -51,13 +51,6 @@ class SimpleEngine(WebhookEngine):
         """
         return self.bot
 
-    async def on_startup(self, app: Any, *args, **kwargs) -> None:  # noqa: ARG002
-        """
-        Called on application startup. Emits dispatcher startup event.
-        """
-        workflow_data = self._build_workflow_data(app=app, bot=self.bot, **kwargs)
-        await self.dispatcher.emit_startup(**workflow_data)
-
     async def set_webhook(
         self,
         *,
@@ -91,6 +84,13 @@ class SimpleEngine(WebhookEngine):
 
         await self.bot.set_webhook(url=self.routing.webhook_point(self.bot), request_timeout=request_timeout, **params)
         return self.bot
+
+    async def on_startup(self, app: Any, *args, **kwargs) -> None:  # noqa: ARG002
+        """
+        Called on application startup. Emits dispatcher startup event.
+        """
+        workflow_data = self._build_workflow_data(app=app, bot=self.bot, **kwargs)
+        await self.dispatcher.emit_startup(**workflow_data)
 
     async def on_shutdown(self, app: Any, *args, **kwargs) -> None:  # noqa: ARG002
         """
