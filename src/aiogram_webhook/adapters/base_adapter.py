@@ -1,22 +1,20 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Generic, Protocol, TypeVar
+from typing import TYPE_CHECKING, Any, Generic, TypeVar
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable
 
+    from aiogram_webhook.adapters.base_mapping import MappingABC
     from aiogram_webhook.security.checks.ip import IPAddress
-
 
 R = TypeVar("R")
 
 
 class BoundRequest(ABC, Generic[R]):
     """
-    Abstract base class for a request bound to a web adapter.
-
-    Provides interface for extracting data from incoming requests and generating responses.
+    Unified abstraction for requests across frameworks.
     """
 
     __slots__ = ("request",)
@@ -26,40 +24,40 @@ class BoundRequest(ABC, Generic[R]):
 
     @abstractmethod
     async def json(self) -> dict[str, Any]:
-        """Parse the request body as JSON and return the resulting dictionary."""
+        """Get JSON data from request."""
         raise NotImplementedError
 
+    @property
     @abstractmethod
-    def header(self, name: str) -> Any | None:
-        """Get a header value from the request."""
+    def client_ip(self) -> IPAddress | str | None:
+        """Get client IP address."""
         raise NotImplementedError
 
+    @property
     @abstractmethod
-    def query_param(self, name: str) -> Any | None:
-        """Get a query parameter from the request URL."""
+    def headers(self) -> MappingABC:
+        """Get request headers."""
         raise NotImplementedError
 
+    @property
     @abstractmethod
-    def path_param(self, name: str) -> Any | None:
-        """Get a path parameter from the request URL."""
+    def query_params(self) -> MappingABC:
+        """Get request query parameters."""
         raise NotImplementedError
 
+    @property
     @abstractmethod
-    def ip(self) -> IPAddress | str | None:
-        """Get IP directly from client connection (implementation-specific)."""
+    def path_params(self) -> dict[str, Any]:
+        """Get request path parameters."""
         raise NotImplementedError
 
 
-class WebAdapter(Protocol):
-    """
-    Protocol for web framework adapters using structural subtyping.
-
-    Provides interface for binding requests and registering webhook handlers.
-    """
+class WebAdapter(ABC):
+    """Abstraction for web framework adapters."""
 
     @abstractmethod
     def bind(self, request: Any) -> BoundRequest:
-        """Bind a request to a BoundRequest instance."""
+        """Bind request to BoundRequest."""
         raise NotImplementedError
 
     @abstractmethod
@@ -72,11 +70,11 @@ class WebAdapter(Protocol):
         on_shutdown: Callable[..., Awaitable[Any]] | None = None,
     ) -> None:
         """
-        Register a webhook handler with the adapter.
+        Register webhook handler.
 
-        :param app: The web application instance.
-        :param path: The path for the webhook endpoint.
-        :param handler: The handler function to process incoming requests.
+        :param app: Web application instance.
+        :param path: Webhook path.
+        :param handler: Handler function.
         :param on_startup: Optional startup callback.
         :param on_shutdown: Optional shutdown callback.
         """
@@ -84,5 +82,5 @@ class WebAdapter(Protocol):
 
     @abstractmethod
     def create_json_response(self, status: int, payload: dict[str, Any]) -> Any:
-        """Create a JSON response with the given status and payload."""
+        """Create JSON response with given status and data."""
         raise NotImplementedError

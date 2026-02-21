@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from aiogram.methods.base import TelegramType
     from aiogram.types import InputFile
 
-    from aiogram_webhook.adapters.base import BoundRequest, WebAdapter
+    from aiogram_webhook.adapters.base_adapter import BoundRequest, WebAdapter
     from aiogram_webhook.routing.base import BaseRouting
     from aiogram_webhook.security.security import Security
 

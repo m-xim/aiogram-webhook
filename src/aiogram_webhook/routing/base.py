@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from aiogram import Bot
 from yarl import URL
 
-from aiogram_webhook.adapters.base import BoundRequest
+from aiogram_webhook.adapters.base_adapter import BoundRequest
 
 
 class BaseRouting(ABC):

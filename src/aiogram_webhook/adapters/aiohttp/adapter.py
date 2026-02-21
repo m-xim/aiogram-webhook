@@ -3,31 +3,34 @@ from typing import TYPE_CHECKING, Any, cast
 from aiohttp.web import Application, Request
 from aiohttp.web_response import Response, json_response
 
-from aiogram_webhook.adapters.base import BoundRequest, WebAdapter
-from aiogram_webhook.security.checks.ip import IPAddress
+from aiogram_webhook.adapters.aiohttp.mapping import AiohttpHeadersMapping, AiohttpQueryMapping
+from aiogram_webhook.adapters.base_adapter import BoundRequest, WebAdapter
 
 if TYPE_CHECKING:
     from asyncio import Transport
 
 
 class AiohttpBoundRequest(BoundRequest[Request]):
-    async def json(self) -> dict[str, Any]:
+    async def json(self):
         return await self.request.json()
 
-    def header(self, name: str) -> Any | None:
-        return self.request.headers.get(name)
-
-    def query_param(self, name: str) -> Any | None:
-        return self.request.query.get(name)
-
-    def path_param(self, name: str) -> Any | None:
-        return self.request.match_info.get(name)
-
-    def ip(self) -> IPAddress | str | None:
+    @property
+    def client_ip(self):
         if peer_name := cast("Transport", self.request.transport).get_extra_info("peername"):
             return peer_name[0]
-
         return None
+
+    @property
+    def headers(self) -> AiohttpHeadersMapping:
+        return AiohttpHeadersMapping(self.request.headers)
+
+    @property
+    def query_params(self) -> AiohttpQueryMapping:
+        return AiohttpQueryMapping(self.request.query)
+
+    @property
+    def path_params(self):
+        return self.request.match_info
 
 
 class AiohttpWebAdapter(WebAdapter):

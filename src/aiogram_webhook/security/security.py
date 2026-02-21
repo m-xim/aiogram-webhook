@@ -1,6 +1,6 @@
 from aiogram import Bot
 
-from aiogram_webhook.adapters.base import BoundRequest
+from aiogram_webhook.adapters.base_adapter import BoundRequest
 from aiogram_webhook.security.checks.check import SecurityCheck
 from aiogram_webhook.security.secret_token import SecretToken
 

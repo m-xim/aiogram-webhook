@@ -4,7 +4,7 @@ from hmac import compare_digest
 
 from aiogram import Bot
 
-from aiogram_webhook.adapters.base import BoundRequest
+from aiogram_webhook.adapters.base_adapter import BoundRequest
 
 SECRET_TOKEN_PATTERN = re.compile(r"^[A-Za-z0-9_-]{1,256}$")
 
@@ -45,7 +45,7 @@ class StaticSecretToken(SecretToken):
         self._token = token
 
     async def verify(self, bot: Bot, bound_request: BoundRequest) -> bool:  # noqa: ARG002
-        incoming = bound_request.header(self.secret_header)
+        incoming = bound_request.headers.get(self.secret_header)
         if incoming is None:
             return False
         return compare_digest(incoming, self._token)

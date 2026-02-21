@@ -57,12 +57,11 @@ class IPCheck(SecurityCheck):
     def _get_client_ip(self, bound_request) -> IPAddress | str | None:
         # Try to resolve client IP over reverse proxy
         # See: https://github.com/aiogram/aiogram/issues/672
-        forwarded_for = self._extract_first_ip_from_header(bound_request.header("X-Forwarded-For"))
-        if forwarded_for:
+        if forwarded_for := self._extract_first_ip_from_header(bound_request.headers.get("X-Forwarded-For")):
             return forwarded_for
 
         # Get direct IP from connection
-        return bound_request.ip()
+        return bound_request.client_ip
 
     @staticmethod
     def _extract_first_ip_from_header(header_value: str | None) -> str | None:

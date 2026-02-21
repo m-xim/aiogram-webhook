@@ -2,7 +2,7 @@ from typing import Protocol
 
 from aiogram import Bot
 
-from aiogram_webhook.adapters.base import BoundRequest
+from aiogram_webhook.adapters.base_adapter import BoundRequest
 
 
 class SecurityCheck(Protocol):

@@ -9,7 +9,7 @@ from aiogram_webhook.config.bot import BotConfig
 from aiogram_webhook.engines.base import WebhookEngine
 
 if TYPE_CHECKING:
-    from aiogram_webhook.adapters.base import BoundRequest, WebAdapter
+    from aiogram_webhook.adapters.base_adapter import BoundRequest, WebAdapter
     from aiogram_webhook.config.webhook import WebhookConfig
     from aiogram_webhook.routing.base import TokenRouting
     from aiogram_webhook.security.security import Security

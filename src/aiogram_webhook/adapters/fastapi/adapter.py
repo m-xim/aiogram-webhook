@@ -3,27 +3,31 @@ from typing import Any
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
-from aiogram_webhook.adapters.base import BoundRequest, WebAdapter
-from aiogram_webhook.security.checks.ip import IPAddress
+from aiogram_webhook.adapters.base_adapter import BoundRequest, WebAdapter
+from aiogram_webhook.adapters.fastapi.mapping import FastAPIHeadersMapping, FastAPIQueryMapping
 
 
 class FastAPIBoundRequest(BoundRequest[Request]):
     async def json(self) -> dict[str, Any]:
         return await self.request.json()
 
-    def header(self, name: str) -> Any | None:
-        return self.request.headers.get(name)
-
-    def query_param(self, name: str) -> Any | None:
-        return self.request.query_params.get(name)
-
-    def path_param(self, name: str) -> Any | None:
-        return self.request.path_params.get(name)
-
-    def ip(self) -> IPAddress | str | None:
+    @property
+    def client_ip(self):
         if self.request.client:
             return self.request.client.host
         return None
+
+    @property
+    def headers(self) -> FastAPIHeadersMapping:
+        return FastAPIHeadersMapping(self.request.headers)
+
+    @property
+    def query_params(self) -> FastAPIQueryMapping:
+        return FastAPIQueryMapping(self.request.query_params)
+
+    @property
+    def path_params(self):
+        return self.request.path_params
 
 
 class FastApiWebAdapter(WebAdapter):

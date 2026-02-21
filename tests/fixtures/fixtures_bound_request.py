@@ -1,6 +1,6 @@
 from typing import Any
 
-from aiogram_webhook.adapters.base import BoundRequest, WebAdapter
+from aiogram_webhook.adapters.base_adapter import BoundRequest, WebAdapter
 
 
 class DummyAdapter(WebAdapter):
@@ -29,14 +29,18 @@ class DummyBoundRequest(BoundRequest[DummyRequest]):
     async def json(self) -> dict[str, Any]:
         return {}
 
-    def header(self, name: str) -> Any:
-        return self.request.headers.get(name)
-
-    def query_param(self, name: str) -> Any:
-        return self.request.query_params.get(name)
-
-    def path_param(self, name: str) -> Any:
-        return self.request.path_params.get(name)
-
-    def ip(self) -> str | None:
+    @property
+    def client_ip(self) -> str | None:
         return self.request.ip
+
+    @property
+    def headers(self):
+        return self.request.headers
+
+    @property
+    def query_params(self):
+        return self.request.query_params
+
+    @property
+    def path_params(self):
+        return self.request.path_params

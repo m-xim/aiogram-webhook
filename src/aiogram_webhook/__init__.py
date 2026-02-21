@@ -7,14 +7,14 @@ __all__ = ["BotConfig", "SimpleEngine", "TokenEngine", "WebhookConfig"]
 
 
 try:
-    from aiogram_webhook.adapters.aiohttp import AiohttpWebAdapter  # noqa: F401
+    from aiogram_webhook.adapters.aiohttp.adapter import AiohttpWebAdapter  # noqa: F401
 
     __all__.insert(0, "AiohttpWebAdapter")
 except ImportError:
     pass
 
 try:
-    from aiogram_webhook.adapters.fastapi import FastApiWebAdapter  # noqa: F401
+    from aiogram_webhook.adapters.fastapi.adapter import FastApiWebAdapter  # noqa: F401
 
     __all__.insert(1, "FastApiWebAdapter")
 except ImportError:
