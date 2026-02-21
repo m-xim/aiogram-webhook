@@ -22,6 +22,12 @@ class MappingABC(ABC, Generic[M]):
     def __contains__(self, name: str) -> bool:
         return name in self.keys()
 
+    def __len__(self) -> int:
+        return len(self._mapping)
+
+    def __iter__(self):
+        return iter(self._mapping)
+
     def keys(self) -> KeysView:
         return self._mapping.keys()
 
