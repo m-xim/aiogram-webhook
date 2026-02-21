@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v2.0.1 (2026-02-21)
+
+### Bug Fixes
+
+- **BotConfig**: Replace pydantic BaseModel with dataclass for BotConfig
+  ([`e492e31`](https://github.com/m-xim/aiogram-webhook/commit/e492e315a5f42d508d7b119a2fd987d23204aa1c))
+
+
 ## v2.0.0 (2026-02-21)
 
 ### Bug Fixes
