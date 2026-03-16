@@ -46,10 +46,9 @@ class TokenEngine(WebhookEngine):
         self.bot_config = bot_config or BotConfig()
         self._bots: dict[int, Bot] = {}
 
-    def _get_bot_from_request(self, bound_request: BoundRequest) -> Bot | None:
-        """
-        Get a :class:`Bot` instance from request by token.
-        If the bot is not yet created, it will be created automatically.
+    @property
+    def bots(self) -> dict[int, Bot]:
+        return self._bots
 
     def _get_bot_for_request(self, bound_request: BoundRequest):
         token = self.routing.extract_token(bound_request)
@@ -111,14 +110,14 @@ class TokenEngine(WebhookEngine):
         return bot
 
     async def on_startup(self, app: Any, *args, bots: set[Bot] | None = None, **kwargs) -> None:  # noqa: ARG002
-        all_bots = set(bots) | set(self._bots.values()) if bots else set(self._bots.values())
+        all_bots = set(bots) | set(self.bots.values()) if bots else set(self.bots.values())
         workflow_data = self._build_workflow_data(app=app, bots=all_bots, **kwargs)
         await self.dispatcher.emit_startup(**workflow_data)
 
     async def on_shutdown(self, app: Any, *args, **kwargs) -> None:  # noqa: ARG002
-        workflow_data = self._build_workflow_data(app=app, bots=set(self._bots.values()), **kwargs)
+        workflow_data = self._build_workflow_data(app=app, bots=set(self.bots.values()), **kwargs)
         await self.dispatcher.emit_shutdown(**workflow_data)
 
-        for bot in self._bots.values():
+        for bot in self.bots.values():
             await bot.session.close()
-        self._bots.clear()
+        self.bots.clear()
