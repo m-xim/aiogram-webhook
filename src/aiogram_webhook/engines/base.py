@@ -90,7 +90,7 @@ class WebhookEngine(ABC):
         if bot is None:
             return self.web_adapter.create_json_response(status=400, payload={"detail": "Bot not found"})
 
-        if not self._verify_security(bot=bot, bound_request=bound_request):
+        if not await self._verify_security(bot=bot, bound_request=bound_request):
             return self.web_adapter.create_json_response(status=403, payload={"detail": "Forbidden"})
 
         update = await bound_request.json()
