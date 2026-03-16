@@ -42,7 +42,7 @@ class SimpleEngine(WebhookEngine):
             handle_in_background=handle_in_background,
         )
 
-    def _get_bot_from_request(self, bound_request: BoundRequest) -> Bot | None:  # noqa: ARG002
+    def _get_bot_for_request(self, bound_request: BoundRequest) -> Bot | None:  # noqa: ARG002
         """
         Always returns the single Bot instance for any request.
 

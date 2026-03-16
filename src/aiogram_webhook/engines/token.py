@@ -51,9 +51,7 @@ class TokenEngine(WebhookEngine):
         Get a :class:`Bot` instance from request by token.
         If the bot is not yet created, it will be created automatically.
 
-        :param bound_request: Incoming request
-        :return: Bot instance or None
-        """
+    def _get_bot_for_request(self, bound_request: BoundRequest):
         token = self.routing.extract_token(bound_request)
         if not token:
             return None

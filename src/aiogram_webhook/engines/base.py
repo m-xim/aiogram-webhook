@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import warnings
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any
 
@@ -46,10 +47,6 @@ class WebhookEngine(ABC):
         self._background_feed_update_tasks: set[asyncio.Task[Any]] = set()
 
     @abstractmethod
-    def _get_bot_from_request(self, bound_request: BoundRequest) -> Bot | None:
-        raise NotImplementedError
-
-    @abstractmethod
     async def set_webhook(self, *args, **kwargs) -> Bot:
         raise NotImplementedError
 
@@ -71,19 +68,34 @@ class WebhookEngine(ABC):
             **kwargs,
         }
 
+    def _get_bot_from_request(self, bound_request: BoundRequest) -> Bot | None:
+        warnings.warn(
+            "_get_bot_from_request is deprecated, use _get_bot_for_request",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self._get_bot_for_request(bound_request)
+
+    @abstractmethod
+    def _get_bot_for_request(self, bound_request: BoundRequest) -> Bot | None:
+        raise NotImplementedError
+
+    async def _verify_security(self, bot: Bot, bound_request: BoundRequest) -> bool:
+        if self.security is None:
+            return True
+        return await self.security.verify(bot=bot, bound_request=bound_request)
+
     async def handle_request(self, bound_request: BoundRequest):
-        bot = self._get_bot_from_request(bound_request)
+        bot = self._get_bot_for_request(bound_request)
         if bot is None:
             return self.web_adapter.create_json_response(status=400, payload={"detail": "Bot not found"})
 
-        if self.security is not None and not await self.security.verify(bot=bot, bound_request=bound_request):
+        if not self._verify_security(bot=bot, bound_request=bound_request):
             return self.web_adapter.create_json_response(status=403, payload={"detail": "Forbidden"})
 
         update = await bound_request.json()
-
         if self.handle_in_background:
             return await self._handle_request_background(bot=bot, update=update)
-
         return await self._handle_request(bot=bot, update=update)
 
     def register(self, app: Any) -> None:
@@ -115,9 +127,7 @@ class WebhookEngine(ABC):
             await self.dispatcher.silent_call_request(bot=bot, result=result)
 
     async def _handle_request_background(self, bot: Bot, update: dict[str, Any]):
-        feed_update_task = asyncio.create_task(
-            self._background_feed_update(bot=bot, update=update),
-        )
+        feed_update_task = asyncio.create_task(self._background_feed_update(bot=bot, update=update))
         self._background_feed_update_tasks.add(feed_update_task)
         feed_update_task.add_done_callback(self._background_feed_update_tasks.discard)
 
