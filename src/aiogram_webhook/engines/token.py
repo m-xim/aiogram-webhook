@@ -54,13 +54,13 @@ class TokenEngine(WebhookEngine):
         token = self.routing.extract_token(bound_request)
         if not token:
             return None
-        return self._ensure_bot_cached(self._build_bot(token))
+        return self._build_bot(token)
 
     async def _verify_security(self, bot: Bot, bound_request: BoundRequest) -> bool:
-        if self.security is None:
+        result = await super()._verify_security(bot=bot, bound_request=bound_request)
+        if result:
             self._ensure_bot_cached(bot)
-            return True
-        return await self.security.verify(bot=bot, bound_request=bound_request)
+        return result
 
     def _build_bot(self, token: str) -> Bot:
         """Build a new Bot instance from token."""
@@ -79,12 +79,7 @@ class TokenEngine(WebhookEngine):
     def _ensure_bot_cached(self, bot: Bot) -> Bot:
         """Ensure bot is cached. Returns cached instance if exists with same token, session and default, otherwise stores and returns new."""
         existing_bot = self.bots.get(bot.id)
-        if (
-            existing_bot is None
-            or existing_bot != bot
-            or existing_bot.session is not bot.session
-            or existing_bot.default != bot.default
-        ):
+        if existing_bot is None or existing_bot != bot or existing_bot.default != bot.default:
             self.bots[bot.id] = bot
             return bot
         return existing_bot
