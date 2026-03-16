@@ -4,7 +4,7 @@ from aiogram.client.default import DefaultBotProperties
 from aiogram.client.session.base import BaseSession
 
 
-@dataclass
+@dataclass(slots=True)
 class BotConfig:
     session: BaseSession | None = None
     """HTTP Client session (For example AiohttpSession). If not specified it will be automatically created."""
