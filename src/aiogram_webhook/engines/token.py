@@ -1,9 +1,9 @@
 from __future__ import annotations
 
+import warnings
 from typing import TYPE_CHECKING, Any
 
 from aiogram import Bot, Dispatcher
-from aiogram.utils.token import extract_bot_id
 
 from aiogram_webhook.config.bot import BotConfig
 from aiogram_webhook.engines.base import WebhookEngine
@@ -54,23 +54,40 @@ class TokenEngine(WebhookEngine):
         token = self.routing.extract_token(bound_request)
         if not token:
             return None
-        return self.get_bot(token)
+        return self._ensure_bot_cached(self._build_bot(token))
+
+    async def _verify_security(self, bot: Bot, bound_request: BoundRequest) -> bool:
+        if self.security is None:
+            self._ensure_bot_cached(bot)
+            return True
+        return await self.security.verify(bot=bot, bound_request=bound_request)
+
+    def _build_bot(self, token: str) -> Bot:
+        """Build a new Bot instance from token."""
+        return Bot(token=token, session=self.bot_config.session, default=self.bot_config.default)
+
+    def _get_or_add_bot(self, token: str) -> Bot:
+        """Get or create a Bot instance by token, with automatic caching."""
+        bot = self._build_bot(token)
+        return self._ensure_bot_cached(bot)
 
     def get_bot(self, token: str) -> Bot:
-        """
-        Resolve or create a Bot instance by token and cache it.
+        warnings.warn("get_bot is deprecated, use TokenEngine directly", DeprecationWarning, stacklevel=2)
 
-        :param token: The bot token
-        :return: Bot
+        return self._get_or_add_bot(token)
 
-        .. note::
-            To connect the bot to Telegram API and set up webhook, use :meth:`set_webhook`.
-        """
-        bot = self._bots.get(extract_bot_id(token))
-        if not bot:
-            bot = Bot(token=token, session=self.bot_config.session, default=self.bot_config.default)
-            self._bots[bot.id] = bot
-        return bot
+    def _ensure_bot_cached(self, bot: Bot) -> Bot:
+        """Ensure bot is cached. Returns cached instance if exists with same token, session and default, otherwise stores and returns new."""
+        existing_bot = self.bots.get(bot.id)
+        if (
+            existing_bot is None
+            or existing_bot != bot
+            or existing_bot.session is not bot.session
+            or existing_bot.default != bot.default
+        ):
+            self.bots[bot.id] = bot
+            return bot
+        return existing_bot
 
     async def set_webhook(
         self,
@@ -93,7 +110,7 @@ class TokenEngine(WebhookEngine):
         :param request_timeout: Request timeout
         :return: Bot instance
         """
-        bot = self.get_bot(token)
+        bot = self._build_bot(token)
         config = self._build_webhook_config(
             max_connections=max_connections,
             drop_pending_updates=drop_pending_updates,
@@ -107,7 +124,7 @@ class TokenEngine(WebhookEngine):
                 params["secret_token"] = secret_token
 
         await bot.set_webhook(url=self.routing.webhook_point(bot), request_timeout=request_timeout, **params)
-        return bot
+        return self._ensure_bot_cached(bot)
 
     async def on_startup(self, app: Any, *args, bots: set[Bot] | None = None, **kwargs) -> None:  # noqa: ARG002
         all_bots = set(bots) | set(self.bots.values()) if bots else set(self.bots.values())
