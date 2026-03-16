@@ -78,9 +78,10 @@ class TokenEngine(WebhookEngine):
 
     def _ensure_bot_cached(self, bot: Bot) -> Bot:
         """Ensure bot is cached. Returns cached instance if exists with same token, session and default, otherwise stores and returns new."""
-        existing_bot = self.bots.get(bot.id)
-        if existing_bot is None or existing_bot != bot or existing_bot.default != bot.default:
-            self.bots[bot.id] = bot
+        bot_id = bot.id
+        existing_bot = self.bots.get(bot_id)
+        if existing_bot is None or existing_bot != bot:
+            self.bots[bot_id] = bot
             return bot
         return existing_bot
 
