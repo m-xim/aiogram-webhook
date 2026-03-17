@@ -46,6 +46,9 @@ class WebhookEngine(ABC):
         self.handle_in_background = handle_in_background
         self._background_feed_update_tasks: set[asyncio.Task[Any]] = set()
 
+        if self.security is None:
+            warnings.warn("Security is not configured, skipping verification", UserWarning, stacklevel=2)
+
     @abstractmethod
     async def set_webhook(self, *args, **kwargs) -> Bot:
         raise NotImplementedError
@@ -81,9 +84,7 @@ class WebhookEngine(ABC):
         if token is None:
             return self.web_adapter.create_json_response(status=400, payload={"detail": "Bot token not found"})
 
-        if self.security is None:
-            warnings.warn("Security is not configured, skipping verification", UserWarning, stacklevel=2)
-        elif not await self.security.verify(token=token, bound_request=bound_request):
+        if self.security is not None and not await self.security.verify(token=token, bound_request=bound_request):
             return self.web_adapter.create_json_response(status=403, payload={"detail": "Forbidden"})
 
         bot = self._get_bot_by_token(token)
