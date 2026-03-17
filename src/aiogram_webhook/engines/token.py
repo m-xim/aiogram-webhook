@@ -52,7 +52,6 @@ class TokenEngine(WebhookEngine):
     def bots(self) -> MappingProxyType[int, Bot]:
         return MappingProxyType(self._bots)
 
-
     def _get_bot_token_for_request(self, bound_request: BoundRequest) -> str | None:
         return self.routing.extract_token(bound_request)
 
@@ -118,6 +117,7 @@ class TokenEngine(WebhookEngine):
         for bot in self.bots.values():
             await bot.session.close()
         self.bots.clear()
+        self._bots.clear()
 
     def get_bot(self, token: str) -> Bot:
         warnings.warn("get_bot is deprecated, use _get_bot_by_token", DeprecationWarning, stacklevel=2)
