@@ -21,7 +21,7 @@ class PathRouting(TokenRouting):
                 f"Expected placeholder '{{{self.param}}}' in: {self.url_template}"
             )
 
-    def webhook_point(self, bot: Bot) -> str:
+    def webhook_url(self, bot: Bot) -> str:
         return self.url_template.format_map({self.param: bot.token})
 
     def extract_token(self, bound_request) -> str | None:

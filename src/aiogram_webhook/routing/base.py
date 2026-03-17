@@ -17,11 +17,16 @@ class BaseRouting(ABC):
     def __init__(self, url: str) -> None:
         self.url = URL(url)
         self.base = self.url.origin()
-        self.path = self.url.path
+        self._path = self.url.path
+
+    @property
+    def webhook_path(self) -> str:
+        """Get route path for web framework registration."""
+        return self._path
 
     @abstractmethod
-    def webhook_point(self, bot: Bot) -> str:
-        """Get the webhook URL for the given bot."""
+    def webhook_url(self, bot: Bot) -> str:
+        """Build webhook URL for the given bot."""
         raise NotImplementedError
 
 

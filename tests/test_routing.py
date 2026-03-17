@@ -19,7 +19,7 @@ from tests.fixtures import DummyBoundRequest, DummyRequest
 )
 def test_static_routing(url, bot):
     routing = StaticRouting(url=url)
-    assert routing.webhook_point(bot) == url
+    assert routing.webhook_url(bot) == url
 
 
 @pytest.mark.parametrize(
@@ -55,7 +55,7 @@ def test_static_routing(url, bot):
 )
 def test_path_routing(url, param, token, path_params, expected_url, expected_token):
     routing = PathRouting(url=url, param=param)
-    assert routing.webhook_point(Bot(token)) == expected_url
+    assert routing.webhook_url(Bot(token)) == expected_url
     req = DummyBoundRequest(DummyRequest(path_params=path_params))
     assert routing.extract_token(req) == expected_token
 
@@ -141,7 +141,7 @@ def test_path_routing(url, param, token, path_params, expected_url, expected_tok
 )
 def test_query_routing(url, param, token, query_params, expected_url, expected_token):
     routing = QueryRouting(url=url, param=param)
-    webhook_url = routing.webhook_point(Bot(token))
+    webhook_url = routing.webhook_url(Bot(token))
 
     # Parse both URLs to compare query params (order may differ)
     expected = URL(expected_url)

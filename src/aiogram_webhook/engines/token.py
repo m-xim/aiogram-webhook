@@ -94,7 +94,9 @@ class TokenEngine(WebhookEngine):
 
         bot = self._get_bot_by_token(token=token)
         params = self._build_webhook_config(
-            max_connections=max_connections, drop_pending_updates=drop_pending_updates, allowed_updates=allowed_updates
+            max_connections=max_connections,
+            drop_pending_updates=drop_pending_updates,
+            allowed_updates=allowed_updates,
         ).model_dump(exclude_none=True)
 
         if self.security is not None:
@@ -102,7 +104,7 @@ class TokenEngine(WebhookEngine):
             if secret_token is not None:
                 params["secret_token"] = secret_token
 
-        await bot.set_webhook(url=self.routing.webhook_point(bot), request_timeout=request_timeout, **params)
+        await bot.set_webhook(url=self.routing.webhook_url(bot), request_timeout=request_timeout, **params)
         return bot
 
     async def on_startup(self, app: Any, *args, bots: set[Bot] | None = None, **kwargs) -> None:  # noqa: ARG002

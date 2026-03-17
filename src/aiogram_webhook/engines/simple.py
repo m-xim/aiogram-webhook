@@ -85,7 +85,7 @@ class SimpleEngine(WebhookEngine):
             if secret_token is not None:
                 params["secret_token"] = secret_token
 
-        await self.bot.set_webhook(url=self.routing.webhook_point(self.bot), request_timeout=request_timeout, **params)
+        await self.bot.set_webhook(url=self.routing.webhook_url(self.bot), request_timeout=request_timeout, **params)
         return self.bot
 
     async def on_startup(self, app: Any, *args, **kwargs) -> None:  # noqa: ARG002

@@ -99,7 +99,7 @@ class WebhookEngine(ABC):
     def register(self, app: Any) -> None:
         self.web_adapter.register(
             app=app,
-            path=self.routing.path,
+            path=self.routing.webhook_path,
             handler=self.handle_request,
             on_startup=self.on_startup,
             on_shutdown=self.on_shutdown,
