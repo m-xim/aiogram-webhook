@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import warnings
+from types import MappingProxyType
 from typing import TYPE_CHECKING, Any
 
 from aiogram import Bot, Dispatcher
@@ -48,8 +49,9 @@ class TokenEngine(WebhookEngine):
         self._bots: dict[int, Bot] = {}
 
     @property
-    def bots(self) -> dict[int, Bot]:
-        return self._bots
+    def bots(self) -> MappingProxyType[int, Bot]:
+        return MappingProxyType(self._bots)
+
 
     def _get_bot_token_for_request(self, bound_request: BoundRequest) -> str | None:
         return self.routing.extract_token(bound_request)
