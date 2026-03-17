@@ -14,11 +14,11 @@ from tests.fixtures import DummyBoundRequest, DummyRequest
     ],
     ids=["match", "mismatch", "none"],
 )
-async def test_security_secret_token(secret_token, request_token, expected, bot):
+async def test_security_secret_token(secret_token, request_token, expected):
     sec = Security(secret_token=StaticSecretToken(secret_token))
     headers = {"x-telegram-bot-api-secret-token": request_token} if request_token is not None else {}
     req = DummyBoundRequest(DummyRequest(headers=headers))
-    assert await sec.verify(bot, req) is expected
+    assert await sec.verify("42:TEST", req) is expected
 
 
 @pytest.mark.asyncio
@@ -30,6 +30,6 @@ async def test_security_secret_token(secret_token, request_token, expected, bot)
     ],
     ids=["with-secret", "without-secret"],
 )
-async def test_security_get_secret_token(secret_token, expected, bot):
+async def test_security_get_secret_token(secret_token, expected):
     sec = Security(secret_token=secret_token)
-    assert await sec.get_secret_token(bot=bot) == expected
+    assert await sec.get_secret_token(token="42:TEST") == expected

@@ -157,7 +157,7 @@ Allows you to serve multiple Telegram bots in a single application. Useful if yo
 
 - Allows serving multiple bots via a single endpoint
 - Uses the bot token for request routing
-- Requires dispatcher, web_adapter, routing, bot_settings (optional), webhook_config (optional), and security (optional)
+- Requires dispatcher, web_adapter, routing, bot_config (optional), webhook_config (optional), and security (optional)
 
 **Example:**
 
@@ -198,7 +198,16 @@ engine = TokenEngine(
 
 #### Custom Engines
 
-You can create your own engine by inheriting from the base engine class (`BaseEngine`). This allows you to implement custom logic for webhook processing, routing, or bot management.
+You can create your own engine by inheriting from `WebhookEngine`. This allows you to implement custom logic for webhook processing, routing, or bot management.
+
+### Request processing
+
+`WebhookEngine` handles incoming updates in this order:
+
+1. Extract token from request (`_get_bot_token_for_request`)
+2. Run security checks for the token (`Security.verify(token, bound_request)`)
+3. Resolve bot (`_get_bot_by_token`)
+4. Pass update to aiogram dispatcher
 
 ---
 

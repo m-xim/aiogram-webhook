@@ -1,14 +1,12 @@
 from typing import Protocol
 
-from aiogram import Bot
-
 from aiogram_webhook.adapters.base_adapter import BoundRequest
 
 
 class SecurityCheck(Protocol):
     """Protocol for security check on webhook requests."""
 
-    async def verify(self, bot: Bot, bound_request: BoundRequest) -> bool:
+    async def verify(self, token: str, bound_request: BoundRequest) -> bool:
         """
         Perform a security check.
 

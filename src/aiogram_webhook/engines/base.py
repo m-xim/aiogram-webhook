@@ -68,31 +68,27 @@ class WebhookEngine(ABC):
             **kwargs,
         }
 
-    def _get_bot_from_request(self, bound_request: BoundRequest) -> Bot | None:
-        warnings.warn(
-            "_get_bot_from_request is deprecated, use _get_bot_for_request",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return self._get_bot_for_request(bound_request)
-
     @abstractmethod
-    def _get_bot_for_request(self, bound_request: BoundRequest) -> Bot | None:
+    def _get_bot_token_for_request(self, bound_request: BoundRequest) -> str | None:
         raise NotImplementedError
 
-    async def _verify_security(self, bot: Bot, bound_request: BoundRequest) -> bool:
-        if self.security is None:
-            warnings.warn("Security is not configured, skipping verification", UserWarning, stacklevel=2)
-            return True
-        return await self.security.verify(bot=bot, bound_request=bound_request)
+    @abstractmethod
+    def _get_bot_by_token(self, token: str) -> Bot | None:
+        raise NotImplementedError
 
     async def handle_request(self, bound_request: BoundRequest):
-        bot = self._get_bot_for_request(bound_request)
+        token = self._get_bot_token_for_request(bound_request)
+        if token is None:
+            return self.web_adapter.create_json_response(status=400, payload={"detail": "Bot token not found"})
+
+        if self.security is None:
+            warnings.warn("Security is not configured, skipping verification", UserWarning, stacklevel=2)
+        elif not await self.security.verify(token=token, bound_request=bound_request):
+            return self.web_adapter.create_json_response(status=403, payload={"detail": "Forbidden"})
+
+        bot = self._get_bot_by_token(token)
         if bot is None:
             return self.web_adapter.create_json_response(status=400, payload={"detail": "Bot not found"})
-
-        if not await self._verify_security(bot=bot, bound_request=bound_request):
-            return self.web_adapter.create_json_response(status=403, payload={"detail": "Forbidden"})
 
         update = await bound_request.json()
         if self.handle_in_background:
@@ -167,3 +163,11 @@ class WebhookEngine(ABC):
         if allowed_updates is not None:
             overrides["allowed_updates"] = allowed_updates
         return self.webhook_config.model_copy(update=overrides) if overrides else self.webhook_config
+
+    def _get_bot_from_request(self, bound_request: BoundRequest) -> str | None:
+        warnings.warn(
+            "_get_bot_from_request is deprecated, use _get_bot_token_for_request",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self._get_bot_token_for_request(bound_request)

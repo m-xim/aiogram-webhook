@@ -4,6 +4,7 @@ import warnings
 from typing import TYPE_CHECKING, Any
 
 from aiogram import Bot, Dispatcher
+from aiogram.utils.token import extract_bot_id
 
 from aiogram_webhook.config.bot import BotConfig
 from aiogram_webhook.engines.base import WebhookEngine
@@ -50,39 +51,23 @@ class TokenEngine(WebhookEngine):
     def bots(self) -> dict[int, Bot]:
         return self._bots
 
-    def _get_bot_for_request(self, bound_request: BoundRequest):
-        token = self.routing.extract_token(bound_request)
-        if not token:
-            return None
-        return self._build_bot(token)
+    def _get_bot_token_for_request(self, bound_request: BoundRequest) -> str | None:
+        return self.routing.extract_token(bound_request)
 
-    async def _verify_security(self, bot: Bot, bound_request: BoundRequest) -> bool:
-        result = await super()._verify_security(bot=bot, bound_request=bound_request)
-        if result:
-            self._ensure_bot_cached(bot)
-        return result
+    def _get_bot_by_token(self, token: str) -> Bot:
+        bot_id = extract_bot_id(token)
+        existing_bot = self.bots.get(bot_id)
+
+        if existing_bot is None or existing_bot.token != token:
+            new_bot = self._build_bot(token)
+            self.bots[bot_id] = new_bot
+            return new_bot
+
+        return existing_bot
 
     def _build_bot(self, token: str) -> Bot:
         """Build a new Bot instance from token."""
         return Bot(token=token, session=self.bot_config.session, default=self.bot_config.default)
-
-    def _get_or_add_bot(self, token: str) -> Bot:
-        """Get or create a Bot instance by token, with automatic caching."""
-        bot = self._build_bot(token)
-        return self._ensure_bot_cached(bot)
-
-    def get_bot(self, token: str) -> Bot:
-        warnings.warn("get_bot is deprecated, use TokenEngine directly", DeprecationWarning, stacklevel=2)
-
-        return self._get_or_add_bot(token)
-
-    def _ensure_bot_cached(self, bot: Bot) -> Bot:
-        bot_id = bot.id
-        existing_bot = self.bots.get(bot_id)
-        if existing_bot is None or existing_bot != bot:
-            self.bots[bot_id] = bot
-            return bot
-        return existing_bot
 
     async def set_webhook(
         self,
@@ -105,21 +90,19 @@ class TokenEngine(WebhookEngine):
         :param request_timeout: Request timeout
         :return: Bot instance
         """
-        bot = self._build_bot(token)
-        config = self._build_webhook_config(
-            max_connections=max_connections,
-            drop_pending_updates=drop_pending_updates,
-            allowed_updates=allowed_updates,
-        )
-        params = config.model_dump(exclude_none=True)
+
+        bot = self._get_bot_by_token(token=token)
+        params = self._build_webhook_config(
+            max_connections=max_connections, drop_pending_updates=drop_pending_updates, allowed_updates=allowed_updates
+        ).model_dump(exclude_none=True)
 
         if self.security is not None:
-            secret_token = await self.security.get_secret_token(bot=bot)
+            secret_token = await self.security.get_secret_token(token=token)
             if secret_token is not None:
                 params["secret_token"] = secret_token
 
         await bot.set_webhook(url=self.routing.webhook_point(bot), request_timeout=request_timeout, **params)
-        return self._ensure_bot_cached(bot)
+        return bot
 
     async def on_startup(self, app: Any, *args, bots: set[Bot] | None = None, **kwargs) -> None:  # noqa: ARG002
         all_bots = set(bots) | set(self.bots.values()) if bots else set(self.bots.values())
@@ -133,3 +116,7 @@ class TokenEngine(WebhookEngine):
         for bot in self.bots.values():
             await bot.session.close()
         self.bots.clear()
+
+    def get_bot(self, token: str) -> Bot:
+        warnings.warn("get_bot is deprecated, use _get_bot_by_token", DeprecationWarning, stacklevel=2)
+        return self._get_bot_by_token(token)
