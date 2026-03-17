@@ -118,7 +118,6 @@ class TokenEngine(WebhookEngine):
 
         for bot in self.bots.values():
             await bot.session.close()
-        self.bots.clear()
         self._bots.clear()
 
     def get_bot(self, token: str) -> Bot:
