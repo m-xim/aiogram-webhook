@@ -82,6 +82,7 @@ class WebhookEngine(ABC):
 
     async def _verify_security(self, bot: Bot, bound_request: BoundRequest) -> bool:
         if self.security is None:
+            warnings.warn("Security is not configured, skipping verification", UserWarning, stacklevel=2)
             return True
         return await self.security.verify(bot=bot, bound_request=bound_request)
 
