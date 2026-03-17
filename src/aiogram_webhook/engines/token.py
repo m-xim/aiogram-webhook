@@ -61,7 +61,7 @@ class TokenEngine(WebhookEngine):
 
         if existing_bot is None or existing_bot.token != token:
             new_bot = self._build_bot(token)
-            self.bots[bot_id] = new_bot
+            self._bots[bot_id] = new_bot
             return new_bot
 
         return existing_bot

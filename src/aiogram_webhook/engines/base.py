@@ -171,4 +171,6 @@ class WebhookEngine(ABC):
             DeprecationWarning,
             stacklevel=2,
         )
-        return self._get_bot_by_token(self._get_bot_token_for_request(bound_request))
+        if (token := self._get_bot_token_for_request(bound_request)) is None:
+            return None
+        return self._get_bot_by_token(token)
