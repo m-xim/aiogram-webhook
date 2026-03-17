@@ -24,7 +24,7 @@ class SecretToken(ABC):
     @abstractmethod
     def secret_token(self, token: str) -> str:
         """
-        Return the secret token for the given bot.
+        Return the secret token associated with the given token string.
         """
         raise NotImplementedError
 
