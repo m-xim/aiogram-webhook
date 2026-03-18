@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import warnings
 from types import MappingProxyType
 from typing import TYPE_CHECKING, Any
 
@@ -119,7 +118,3 @@ class TokenEngine(WebhookEngine):
         for bot in self.bots.values():
             await bot.session.close()
         self._bots.clear()
-
-    def get_bot(self, token: str) -> Bot:
-        warnings.warn("get_bot is deprecated, use _get_bot_by_token", DeprecationWarning, stacklevel=2)
-        return self._get_bot_by_token(token)

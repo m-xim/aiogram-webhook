@@ -164,13 +164,3 @@ class WebhookEngine(ABC):
         if allowed_updates is not None:
             overrides["allowed_updates"] = allowed_updates
         return self.webhook_config.model_copy(update=overrides) if overrides else self.webhook_config
-
-    def _get_bot_from_request(self, bound_request: BoundRequest) -> Bot | None:
-        warnings.warn(
-            "_get_bot_from_request is deprecated, use self._get_bot_by_token and _get_bot_token_for_request",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        if (token := self._get_bot_token_for_request(bound_request)) is None:
-            return None
-        return self._get_bot_by_token(token)
