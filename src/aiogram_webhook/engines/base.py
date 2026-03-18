@@ -77,7 +77,7 @@ class WebhookEngine(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def _get_bot_by_token(self, token: str) -> Bot | None:
+    async def _get_bot_by_token(self, token: str) -> Bot | None:
         raise NotImplementedError
 
     async def handle_request(self, bound_request: BoundRequest):
@@ -89,7 +89,7 @@ class WebhookEngine(ABC):
             return self.web_adapter.create_json_response(status=403, payload={"detail": "Forbidden"})
 
         try:
-            bot = self._get_bot_by_token(token)
+            bot = await self._get_bot_by_token(token)
         except TokenValidationError:
             return self.web_adapter.create_json_response(status=400, payload={"detail": "Invalid bot token"})
 
