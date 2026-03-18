@@ -6,6 +6,7 @@ from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any
 
 from aiogram.methods import TelegramMethod
+from aiogram.utils.token import TokenValidationError
 
 from aiogram_webhook.config.webhook import WebhookConfig
 
@@ -87,7 +88,11 @@ class WebhookEngine(ABC):
         if self.security is not None and not await self.security.verify(token=token, bound_request=bound_request):
             return self.web_adapter.create_json_response(status=403, payload={"detail": "Forbidden"})
 
-        bot = self._get_bot_by_token(token)
+        try:
+            bot = self._get_bot_by_token(token)
+        except TokenValidationError:
+            return self.web_adapter.create_json_response(status=400, payload={"detail": "Invalid bot token"})
+
         if bot is None:
             return self.web_adapter.create_json_response(status=400, payload={"detail": "Bot not found"})
 

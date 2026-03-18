@@ -51,7 +51,7 @@ class SimpleEngine(WebhookEngine):
         """
         return self.bot.token
 
-    def _get_bot_by_token(self, token: str) -> Bot | None:  # noqa: ARG002
+    def _get_bot_by_token(self, token: str) -> Bot:  # noqa: ARG002
         return self.bot
 
     async def set_webhook(

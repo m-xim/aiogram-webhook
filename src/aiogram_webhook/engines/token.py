@@ -56,7 +56,7 @@ class TokenEngine(WebhookEngine):
 
     def _get_bot_by_token(self, token: str) -> Bot:
         bot_id = extract_bot_id(token)
-        existing_bot = self.bots.get(bot_id)
+        existing_bot = self._bots.get(bot_id)
 
         if existing_bot is None or existing_bot.token != token:
             new_bot = self._build_bot(token)
