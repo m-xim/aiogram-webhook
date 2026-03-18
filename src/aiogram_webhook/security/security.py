@@ -37,7 +37,7 @@ class Security:
         Get the secret token for the given bot, if configured.
 
         :param bot_token: Bot token for which secret token should be resolved.
-        :return: The secret token as a string.
+        :return: The secret token as a string, or None if no secret-token provider is configured.
         """
         if self._secret_token is None:
             return None
