@@ -31,6 +31,6 @@ async def test_security_secret_token(secret_token, request_token, expected):
     ],
     ids=["with-secret", "without-secret"],
 )
-async def test_security_get_secret_token(secret_token, expected):
+async def test_security_secret_token_getter(secret_token, expected):
     sec = Security(secret_token=secret_token)
-    assert await sec.get_secret_token(token="42:TEST") == expected
+    assert await sec.secret_token(bot_token="42:TEST") == expected

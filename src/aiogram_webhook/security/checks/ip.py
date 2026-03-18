@@ -43,7 +43,7 @@ class IPCheck(SecurityCheck):
             else:
                 self._addresses.add(parsed)
 
-    async def verify(self, token: str, bound_request: BoundRequest) -> bool:  # noqa: ARG002
+    async def verify(self, bot_token: str, bound_request: BoundRequest) -> bool:  # noqa: ARG002
         raw_ip = self._get_client_ip(bound_request)
         if not raw_ip:
             return False

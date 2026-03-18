@@ -101,7 +101,7 @@ class TokenEngine(WebhookEngine):
         ).model_dump(exclude_none=True)
 
         if self.security is not None:
-            secret_token = await self.security.get_secret_token(token=token)
+            secret_token = await self.security.secret_token(bot_token=token)
             if secret_token is not None:
                 params["secret_token"] = secret_token
 
