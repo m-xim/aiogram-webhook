@@ -246,9 +246,9 @@ routing = StaticRouting(url="https://example.com/webhook")
 
 ### TokenRouting (Multi-bot, Abstract)
 Base class for token-based routing strategies. Used with **TokenEngine** to serve multiple bots.
-- Requires a URL template with a parameter placeholder (e.g. `{bot_token}`)
+- Defines the token parameter name (default: `bot_token`)
 - Extracts bot token from incoming requests
-- Automatically formats webhook URL using the bot token
+- Automatically Builds webhook URL using the bot token
 
 ### PathRouting (Multi-bot)
 Extracts bot token from the URL path parameter.
@@ -286,7 +286,7 @@ routing = QueryRouting(url="https://example.com/webhook?other=value")
 ```
 
 ### Custom Routing
-You can implement your own routing by inheriting from `BaseRouting` or `TokenRouting` and implementing the `webhook_point()` method (and `extract_token()` if using token-based routing).
+You can implement your own routing by inheriting from `BaseRouting` or `TokenRouting` and implementing the `webhook_url()` method (and `resolve_token()` if using token-based routing).
 
 See [routing examples](/src/aiogram_webhook/routing) for implementation details.
 
