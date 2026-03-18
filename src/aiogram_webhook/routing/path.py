@@ -1,5 +1,6 @@
 from aiogram import Bot
 
+from aiogram_webhook.adapters.base_adapter import BoundRequest
 from aiogram_webhook.routing.base import TokenRouting
 
 
@@ -21,8 +22,8 @@ class PathRouting(TokenRouting):
                 f"Expected placeholder '{{{self.param}}}' in: {self.url_template}"
             )
 
-    def webhook_url(self, bot: Bot) -> str:
+    async def webhook_url(self, bot: Bot) -> str:
         return self.url_template.format_map({self.param: bot.token})
 
-    def extract_token(self, bound_request) -> str | None:
+    async def resolve_token(self, bound_request: BoundRequest) -> str | None:
         return bound_request.path_params.get(self.param)

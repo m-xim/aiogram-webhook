@@ -17,9 +17,10 @@ from tests.fixtures import DummyBoundRequest, DummyRequest
         "https://example.com/webhook?foo=bar",
     ],
 )
-def test_static_routing(url, bot):
+@pytest.mark.asyncio
+async def test_static_routing(url, bot):
     routing = StaticRouting(url=url)
-    assert routing.webhook_url(bot) == url
+    assert await routing.webhook_url(bot) == url
 
 
 @pytest.mark.parametrize(
@@ -53,11 +54,12 @@ def test_static_routing(url, bot):
     ],
     ids=["standard-param-present", "standard-param-missing", "custom-param-present", "custom-param-missing"],
 )
-def test_path_routing(url, param, token, path_params, expected_url, expected_token):
+@pytest.mark.asyncio
+async def test_path_routing(url, param, token, path_params, expected_url, expected_token):
     routing = PathRouting(url=url, param=param)
-    assert routing.webhook_url(Bot(token)) == expected_url
+    assert await routing.webhook_url(Bot(token)) == expected_url
     req = DummyBoundRequest(DummyRequest(path_params=path_params))
-    assert routing.extract_token(req) == expected_token
+    assert await routing.resolve_token(req) == expected_token
 
 
 @pytest.mark.parametrize(
@@ -139,9 +141,10 @@ def test_path_routing(url, param, token, path_params, expected_url, expected_tok
         "complex-params",
     ],
 )
-def test_query_routing(url, param, token, query_params, expected_url, expected_token):
+@pytest.mark.asyncio
+async def test_query_routing(url, param, token, query_params, expected_url, expected_token):
     routing = QueryRouting(url=url, param=param)
-    webhook_url = routing.webhook_url(Bot(token))
+    webhook_url = await routing.webhook_url(Bot(token))
 
     # Parse both URLs to compare query params (order may differ)
     expected = URL(expected_url)
@@ -154,4 +157,4 @@ def test_query_routing(url, param, token, query_params, expected_url, expected_t
 
     # Check token extraction
     req = DummyBoundRequest(DummyRequest(query_params=query_params))
-    assert routing.extract_token(req) == expected_token
+    assert await routing.resolve_token(req) == expected_token

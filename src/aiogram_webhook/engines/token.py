@@ -51,8 +51,8 @@ class TokenEngine(WebhookEngine):
     def bots(self) -> MappingProxyType[int, Bot]:
         return MappingProxyType(self._bots)
 
-    def _get_bot_token_for_request(self, bound_request: BoundRequest) -> str | None:
-        return self.routing.extract_token(bound_request)
+    async def _get_bot_token_for_request(self, bound_request: BoundRequest) -> str | None:
+        return await self.routing.resolve_token(bound_request)
 
     def _get_bot_by_token(self, token: str) -> Bot:
         bot_id = extract_bot_id(token)
@@ -103,7 +103,7 @@ class TokenEngine(WebhookEngine):
             if secret_token is not None:
                 params["secret_token"] = secret_token
 
-        await bot.set_webhook(url=self.routing.webhook_url(bot), request_timeout=request_timeout, **params)
+        await bot.set_webhook(url=await self.routing.webhook_url(bot), request_timeout=request_timeout, **params)
         return bot
 
     async def on_startup(self, app: Any, *args, bots: set[Bot] | None = None, **kwargs) -> None:  # noqa: ARG002

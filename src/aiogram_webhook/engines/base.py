@@ -73,7 +73,7 @@ class WebhookEngine(ABC):
         }
 
     @abstractmethod
-    def _get_bot_token_for_request(self, bound_request: BoundRequest) -> str | None:
+    async def _get_bot_token_for_request(self, bound_request: BoundRequest) -> str | None:
         raise NotImplementedError
 
     @abstractmethod
@@ -81,7 +81,7 @@ class WebhookEngine(ABC):
         raise NotImplementedError
 
     async def handle_request(self, bound_request: BoundRequest):
-        token = self._get_bot_token_for_request(bound_request)
+        token = await self._get_bot_token_for_request(bound_request)
         if token is None:
             return self.web_adapter.create_json_response(status=400, payload={"detail": "Bot token not found"})
 

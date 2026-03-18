@@ -12,8 +12,8 @@ class QueryRouting(TokenRouting):
     Example: https://example.com/webhook?token=123:ABC will extract the token from the query string.
     """
 
-    def webhook_url(self, bot: Bot) -> str:
+    async def webhook_url(self, bot: Bot) -> str:
         return self.url.update_query({self.param: bot.token}).human_repr()
 
-    def extract_token(self, bound_request: BoundRequest) -> str | None:
+    async def resolve_token(self, bound_request: BoundRequest) -> str | None:
         return bound_request.query_params.get(self.param)
