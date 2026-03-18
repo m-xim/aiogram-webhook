@@ -41,4 +41,4 @@ class Security:
         """
         if self._secret_token is None:
             return None
-        return self._secret_token.secret_token(bot_token=bot_token)
+        return await self._secret_token.secret_token(bot_token=bot_token)

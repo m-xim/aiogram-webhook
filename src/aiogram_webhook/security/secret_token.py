@@ -18,10 +18,10 @@ class SecretToken(ABC):
         incoming_secret_token = bound_request.headers.get(SECRET_TOKEN_HEADER)
         if incoming_secret_token is None:
             return False
-        return compare_digest(incoming_secret_token, self.secret_token(bot_token))
+        return compare_digest(incoming_secret_token, await self.secret_token(bot_token))
 
     @abstractmethod
-    def secret_token(self, bot_token: str) -> str:
+    async def secret_token(self, bot_token: str) -> str:
         """
         Return the webhook secret token associated with the given bot token.
 
@@ -43,5 +43,5 @@ class StaticSecretToken(SecretToken):
             raise ValueError("Invalid secret token format. Must be 1-256 characters, only A-Z, a-z, 0-9, _, -.")
         self.__secret_token = secret_token
 
-    def secret_token(self, bot_token: str) -> str:  # noqa: ARG002
+    async def secret_token(self, bot_token: str) -> str:  # noqa: ARG002
         return self.__secret_token
