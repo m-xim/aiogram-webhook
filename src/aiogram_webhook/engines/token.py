@@ -107,14 +107,14 @@ class TokenEngine(WebhookEngine):
         return bot
 
     async def on_startup(self, app: Any, *args, bots: set[Bot] | None = None, **kwargs) -> None:  # noqa: ARG002
-        all_bots = set(bots) | set(self.bots.values()) if bots else set(self.bots.values())
+        all_bots = set(bots) | set(self._bots.values()) if bots else set(self._bots.values())
         workflow_data = self._build_workflow_data(app=app, bots=all_bots, **kwargs)
         await self.dispatcher.emit_startup(**workflow_data)
 
     async def on_shutdown(self, app: Any, *args, **kwargs) -> None:  # noqa: ARG002
-        workflow_data = self._build_workflow_data(app=app, bots=set(self.bots.values()), **kwargs)
+        workflow_data = self._build_workflow_data(app=app, bots=set(self._bots.values()), **kwargs)
         await self.dispatcher.emit_shutdown(**workflow_data)
 
-        for bot in self.bots.values():
+        for bot in self._bots.values():
             await bot.session.close()
         self._bots.clear()
