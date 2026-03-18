@@ -48,7 +48,7 @@ class WebhookEngine(ABC):
         self._background_feed_update_tasks: set[asyncio.Task[Any]] = set()
 
         if self.security is None:
-            warnings.warn("Security is not configured, skipping verification", UserWarning, stacklevel=2)
+            warnings.warn("Security is not configured, skipping verification", UserWarning, stacklevel=3)
 
     @abstractmethod
     async def set_webhook(self, *args, **kwargs) -> Bot:
