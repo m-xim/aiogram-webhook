@@ -248,7 +248,7 @@ routing = StaticRouting(url="https://example.com/webhook")
 Base class for token-based routing strategies. Used with **TokenEngine** to serve multiple bots.
 - Defines the token parameter name (default: `bot_token`)
 - Extracts bot token from incoming requests
-- Automatically Builds webhook URL using the bot token
+- Automatically builds webhook URL using the bot token
 
 ### PathRouting (Multi-bot)
 Extracts bot token from the URL path parameter.
