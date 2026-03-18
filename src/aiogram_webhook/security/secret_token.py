@@ -1,18 +1,18 @@
 import re
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from hmac import compare_digest
+from typing import Final, Protocol
 
 from aiogram_webhook.adapters.base_adapter import BoundRequest
 
 SECRET_TOKEN_PATTERN = re.compile(r"^[A-Za-z0-9_-]{1,256}$")
+SECRET_TOKEN_HEADER: Final[str] = "x-telegram-bot-api-secret-token"  # noqa: S105
 
 
-class SecretToken(ABC):
+class SecretToken(Protocol):
     """
-    Abstract base class for secret token verification in webhook requests.
+    Protocol for secret token verification in webhook requests.
     """
-
-    secret_header: str = "x-telegram-bot-api-secret-token"  # noqa: S105
 
     @abstractmethod
     async def verify(self, token: str, bound_request: BoundRequest) -> bool:
@@ -43,7 +43,7 @@ class StaticSecretToken(SecretToken):
         self._token = token
 
     async def verify(self, token: str, bound_request: BoundRequest) -> bool:  # noqa: ARG002
-        incoming = bound_request.headers.get(self.secret_header)
+        incoming = bound_request.headers.get(SECRET_TOKEN_HEADER)
         if incoming is None:
             return False
         return compare_digest(incoming, self._token)
