@@ -4,14 +4,14 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
 from aiogram_webhook.adapters.base_adapter import BoundRequest, WebAdapter
-from aiogram_webhook.adapters.fastapi.mapping import FastAPIHeadersMapping, FastAPIQueryMapping
+from aiogram_webhook.adapters.fastapi.mapping import FastApiHeadersMapping, FastApiQueryMapping
 
 
-class FastAPIBoundRequest(BoundRequest[Request]):
+class FastApiBoundRequest(BoundRequest[Request]):
     def __init__(self, request: Request):
         super().__init__(request)
-        self._headers = FastAPIHeadersMapping(self.request.headers)
-        self._query_params = FastAPIQueryMapping(self.request.query_params)
+        self._headers = FastApiHeadersMapping(self.request.headers)
+        self._query_params = FastApiQueryMapping(self.request.query_params)
 
     async def json(self) -> dict[str, Any]:
         return await self.request.json()
@@ -23,11 +23,11 @@ class FastAPIBoundRequest(BoundRequest[Request]):
         return None
 
     @property
-    def headers(self) -> FastAPIHeadersMapping:
+    def headers(self) -> FastApiHeadersMapping:
         return self._headers
 
     @property
-    def query_params(self) -> FastAPIQueryMapping:
+    def query_params(self) -> FastApiQueryMapping:
         return self._query_params
 
     @property
@@ -36,8 +36,8 @@ class FastAPIBoundRequest(BoundRequest[Request]):
 
 
 class FastApiWebAdapter(WebAdapter):
-    def bind(self, request: Request) -> FastAPIBoundRequest:
-        return FastAPIBoundRequest(request=request)
+    def bind(self, request: Request) -> FastApiBoundRequest:
+        return FastApiBoundRequest(request=request)
 
     def register(self, app: FastAPI, path, handler, on_startup=None, on_shutdown=None) -> None:  # noqa: ARG002
         async def endpoint(request: Request):
