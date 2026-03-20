@@ -15,11 +15,11 @@ from tests.fixtures import DummyBoundRequest, DummyRequest
     ],
     ids=["match", "mismatch", "none"],
 )
-async def test_security_secret_token(secret_token, request_token, expected):
+async def test_security_secret_token(secret_token, request_token, expected, dispatcher):
     sec = Security(secret_token=StaticSecretToken(secret_token))
     headers = {SECRET_TOKEN_HEADER: request_token} if request_token is not None else {}
     req = DummyBoundRequest(DummyRequest(headers=headers))
-    assert await sec.verify("42:TEST", req) is expected
+    assert await sec.verify("42:TEST", req, dispatcher=dispatcher) is expected
 
 
 @pytest.mark.asyncio

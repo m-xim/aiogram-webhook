@@ -1,14 +1,16 @@
+from aiogram import Dispatcher
+
 from aiogram_webhook.adapters.base_adapter import BoundRequest
 from aiogram_webhook.security.checks.check import SecurityCheck
 
 
 class PassingCheck(SecurityCheck):
-    async def verify(self, bot_token: str, bound_request: BoundRequest) -> bool:
+    async def verify(self, bot_token: str, bound_request: BoundRequest, dispatcher: Dispatcher) -> bool:
         return True
 
 
 class FailingCheck(SecurityCheck):
-    async def verify(self, bot_token: str, bound_request: BoundRequest) -> bool:
+    async def verify(self, bot_token: str, bound_request: BoundRequest, dispatcher: Dispatcher) -> bool:
         return False
 
 
@@ -16,5 +18,5 @@ class ConditionalCheck(SecurityCheck):
     def __init__(self, condition: bool):
         self.condition = condition
 
-    async def verify(self, bot_token: str, bound_request: BoundRequest) -> bool:
+    async def verify(self, bot_token: str, bound_request: BoundRequest, dispatcher: Dispatcher) -> bool:
         return self.condition

@@ -85,7 +85,9 @@ class WebhookEngine(ABC):
         if token is None:
             return self.web_adapter.create_json_response(status=400, payload={"detail": "Bot token not found"})
 
-        if self.security is not None and not await self.security.verify(bot_token=token, bound_request=bound_request):
+        if self.security is not None and not await self.security.verify(
+            bot_token=token, bound_request=bound_request, dispatcher=self.dispatcher
+        ):
             return self.web_adapter.create_json_response(status=403, payload={"detail": "Forbidden"})
 
         try:

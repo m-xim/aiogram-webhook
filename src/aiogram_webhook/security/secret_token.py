@@ -3,6 +3,8 @@ from abc import ABC, abstractmethod
 from hmac import compare_digest
 from typing import Final
 
+from aiogram import Dispatcher
+
 from aiogram_webhook.adapters.base_adapter import BoundRequest
 
 SECRET_TOKEN_PATTERN = re.compile(r"^[A-Za-z0-9_-]{1,256}$")
@@ -14,7 +16,7 @@ class SecretToken(ABC):
     Base class for secret token verification in webhook requests.
     """
 
-    async def verify(self, bot_token: str, bound_request: BoundRequest) -> bool:
+    async def verify(self, bot_token: str, bound_request: BoundRequest, dispatcher: Dispatcher) -> bool:  # noqa: ARG002
         incoming_secret_token = bound_request.headers.get(SECRET_TOKEN_HEADER)
         if incoming_secret_token is None:
             return False

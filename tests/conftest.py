@@ -1,12 +1,17 @@
 from ipaddress import IPv4Address
 
 import pytest
-from aiogram import Bot
+from aiogram import Bot, Dispatcher
 
 
 @pytest.fixture
 def bot():
     return Bot("42:TEST")
+
+
+@pytest.fixture
+def dispatcher() -> Dispatcher:
+    return Dispatcher()
 
 
 @pytest.fixture

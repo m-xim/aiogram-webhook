@@ -37,10 +37,10 @@ from tests.fixtures import DummyBoundRequest, DummyRequest, FailingCheck, Passin
         "failing-last-passing",
     ],
 )
-async def test_security_checks(checks, expected):
+async def test_security_checks(checks, expected, dispatcher):
     sec = Security(*checks)
     req = DummyBoundRequest()
-    assert await sec.verify("42:TEST", req) is expected
+    assert await sec.verify("42:TEST", req, dispatcher=dispatcher) is expected
 
 
 @pytest.mark.asyncio
@@ -71,8 +71,8 @@ async def test_security_checks(checks, expected):
         "no-checks-no-secret",
     ],
 )
-async def test_security_checks_and_secret_token(checks, secret_token, request_token, expected):
+async def test_security_checks_and_secret_token(checks, secret_token, request_token, expected, dispatcher):
     sec = Security(*checks, secret_token=secret_token)
     headers = {SECRET_TOKEN_HEADER: request_token} if request_token is not None else {}
     req = DummyBoundRequest(DummyRequest(headers=headers))
-    assert await sec.verify("42:TEST", req) is expected
+    assert await sec.verify("42:TEST", req, dispatcher=dispatcher) is expected
