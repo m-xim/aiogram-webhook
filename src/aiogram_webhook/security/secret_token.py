@@ -1,32 +1,33 @@
 import re
 from abc import ABC, abstractmethod
 from hmac import compare_digest
+from typing import Final
 
-from aiogram import Bot
+from aiogram import Dispatcher
 
 from aiogram_webhook.adapters.base_adapter import BoundRequest
 
 SECRET_TOKEN_PATTERN = re.compile(r"^[A-Za-z0-9_-]{1,256}$")
+SECRET_TOKEN_HEADER: Final[str] = "x-telegram-bot-api-secret-token"  # noqa: S105
 
 
 class SecretToken(ABC):
     """
-    Abstract base class for secret token verification in webhook requests.
+    Base class for secret token verification in webhook requests.
     """
 
-    secret_header: str = "x-telegram-bot-api-secret-token"  # noqa: S105
+    async def verify(self, bot_token: str, bound_request: BoundRequest, dispatcher: Dispatcher) -> bool:  # noqa: ARG002
+        incoming_secret_token = bound_request.headers.get(SECRET_TOKEN_HEADER)
+        if incoming_secret_token is None:
+            return False
+        return compare_digest(incoming_secret_token, await self.secret_token(bot_token))
 
     @abstractmethod
-    async def verify(self, bot: Bot, bound_request: BoundRequest) -> bool:
+    async def secret_token(self, bot_token: str) -> str:
         """
-        Verify the secret token in the incoming request.
-        """
-        raise NotImplementedError
+        Return the webhook secret token associated with the given bot token.
 
-    @abstractmethod
-    def secret_token(self, bot: Bot) -> str:
-        """
-        Return the secret token for the given bot.
+        :param bot_token: Bot token used to resolve expected secret token.
         """
         raise NotImplementedError
 
@@ -39,16 +40,10 @@ class StaticSecretToken(SecretToken):
     See: https://core.telegram.org/bots/api#setwebhook
     """
 
-    def __init__(self, token: str) -> None:
-        if not SECRET_TOKEN_PATTERN.match(token):
+    def __init__(self, secret_token: str) -> None:
+        if not SECRET_TOKEN_PATTERN.match(secret_token):
             raise ValueError("Invalid secret token format. Must be 1-256 characters, only A-Z, a-z, 0-9, _, -.")
-        self._token = token
+        self.__secret_token = secret_token
 
-    async def verify(self, bot: Bot, bound_request: BoundRequest) -> bool:  # noqa: ARG002
-        incoming = bound_request.headers.get(self.secret_header)
-        if incoming is None:
-            return False
-        return compare_digest(incoming, self._token)
-
-    def secret_token(self, bot: Bot) -> str:  # noqa: ARG002
-        return self._token
+    async def secret_token(self, bot_token: str) -> str:  # noqa: ARG002
+        return self.__secret_token

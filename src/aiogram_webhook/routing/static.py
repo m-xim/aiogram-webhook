@@ -1,3 +1,5 @@
+from aiogram import Bot
+
 from aiogram_webhook.routing.base import BaseRouting
 
 
@@ -8,5 +10,5 @@ class StaticRouting(BaseRouting):
         super().__init__(url=url)
         self.url_template = self.url.human_repr()
 
-    def webhook_point(self, bot) -> str:  # noqa: ARG002
+    async def webhook_url(self, bot: Bot) -> str:  # noqa: ARG002
         return self.url_template

@@ -16,12 +16,15 @@ class BaseRouting(ABC):
 
     def __init__(self, url: str) -> None:
         self.url = URL(url)
-        self.base = self.url.origin()
-        self.path = self.url.path
+
+    @property
+    def webhook_path(self) -> str:
+        """Get route path for web framework registration."""
+        return self.url.path
 
     @abstractmethod
-    def webhook_point(self, bot: Bot) -> str:
-        """Get the webhook URL for the given bot."""
+    async def webhook_url(self, bot: Bot) -> str:
+        """Build webhook URL for the given bot."""
         raise NotImplementedError
 
 
@@ -33,6 +36,6 @@ class TokenRouting(BaseRouting, ABC):
         self.param = param
 
     @abstractmethod
-    def extract_token(self, bound_request: BoundRequest) -> str | None:
-        """Extract the bot token from the incoming request."""
+    async def resolve_token(self, bound_request: BoundRequest) -> str | None:
+        """Resolve the bot token from the incoming request."""
         raise NotImplementedError

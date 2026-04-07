@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+from types import MappingProxyType
 from typing import TYPE_CHECKING, Any
 
 from aiogram import Bot, Dispatcher
+from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.utils.token import extract_bot_id
 
 from aiogram_webhook.config.bot import BotConfig
@@ -44,36 +46,30 @@ class TokenEngine(WebhookEngine):
         )
         self.routing: TokenRouting = routing  # for type checker
         self.bot_config = bot_config or BotConfig()
+        self._session = self.bot_config.session or AiohttpSession()
         self._bots: dict[int, Bot] = {}
 
-    def _get_bot_from_request(self, bound_request: BoundRequest) -> Bot | None:
-        """
-        Get a :class:`Bot` instance from request by token.
-        If the bot is not yet created, it will be created automatically.
+    @property
+    def bots(self) -> MappingProxyType[int, Bot]:
+        return MappingProxyType(self._bots)
 
-        :param bound_request: Incoming request
-        :return: Bot instance or None
-        """
-        token = self.routing.extract_token(bound_request)
-        if not token:
-            return None
-        return self.get_bot(token)
+    async def _get_bot_token_for_request(self, bound_request: BoundRequest) -> str | None:
+        return await self.routing.resolve_token(bound_request)
 
-    def get_bot(self, token: str) -> Bot:
-        """
-        Resolve or create a Bot instance by token and cache it.
+    async def _get_bot_by_token(self, token: str) -> Bot:
+        bot_id = extract_bot_id(token)
+        existing_bot = self._bots.get(bot_id)
 
-        :param token: The bot token
-        :return: Bot
+        if existing_bot is None or existing_bot.token != token:
+            new_bot = self._build_bot(token)
+            self._bots[bot_id] = new_bot
+            return new_bot
 
-        .. note::
-            To connect the bot to Telegram API and set up webhook, use :meth:`set_webhook`.
-        """
-        bot = self._bots.get(extract_bot_id(token))
-        if not bot:
-            bot = Bot(token=token, session=self.bot_config.session, default=self.bot_config.default)
-            self._bots[bot.id] = bot
-        return bot
+        return existing_bot
+
+    def _build_bot(self, token: str) -> Bot:
+        """Build a new Bot instance from token."""
+        return Bot(token=token, session=self._session, default=self.bot_config.default)
 
     async def set_webhook(
         self,
@@ -96,21 +92,29 @@ class TokenEngine(WebhookEngine):
         :param request_timeout: Request timeout
         :return: Bot instance
         """
-        bot = self.get_bot(token)
-        config = self._build_webhook_config(
+
+        bot = await self._get_bot_by_token(token=token)
+        params = self._build_webhook_config(
             max_connections=max_connections,
             drop_pending_updates=drop_pending_updates,
             allowed_updates=allowed_updates,
-        )
-        params = config.model_dump(exclude_none=True)
+        ).model_dump(exclude_none=True)
 
         if self.security is not None:
-            secret_token = await self.security.get_secret_token(bot=bot)
+            secret_token = await self.security.secret_token(bot_token=token)
             if secret_token is not None:
                 params["secret_token"] = secret_token
 
-        await bot.set_webhook(url=self.routing.webhook_point(bot), request_timeout=request_timeout, **params)
+        await bot.set_webhook(url=await self.routing.webhook_url(bot), request_timeout=request_timeout, **params)
         return bot
+
+    async def remove_bot(self, bot_id: int) -> bool:
+        """Remove cached bot"""
+        bot = self._bots.get(bot_id)
+        if bot is None:
+            return False
+        del self._bots[bot_id]
+        return True
 
     async def on_startup(self, app: Any, *args, bots: set[Bot] | None = None, **kwargs) -> None:  # noqa: ARG002
         all_bots = set(bots) | set(self._bots.values()) if bots else set(self._bots.values())
@@ -121,6 +125,7 @@ class TokenEngine(WebhookEngine):
         workflow_data = self._build_workflow_data(app=app, bots=set(self._bots.values()), **kwargs)
         await self.dispatcher.emit_shutdown(**workflow_data)
 
-        for bot in self._bots.values():
-            await bot.session.close()
+        if self.bot_config.session is None:
+            await self._session.close()
+
         self._bots.clear()

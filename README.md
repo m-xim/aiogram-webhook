@@ -157,7 +157,7 @@ Allows you to serve multiple Telegram bots in a single application. Useful if yo
 
 - Allows serving multiple bots via a single endpoint
 - Uses the bot token for request routing
-- Requires dispatcher, web_adapter, routing, bot_settings (optional), webhook_config (optional), and security (optional)
+- Requires dispatcher, web_adapter, routing, bot_config (optional), webhook_config (optional), and security (optional)
 
 **Example:**
 
@@ -198,7 +198,16 @@ engine = TokenEngine(
 
 #### Custom Engines
 
-You can create your own engine by inheriting from the base engine class (`BaseEngine`). This allows you to implement custom logic for webhook processing, routing, or bot management.
+You can create your own engine by inheriting from `WebhookEngine`. This allows you to implement custom logic for webhook processing, routing, or bot management.
+
+### Request processing
+
+`WebhookEngine` handles incoming updates in this order:
+
+1. Extract token from request (`_get_bot_token_for_request`)
+2. Run security checks for the token (`Security.verify(token, bound_request)`)
+3. Resolve bot (`_get_bot_by_token`)
+4. Pass update to aiogram dispatcher
 
 ---
 
@@ -237,9 +246,9 @@ routing = StaticRouting(url="https://example.com/webhook")
 
 ### TokenRouting (Multi-bot, Abstract)
 Base class for token-based routing strategies. Used with **TokenEngine** to serve multiple bots.
-- Requires a URL template with a parameter placeholder (e.g. `{bot_token}`)
+- Defines the token parameter name (default: `bot_token`)
 - Extracts bot token from incoming requests
-- Automatically formats webhook URL using the bot token
+- Automatically builds webhook URL using the bot token
 
 ### PathRouting (Multi-bot)
 Extracts bot token from the URL path parameter.
@@ -277,7 +286,7 @@ routing = QueryRouting(url="https://example.com/webhook?other=value")
 ```
 
 ### Custom Routing
-You can implement your own routing by inheriting from `BaseRouting` or `TokenRouting` and implementing the `webhook_point()` method (and `extract_token()` if using token-based routing).
+You can implement your own routing by inheriting from `BaseRouting` or `TokenRouting` and implementing the `webhook_url()` method (and `resolve_token()` if using token-based routing).
 
 See [routing examples](/src/aiogram_webhook/routing) for implementation details.
 

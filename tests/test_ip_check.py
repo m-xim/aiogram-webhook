@@ -22,10 +22,10 @@ from tests.fixtures import DummyBoundRequest, DummyRequest
         "direct-no-ip",
     ],
 )
-async def test_ip_check_direct(allowed_ips, request_ip, expected, bot):
+async def test_ip_check_direct(allowed_ips, request_ip, expected, dispatcher):
     req = DummyBoundRequest(DummyRequest(ip=request_ip))
     ip_check = IPCheck(*allowed_ips, include_default=False)
-    assert await ip_check.verify(bot, req) is expected
+    assert await ip_check.verify("42:TEST", req, dispatcher=dispatcher) is expected
 
 
 @pytest.mark.asyncio
@@ -50,11 +50,11 @@ async def test_ip_check_direct(allowed_ips, request_ip, expected, bot):
         "forwarded-no-header",
     ],
 )
-async def test_ip_check_forwarded(allowed_ips, x_forwarded_for, expected, bot):
+async def test_ip_check_forwarded(allowed_ips, x_forwarded_for, expected, dispatcher):
     headers = {"X-Forwarded-For": x_forwarded_for} if x_forwarded_for is not None else None
     req = DummyBoundRequest(DummyRequest(ip="127.0.0.1", headers=headers))
     ip_check = IPCheck(*allowed_ips, include_default=False)
-    assert await ip_check.verify(bot, req) is expected
+    assert await ip_check.verify("42:TEST", req, dispatcher=dispatcher) is expected
 
 
 @pytest.mark.asyncio
@@ -75,11 +75,11 @@ async def test_ip_check_forwarded(allowed_ips, x_forwarded_for, expected, bot):
         "both-both-invalid",
     ],
 )
-async def test_ip_check_both_priority(allowed_ips, request_ip, x_forwarded_for, expected, bot):
+async def test_ip_check_both_priority(allowed_ips, request_ip, x_forwarded_for, expected, dispatcher):
     headers = {"X-Forwarded-For": x_forwarded_for}
     req = DummyBoundRequest(DummyRequest(ip=request_ip, headers=headers))
     ip_check = IPCheck(*allowed_ips, include_default=False)
-    assert await ip_check.verify(bot, req) is expected
+    assert await ip_check.verify("42:TEST", req, dispatcher=dispatcher) is expected
 
 
 @pytest.mark.asyncio
@@ -94,8 +94,8 @@ async def test_ip_check_both_priority(allowed_ips, request_ip, x_forwarded_for, 
         "edgecase-first-invalid",
     ],
 )
-async def test_ip_check_edge_cases(allowed_ips, request_ip, x_forwarded_for, expected, bot):
+async def test_ip_check_edge_cases(allowed_ips, request_ip, x_forwarded_for, expected, dispatcher):
     headers = {"X-Forwarded-For": x_forwarded_for}
     req = DummyBoundRequest(DummyRequest(ip=request_ip, headers=headers))
     ip_check = IPCheck(*allowed_ips, include_default=False)
-    assert await ip_check.verify(bot, req) is expected
+    assert await ip_check.verify("42:TEST", req, dispatcher=dispatcher) is expected

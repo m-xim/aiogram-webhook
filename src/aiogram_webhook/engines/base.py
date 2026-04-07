@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import asyncio
+import warnings
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any
 
 from aiogram.methods import TelegramMethod
+from aiogram.utils.token import TokenValidationError
 
 from aiogram_webhook.config.webhook import WebhookConfig
 
@@ -45,9 +47,8 @@ class WebhookEngine(ABC):
         self.handle_in_background = handle_in_background
         self._background_feed_update_tasks: set[asyncio.Task[Any]] = set()
 
-    @abstractmethod
-    def _get_bot_from_request(self, bound_request: BoundRequest) -> Bot | None:
-        raise NotImplementedError
+        if self.security is None:
+            warnings.warn("Security is not configured, skipping verification", UserWarning, stacklevel=3)
 
     @abstractmethod
     async def set_webhook(self, *args, **kwargs) -> Bot:
@@ -71,25 +72,41 @@ class WebhookEngine(ABC):
             **kwargs,
         }
 
+    @abstractmethod
+    async def _get_bot_token_for_request(self, bound_request: BoundRequest) -> str | None:
+        raise NotImplementedError
+
+    @abstractmethod
+    async def _get_bot_by_token(self, token: str) -> Bot | None:
+        raise NotImplementedError
+
     async def handle_request(self, bound_request: BoundRequest):
-        bot = self._get_bot_from_request(bound_request)
+        token = await self._get_bot_token_for_request(bound_request)
+        if token is None:
+            return self.web_adapter.create_json_response(status=400, payload={"detail": "Bot token not found"})
+
+        if self.security is not None and not await self.security.verify(
+            bot_token=token, bound_request=bound_request, dispatcher=self.dispatcher
+        ):
+            return self.web_adapter.create_json_response(status=403, payload={"detail": "Forbidden"})
+
+        try:
+            bot = await self._get_bot_by_token(token)
+        except TokenValidationError:
+            return self.web_adapter.create_json_response(status=400, payload={"detail": "Invalid bot token"})
+
         if bot is None:
             return self.web_adapter.create_json_response(status=400, payload={"detail": "Bot not found"})
 
-        if self.security is not None and not await self.security.verify(bot=bot, bound_request=bound_request):
-            return self.web_adapter.create_json_response(status=403, payload={"detail": "Forbidden"})
-
         update = await bound_request.json()
-
         if self.handle_in_background:
             return await self._handle_request_background(bot=bot, update=update)
-
         return await self._handle_request(bot=bot, update=update)
 
     def register(self, app: Any) -> None:
         self.web_adapter.register(
             app=app,
-            path=self.routing.path,
+            path=self.routing.webhook_path,
             handler=self.handle_request,
             on_startup=self.on_startup,
             on_shutdown=self.on_shutdown,
@@ -98,7 +115,7 @@ class WebhookEngine(ABC):
     async def _handle_request(self, bot: Bot, update: dict[str, Any]) -> dict[str, Any]:
         result = await self.dispatcher.feed_webhook_update(bot=bot, update=update)
 
-        if not isinstance(result, TelegramMethod):
+        if result is None:
             return self.web_adapter.create_json_response(status=200, payload={})
 
         payload = self._build_webhook_payload(bot, result)
@@ -110,14 +127,12 @@ class WebhookEngine(ABC):
         return self.web_adapter.create_json_response(status=200, payload=payload)
 
     async def _background_feed_update(self, bot: Bot, update: dict[str, Any]) -> None:
-        result = await self.dispatcher.feed_raw_update(bot=bot, update=update)  # **self.data
+        result = await self.dispatcher.feed_raw_update(bot=bot, update=update)
         if isinstance(result, TelegramMethod):
             await self.dispatcher.silent_call_request(bot=bot, result=result)
 
     async def _handle_request_background(self, bot: Bot, update: dict[str, Any]):
-        feed_update_task = asyncio.create_task(
-            self._background_feed_update(bot=bot, update=update),
-        )
+        feed_update_task = asyncio.create_task(self._background_feed_update(bot=bot, update=update))
         self._background_feed_update_tasks.add(feed_update_task)
         feed_update_task.add_done_callback(self._background_feed_update_tasks.discard)
 

@@ -42,13 +42,16 @@ class SimpleEngine(WebhookEngine):
             handle_in_background=handle_in_background,
         )
 
-    def _get_bot_from_request(self, bound_request: BoundRequest) -> Bot | None:  # noqa: ARG002
+    async def _get_bot_token_for_request(self, bound_request: BoundRequest) -> str:  # noqa: ARG002
         """
-        Always returns the single Bot instance for any request.
+        Always returns the single bot token for any request.
 
         :param bound_request: The incoming bound request.
-        :return: The single Bot instance
+        :return: The single bot token
         """
+        return self.bot.token
+
+    async def _get_bot_by_token(self, token: str) -> Bot:  # noqa: ARG002
         return self.bot
 
     async def set_webhook(
@@ -78,11 +81,13 @@ class SimpleEngine(WebhookEngine):
         params = config.model_dump(exclude_none=True)
 
         if self.security is not None:
-            secret_token = await self.security.get_secret_token(bot=self.bot)
+            secret_token = await self.security.secret_token(bot_token=self.bot.token)
             if secret_token is not None:
                 params["secret_token"] = secret_token
 
-        await self.bot.set_webhook(url=self.routing.webhook_point(self.bot), request_timeout=request_timeout, **params)
+        await self.bot.set_webhook(
+            url=await self.routing.webhook_url(self.bot), request_timeout=request_timeout, **params
+        )
         return self.bot
 
     async def on_startup(self, app: Any, *args, **kwargs) -> None:  # noqa: ARG002
