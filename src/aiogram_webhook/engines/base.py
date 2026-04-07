@@ -115,7 +115,7 @@ class WebhookEngine(ABC):
     async def _handle_request(self, bot: Bot, update: dict[str, Any]) -> dict[str, Any]:
         result = await self.dispatcher.feed_webhook_update(bot=bot, update=update)
 
-        if not isinstance(result, TelegramMethod):
+        if result is None:
             return self.web_adapter.create_json_response(status=200, payload={})
 
         payload = self._build_webhook_payload(bot, result)
@@ -127,7 +127,7 @@ class WebhookEngine(ABC):
         return self.web_adapter.create_json_response(status=200, payload=payload)
 
     async def _background_feed_update(self, bot: Bot, update: dict[str, Any]) -> None:
-        result = await self.dispatcher.feed_raw_update(bot=bot, update=update)  # **self.data
+        result = await self.dispatcher.feed_raw_update(bot=bot, update=update)
         if isinstance(result, TelegramMethod):
             await self.dispatcher.silent_call_request(bot=bot, result=result)
 

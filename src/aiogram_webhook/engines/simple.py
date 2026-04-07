@@ -44,10 +44,10 @@ class SimpleEngine(WebhookEngine):
 
     async def _get_bot_token_for_request(self, bound_request: BoundRequest) -> str:  # noqa: ARG002
         """
-        Always returns the single Bot token for any request.
+        Always returns the single bot token for any request.
 
         :param bound_request: The incoming bound request.
-        :return: The single Bot token
+        :return: The single bot token
         """
         return self.bot.token
 
