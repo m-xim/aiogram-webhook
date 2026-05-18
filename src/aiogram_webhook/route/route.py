@@ -56,10 +56,11 @@ class Route:
 
         self._params = dict(params or {})
         self._query = normalize_query(query or {})
-        self._path_params = tuple((name, self._params[name]) for name in self._path_param_names)
         self._query_items = tuple(self._query.items())
 
         self._validate_config()
+
+        self._path_params = tuple((name, self._params[name]) for name in self._path_param_names)
 
     @property
     def path(self) -> str:
@@ -115,12 +116,12 @@ class Route:
             raw_value = path_params.get(name)
 
             if raw_value is None:
-                raise MissingPathParamError(param=name, available_params=route_params)
+                raise MissingPathParamError(param=name, available_params=path_params)
 
             if raw_value == "":
                 raise EmptyPathParamError(param=name)
 
-            route_params[name] = await route_param.parse(value=raw_value, params=route_params)
+            route_params[name] = await route_param.parse(value=raw_value, params=path_params)
         return route_params
 
     def _check_query(self, *, request: WebRequest[RawRequestT], params: RouteParams) -> None:

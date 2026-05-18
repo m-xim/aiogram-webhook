@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from collections.abc import Mapping
 from dataclasses import dataclass
-from typing import TypeAlias, cast
+from typing import TypeAlias
 
 from aiogram_webhook.route.errors import RouteConfigError, RouteError
 from aiogram_webhook.route.params import RouteParams
@@ -63,22 +63,25 @@ def normalize_query(query: Mapping[str, QueryInput]) -> dict[str, tuple[QueryVal
     normalized: dict[str, tuple[QueryValue, ...]] = {}
 
     for name, value in query.items():
-        if isinstance(value, list | tuple):
-            if not value:
-                raise RouteConfigError(
-                    f"Invalid Route config: query param must contain at least one value. Param: {name!r}."
-                )
+        if isinstance(value, QueryValue):
+            normalized[name] = (value,)
+            continue
 
-            items = value
-        else:
-            items = (value,)
+        if isinstance(value, str | int):
+            normalized[name] = (Const(value),)
+            continue
+
+        if not value:
+            raise RouteConfigError(
+                f"Invalid Route config: query param must contain at least one value. Param: {name!r}."
+            )
 
         values: list[QueryValue] = []
-        for item in items:
-            if isinstance(item, str | int):
-                values.append(Const(item))
+        for item in value:
+            if isinstance(item, QueryValue):
+                values.append(item)
             else:
-                values.append(cast("QueryValue", item))
+                values.append(Const(item))
 
         normalized[name] = tuple(values)
 
