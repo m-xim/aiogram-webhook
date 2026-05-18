@@ -1,7 +1,10 @@
 import pytest
 
+from aiogram_webhook.engines.target import Target
 from aiogram_webhook.security.checks.ip import IPCheck
-from tests.fixtures import DummyBoundRequest, DummyRequest
+from tests.fixtures import DummyRequest, dummy_web_request
+
+TARGET = Target(bot_id=42, bot_token="42:TEST")
 
 
 @pytest.mark.asyncio
@@ -22,10 +25,10 @@ from tests.fixtures import DummyBoundRequest, DummyRequest
         "direct-no-ip",
     ],
 )
-async def test_ip_check_direct(allowed_ips, request_ip, expected, dispatcher):
-    req = DummyBoundRequest(DummyRequest(ip=request_ip))
+async def test_ip_check_direct(allowed_ips, request_ip, expected):
+    req = dummy_web_request(DummyRequest(ip=request_ip))
     ip_check = IPCheck(*allowed_ips, include_default=False)
-    assert await ip_check.verify("42:TEST", req, dispatcher=dispatcher) is expected
+    assert await ip_check.verify(target=TARGET, request=req, route_params={}) is expected
 
 
 @pytest.mark.asyncio
@@ -50,11 +53,11 @@ async def test_ip_check_direct(allowed_ips, request_ip, expected, dispatcher):
         "forwarded-no-header",
     ],
 )
-async def test_ip_check_forwarded(allowed_ips, x_forwarded_for, expected, dispatcher):
+async def test_ip_check_forwarded(allowed_ips, x_forwarded_for, expected):
     headers = {"X-Forwarded-For": x_forwarded_for} if x_forwarded_for is not None else None
-    req = DummyBoundRequest(DummyRequest(ip="127.0.0.1", headers=headers))
+    req = dummy_web_request(DummyRequest(ip="127.0.0.1", headers=headers))
     ip_check = IPCheck(*allowed_ips, include_default=False)
-    assert await ip_check.verify("42:TEST", req, dispatcher=dispatcher) is expected
+    assert await ip_check.verify(target=TARGET, request=req, route_params={}) is expected
 
 
 @pytest.mark.asyncio
@@ -75,11 +78,11 @@ async def test_ip_check_forwarded(allowed_ips, x_forwarded_for, expected, dispat
         "both-both-invalid",
     ],
 )
-async def test_ip_check_both_priority(allowed_ips, request_ip, x_forwarded_for, expected, dispatcher):
+async def test_ip_check_both_priority(allowed_ips, request_ip, x_forwarded_for, expected):
     headers = {"X-Forwarded-For": x_forwarded_for}
-    req = DummyBoundRequest(DummyRequest(ip=request_ip, headers=headers))
+    req = dummy_web_request(DummyRequest(ip=request_ip, headers=headers))
     ip_check = IPCheck(*allowed_ips, include_default=False)
-    assert await ip_check.verify("42:TEST", req, dispatcher=dispatcher) is expected
+    assert await ip_check.verify(target=TARGET, request=req, route_params={}) is expected
 
 
 @pytest.mark.asyncio
@@ -94,8 +97,8 @@ async def test_ip_check_both_priority(allowed_ips, request_ip, x_forwarded_for, 
         "edgecase-first-invalid",
     ],
 )
-async def test_ip_check_edge_cases(allowed_ips, request_ip, x_forwarded_for, expected, dispatcher):
+async def test_ip_check_edge_cases(allowed_ips, request_ip, x_forwarded_for, expected):
     headers = {"X-Forwarded-For": x_forwarded_for}
-    req = DummyBoundRequest(DummyRequest(ip=request_ip, headers=headers))
+    req = dummy_web_request(DummyRequest(ip=request_ip, headers=headers))
     ip_check = IPCheck(*allowed_ips, include_default=False)
-    assert await ip_check.verify("42:TEST", req, dispatcher=dispatcher) is expected
+    assert await ip_check.verify(target=TARGET, request=req, route_params={}) is expected

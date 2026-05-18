@@ -1,21 +1,16 @@
-from aiogram_webhook.config.bot import BotConfig
-from aiogram_webhook.config.webhook import WebhookConfig
-from aiogram_webhook.engines.simple import SimpleEngine
+from aiogram_webhook.configs.bot import BotConfig
+from aiogram_webhook.configs.webhook import WebhookConfig
+from aiogram_webhook.engines.single import SingleBotEngine
 from aiogram_webhook.engines.token import TokenEngine
+from aiogram_webhook.web.aiohttp import AiohttpAdapter
 
-__all__ = ["BotConfig", "SimpleEngine", "TokenEngine", "WebhookConfig"]
+__all__ = ["AiohttpAdapter", "BotConfig", "SingleBotEngine", "TokenEngine", "WebhookConfig"]
 
-
-try:
-    from aiogram_webhook.adapters.aiohttp.adapter import AiohttpWebAdapter  # noqa: F401
-
-    __all__.insert(0, "AiohttpWebAdapter")
-except ImportError:
-    pass
 
 try:
-    from aiogram_webhook.adapters.fastapi.adapter import FastApiWebAdapter  # noqa: F401
+    from aiogram_webhook.web.fastapi import FastAPIAdapter  # noqa: F401
 
-    __all__.insert(1, "FastApiWebAdapter")
-except ImportError:
-    pass
+    __all__.insert(2, "FastAPIAdapter")
+except ModuleNotFoundError as exc:
+    if exc.name != "fastapi":
+        raise

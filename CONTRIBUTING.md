@@ -32,9 +32,9 @@ Format: `type(scope): description`
 - `chore` — Other changes (dependencies, config)
 
 **Scope (optional):** Module or component affected
-- `routing`
+- `route`
 - `security`
-- `adapters`
+- `web`
 - `engines`
 
 **Good commit messages:**
@@ -46,9 +46,9 @@ Format: `type(scope): description`
 ## Project Structure
 ```
 src/aiogram_webhook/
-├── adapters/          # Web framework adapters
+├── web/          # Web framework adapters
 ├── engines/           # Core webhook engine
-├── routing/           # Routing strategies
+├── route/           # Route strategies
 └── security/          # Security checks
 ```
 
