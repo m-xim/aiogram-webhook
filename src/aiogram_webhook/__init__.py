@@ -11,5 +11,6 @@ try:
     from aiogram_webhook.web.fastapi import FastAPIAdapter  # noqa: F401
 
     __all__.insert(2, "FastAPIAdapter")
-except ImportError:
-    pass
+except ModuleNotFoundError as exc:
+    if exc.name != "fastapi":
+        raise
