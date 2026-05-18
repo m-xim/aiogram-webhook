@@ -21,19 +21,9 @@ It supports single-bot and token-based multi-bot setups, with route building, op
 ## 📦 Installation
 
 ```bash
-uv add "aiogram-webhook[fastapi]"
-```
-
-or:
-
-```bash
-uv add "aiogram-webhook[aiohttp]"
-```
-
-With pip:
-
-```bash
-pip install "aiogram-webhook[fastapi]"
+uv add "aiogram-webhook"
+# or
+pip install "aiogram-webhook"
 ```
 
 ## 🚀 Quick Start
@@ -159,9 +149,3 @@ WEBHOOK_SECRET = "SECRET_TOKEN"
 security = Security(secret_token=StaticSecretToken(WEBHOOK_SECRET))
 await engine.set_webhook(secret_token=WEBHOOK_SECRET)
 ```
-
-## 🧭 Project
-
-- 📝 [Changelog](CHANGELOG.md)
-- 🤝 [Contributing](CONTRIBUTING.md)
-- 📄 [License](LICENSE)
