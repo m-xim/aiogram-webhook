@@ -1,370 +1,167 @@
 # aiogram-webhook
 
 [![PyPI version](https://img.shields.io/pypi/v/aiogram-webhook?color=blue)](https://pypi.org/project/aiogram-webhook)
-[![codecov](https://codecov.io/github/m-xim/aiogram-webhook/graph/badge.svg?token=H21MX17Y7D)](https://codecov.io/github/m-xim/aiogram-webhook)[![Tests Status](https://github.com/m-xim/aiogram-webhook/actions/workflows/tests.yml/badge.svg)](https://github.com/m-xim/aiogram-webhook/actions)
+[![codecov](https://codecov.io/github/m-xim/aiogram-webhook/graph/badge.svg?token=H21MX17Y7D)](https://codecov.io/github/m-xim/aiogram-webhook)
+[![Tests Status](https://github.com/m-xim/aiogram-webhook/actions/workflows/tests.yml/badge.svg)](https://github.com/m-xim/aiogram-webhook/actions)
 [![Release Status](https://github.com/m-xim/aiogram-webhook/actions/workflows/release.yml/badge.svg)](https://github.com/m-xim/aiogram-webhook/actions)
 [![License](https://img.shields.io/github/license/m-xim/aiogram-webhook.svg)](/LICENSE)
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/m-xim/aiogram-webhook)
 
-**aiogram-webhook** is a modular Python library for seamless webhook integration with multiple web frameworks in aiogram. It enables both single and multi-bot operation via webhooks, with flexible routing and security features.
-
----
+**aiogram-webhook** is a modular Python library for webhook integration in aiogram.
+It supports single-bot and token-based multi-bot setups, with route building, optional request checks, and adapters for FastAPI and aiohttp.
 
 ## ✨ Features
 
-- 🧱 Modular and extensible webhook engine
-- 🔀 Flexible routing (static, tokenized, custom)
-- 🤖 Single-bot and multi-bot support
-- ⚡ Adapters for FastAPI and aiohttp
-- 🔒 Security: secret tokens, IP checks, custom security
-- 🧩 Easily extendable with your own adapters, routing, and security
+- 🤖 Single-bot and token-based multi-bot webhook engines
+- ⚡ FastAPI and aiohttp adapters
+- 🛣️ Route building with path and query parameters
+- 🛡️ Optional secret-token and IP-based request checks
+- 🧩 Typed adapter interfaces for web frameworks
 
----
-
-## 🚀 Installation
+## 📦 Installation
 
 ```bash
-uv add aiogram-webhook
-# or
-pip install aiogram-webhook
+uv add "aiogram-webhook[fastapi]"
 ```
 
----
+or:
 
-## ⚡ Quick Start
+```bash
+uv add "aiogram-webhook[aiohttp]"
+```
 
-### FastAPI
+With pip:
+
+```bash
+pip install "aiogram-webhook[fastapi]"
+```
+
+## 🚀 Quick Start
+
 ```python
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+
 from aiogram import Bot, Dispatcher, Router
 from aiogram.filters import CommandStart
 from aiogram.types import Message
-from aiogram_webhook import SimpleEngine, FastApiWebAdapter, WebhookConfig
-from aiogram_webhook.routing import StaticRouting
+from fastapi import FastAPI
+
+from aiogram_webhook import FastAPIAdapter, SingleBotEngine, WebhookConfig
+from aiogram_webhook.route import Route
 
 router = Router()
 
 
 @router.message(CommandStart())
-async def start(message: Message):
+async def start(message: Message) -> None:
     await message.answer("OK")
 
 
 dispatcher = Dispatcher()
 dispatcher.include_router(router)
+
 bot = Bot("BOT_TOKEN")
-
-
-engine = SimpleEngine(
+engine = SingleBotEngine(
     dispatcher,
     bot,
-    web_adapter=FastApiWebAdapter(),
-    routing=StaticRouting(url="https://example.com/webhook"),
-    webhook_config=WebhookConfig(allowed_updates=["message", "callback_query"], drop_pending_updates=True),
-    # security=Security(...)
+    web=FastAPIAdapter(),
+    route=Route(base_url="https://example.com", path="/webhook"),
+    webhook_config=WebhookConfig(drop_pending_updates=True),
 )
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    engine.register(app)
-    await engine.set_webhook()  # Uses webhook_config defaults
-    # Or override specific params:
-    # await engine.set_webhook(max_connections=100)
+    await engine.set_webhook()
     await engine.on_startup(app)
-    yield
-    await engine.on_shutdown(app)
+    try:
+        yield
+    finally:
+        await engine.on_shutdown(app)
 
 
 app = FastAPI(lifespan=lifespan)
-```
-
-### Aiohttp
-```python
-from aiogram import Bot, Dispatcher, Router
-from aiogram.filters import CommandStart
-from aiogram.types import Message
-from aiogram_webhook import SimpleEngine, AiohttpWebAdapter, WebhookConfig
-from aiogram_webhook.routing import StaticRouting
-from aiohttp import web
-
-router = Router()
-
-
-@router.message(CommandStart())
-async def start(message: Message):
-    await message.answer("OK")
-
-
-async def on_startup(bot: Bot, webhook_engine: SimpleEngine) -> None:
-    await webhook_engine.set_webhook()
-
-
-dispatcher = Dispatcher()
-dispatcher.include_router(router)
-dispatcher.startup.register(on_startup)
-bot = Bot("BOT_TOKEN")
-
-engine = SimpleEngine(
-    dispatcher,
-    bot,
-    web_adapter=AiohttpWebAdapter(),
-    routing=StaticRouting(url="https://example.com/webhook"),
-    webhook_config=WebhookConfig(allowed_updates=["message", "callback_query"]),
-    # security=Security(...)
-)
-app = web.Application()
 engine.register(app)
 ```
 
----
+## 🌐 aiohttp
 
-## 🧩 Engines
-
-In aiogram-webhook, there are two main engines for integrating Telegram bots via webhook:
-
-#### SimpleEngine (Single-bot)
-
-Used for serving a single Telegram bot. Suitable for most standard scenarios when you need to integrate only one bot with your application.
-
-- Connects aiogram `Dispatcher` and `Bot` to the selected web framework (FastAPI, aiohttp, etc.)
-- Handles webhook requests for a single bot
-- Requires explicit dispatcher, bot, web_adapter, and routing (security and webhook_config are optional)
-
-**Example:**
 ```python
+from aiohttp import web
 from aiogram import Bot, Dispatcher
-from aiogram_webhook import SimpleEngine, FastApiWebAdapter, WebhookConfig
-from aiogram_webhook.routing import StaticRouting
 
-bot = Bot("BOT_TOKEN")
+from aiogram_webhook import AiohttpAdapter, SingleBotEngine
+from aiogram_webhook.route import Route
+
 dispatcher = Dispatcher()
+bot = Bot("BOT_TOKEN")
 
-engine = SimpleEngine(
+engine = SingleBotEngine(
     dispatcher,
     bot,
-    web_adapter=FastApiWebAdapter(),
-    routing=StaticRouting(url="https://example.com/webhook"),
-    webhook_config=WebhookConfig(allowed_updates=["message", "callback_query"], drop_pending_updates=True),
-    # security=Security(...)
+    web=AiohttpAdapter(),
+    route=Route(base_url="https://example.com", path="/webhook"),
 )
+
+
+async def set_webhook(app: web.Application) -> None:
+    await engine.set_webhook()
+
+
+app = web.Application()
+app.on_startup.append(set_webhook)
+engine.register(app)
 ```
 
-#### TokenEngine (Multi-bot)
+## 🔀 Multi-Bot Webhooks
 
-Allows you to serve multiple Telegram bots in a single application. Useful if you need to dynamically determine which bot the request is for (e.g., by token in the URL).
-
-- Allows serving multiple bots via a single endpoint
-- Uses the bot token for request routing
-- Requires dispatcher, web_adapter, routing, bot_config (optional), webhook_config (optional), and security (optional)
-
-**Example:**
+Use `TokenEngine` when the bot token is part of the webhook route:
 
 ```python
-from aiogram import Dispatcher, Router
-from aiogram.client.default import DefaultBotProperties
-from aiogram.types import Message
-from aiogram.filters import Command, CommandObject
-from aiogram_webhook import TokenEngine, FastApiWebAdapter, WebhookConfig, BotConfig
-from aiogram_webhook.routing import PathRouting
+from aiogram import Dispatcher
 
-router = Router()
-
-
-@router.message(Command("addbot"))
-async def add_bot_handler(message: Message, command: CommandObject, webhook_engine: TokenEngine):
-    token = command.args
-    if not token:
-        await message.answer("Use: /addbot <TOKEN>")
-        return
-    new_bot = await webhook_engine.set_webhook(token)
-    await message.answer(f"Bot #{new_bot.id} started!")
-
+from aiogram_webhook import FastAPIAdapter, TokenEngine
+from aiogram_webhook.route import BotTokenParam, Route
 
 dispatcher = Dispatcher()
-dispatcher.include_router(router)
-
-
 engine = TokenEngine(
     dispatcher,
-    web_adapter=FastApiWebAdapter(),
-    routing=PathRouting(url="https://example.com/webhook/{bot_token}"),
-    bot_config=BotConfig(default=DefaultBotProperties(parse_mode="HTML")),
-    webhook_config=WebhookConfig(allowed_updates=["message", "callback_query"]),
-    # security=Security(...)
+    web=FastAPIAdapter(),
+    route=Route(
+        base_url="https://example.com",
+        path="/webhook/{bot_token}",
+        params={"bot_token": BotTokenParam()},
+    ),
 )
 ```
 
-#### Custom Engines
-
-You can create your own engine by inheriting from `WebhookEngine`. This allows you to implement custom logic for webhook processing, routing, or bot management.
-
-### Request processing
-
-`WebhookEngine` handles incoming updates in this order:
-
-1. Extract token from request (`_get_bot_token_for_request`)
-2. Run security checks for the token (`Security.verify(token, bound_request)`)
-3. Resolve bot (`_get_bot_by_token`)
-4. Pass update to aiogram dispatcher
-
----
-
-## 🔌 Adapters: FastAPI and aiohttp
-
-Adapters connect the engine to your web framework.
-
-### FastAPI Adapter
-- Use `FastApiWebAdapter`
-- Register engine in FastAPI lifespan (see Quick Start)
-
-### Aiohttp Adapter
-- Use `AiohttpWebAdapter`
-- Just call `engine.register(app)`
-
----
-
-## 🛣️ Routing
-
-aiogram-webhook provides several routing strategies to determine webhook URLs and extract bot tokens from requests:
-
-### BaseRouting (Abstract)
-Base class for all routing strategies. Defines the webhook URL template and provides the interface for extracting information from requests.
-
-### StaticRouting (Single-bot)
-Used with **SimpleEngine** for static webhook URLs without token extraction.
-- Returns the webhook URL as-is
-- No parameter extraction needed
-- Example: `https://example.com/webhook`
-
-```python
-from aiogram_webhook.routing import StaticRouting
-
-routing = StaticRouting(url="https://example.com/webhook")
-```
-
-### TokenRouting (Multi-bot, Abstract)
-Base class for token-based routing strategies. Used with **TokenEngine** to serve multiple bots.
-- Defines the token parameter name (default: `bot_token`)
-- Extracts bot token from incoming requests
-- Automatically builds webhook URL using the bot token
-
-### PathRouting (Multi-bot)
-Extracts bot token from the URL path parameter.
-- Parameter is read from the path segment
-- Example: `https://example.com/webhook/123:ABC` → token extracted from path
-- Default parameter name: `"bot_token"`
-
-```python
-from aiogram_webhook.routing import PathRouting
-
-# Using default parameter name "bot_token"
-routing = PathRouting(url="https://example.com/webhook/{bot_token}")
-
-# Or with custom parameter name
-routing = PathRouting(url="https://example.com/webhook/{token}", param="token")
-```
-
-### QueryRouting (Multi-bot)
-Extracts bot token from URL query parameters.
-- Parameter is read from the query string
-- Example: `https://example.com/webhook?token=123:ABC` → token extracted from query
-- Default parameter name: `"bot_token"`
-
-```python
-from aiogram_webhook.routing import QueryRouting
-
-# Using default parameter name "bot_token"
-routing = QueryRouting(url="https://example.com/webhook")
-
-# Or with custom parameter name
-routing = QueryRouting(url="https://example.com/webhook", param="token")
-
-# Or with other parameters
-routing = QueryRouting(url="https://example.com/webhook?other=value")
-```
-
-### Custom Routing
-You can implement your own routing by inheriting from `BaseRouting` or `TokenRouting` and implementing the `webhook_url()` method (and `resolve_token()` if using token-based routing).
-
-See [routing examples](/src/aiogram_webhook/routing) for implementation details.
-
----
-
-## ⚙️ Webhook Configuration
-
-`WebhookConfig` allows you to set default parameters for the Telegram [`setWebhook`](https://core.telegram.org/bots/api#setwebhook) API call. All parameters are optional and can be overridden when calling `engine.set_webhook()`.
-
----
+Then call `await engine.add_bot(token)` to register a bot and set its webhook.
 
 ## 🛡️ Security
 
-aiogram-webhook provides a flexible and extensible security system for processing webhook requests. You can use built-in mechanisms, combine them, or implement your own checks.
+Security checks are optional. `IPCheck` allows requests from Telegram IP ranges by default:
 
 ```python
-from aiogram_webhook.security import Security, StaticSecretToken, IPCheck
+from aiogram_webhook.security import IPCheck, Security
 
-security = Security(
-    IPCheck(),  # and other checks...
-    secret_token=StaticSecretToken("YOUR_SECRET_TOKEN"),
-)
+security = Security(IPCheck())
 ```
 
-### Main features
+Pass it to an engine with `security=security`.
 
-- **SecretToken** — verification of the Telegram secret token (e.g., via the `X-Telegram-Bot-Api-Secret-Token` header).
-- **IPCheck** — validation of the request source IP address (by default, official Telegram networks are supported, you can add your own addresses/networks).
-- **Combining checks** — you can combine several checks (for example, SecretToken and IPCheck simultaneously).
-- **Custom checks** — the ability to implement your own verification logic (e.g., by headers, parameters, etc.).
-
-### Using SecretToken
+For Telegram secret-token verification, use the same token in `Security` and in `set_webhook`:
 
 ```python
 from aiogram_webhook.security import Security, StaticSecretToken
 
-security = Security(secret_token=StaticSecretToken("SECRET_TOKEN"))
-```
-**StaticSecretToken** is a simple implementation of the `SecretToken` protocol that checks the provided token against a static value.
+WEBHOOK_SECRET = "SECRET_TOKEN"
 
-#### Creating your own SecretToken (e.g., dynamic)
-You can implement your own class based on the `SecretToken` protocol. For example, you may want to:
-- Store tokens in a database or environment variable
-- Use different tokens for different bots
-- Rotate tokens dynamically
-
-### Using IPCheck
-
-`IPCheck` is a security check that validates the client's IP address against allowed networks and addresses. It helps ensure that only requests from trusted sources (such as official Telegram servers or your own networks) are accepted.
-
-**Constructor parameters:**
-- `*ip_entries`: Any number of IP addresses or networks (as strings or ipaddress objects) to allow. You can specify both IPv4 and IPv6 addresses or networks.
-- `include_default` (bool, default: True): If True, includes the official Telegram IP networks in the allowed list. If False, only your custom addresses/networks will be used.
-
-You can combine as many addresses and networks as needed. The check supports both IPv4 and IPv6.
-
-**Features:**
-- Automatic detection of client IP from direct connection or `X-Forwarded-For` header (for reverse proxy scenarios)
-- Works seamlessly with load balancers and reverse proxies
-
-**Example:**
-```python
-from aiogram_webhook.security import Security, IPCheck
-
-# Use default Telegram IP networks
-security = Security(IPCheck())
-
-# Add custom addresses/networks
-security = Security(IPCheck("192.168.1.0/24", "10.0.0.1"))
-
-# Disable default Telegram networks and use only custom ones
-security = Security(IPCheck("192.168.1.0/24", include_default=False))
+security = Security(secret_token=StaticSecretToken(WEBHOOK_SECRET))
+await engine.set_webhook(secret_token=WEBHOOK_SECRET)
 ```
 
-### Using a custom check
-You can create your own security check by implementing the `SecurityCheck` protocol. This allows you to define custom logic for validating incoming requests based on your specific requirements.
-See [checks examples](/src/aiogram_webhook/security/checks) for more details.
+## 🧭 Project
 
-
-
-> aiogram-webhook — a modular library for professional Telegram bot integration via webhooks with modern Python frameworks.
+- 📝 [Changelog](CHANGELOG.md)
+- 🤝 [Contributing](CONTRIBUTING.md)
+- 📄 [License](LICENSE)
