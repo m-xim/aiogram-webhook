@@ -118,11 +118,10 @@ class TokenEngine(
 
     async def on_shutdown(self, app: AppT, *args, **kwargs) -> None:  # noqa: ARG002
         logger.info("Stopping token-based webhook engine with %s bot(s)", len(self._bots))
-        trackers = self._task_trackers.values()
-        self._task_trackers.clear()
-
-        for tracker in trackers:
+        for tracker in self._task_trackers.values():
             await tracker.close()
+
+        self._task_trackers.clear()
 
         lifecycle_data = self._build_lifecycle_data(app=app, bots=set(self.bots.values()), **kwargs)
         await self.dispatcher.emit_shutdown(**lifecycle_data)
