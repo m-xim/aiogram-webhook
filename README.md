@@ -132,20 +132,9 @@ Then call `await engine.add_bot(token)` to register a bot and set its webhook.
 Security checks are optional. `IPCheck` allows requests from Telegram IP ranges by default:
 
 ```python
-from aiogram_webhook.security import IPCheck, Security
+from aiogram_webhook.security import IPCheck, Security, StaticSecretToken
 
-security = Security(IPCheck())
+security = Security(IPCheck(), secret_token=StaticSecretToken("WEBHOOK_SECRET"))
 ```
 
 Pass it to an engine with `security=security`.
-
-For Telegram secret-token verification, use the same token in `Security` and in `set_webhook`:
-
-```python
-from aiogram_webhook.security import Security, StaticSecretToken
-
-WEBHOOK_SECRET = "SECRET_TOKEN"
-
-security = Security(secret_token=StaticSecretToken(WEBHOOK_SECRET))
-await engine.set_webhook(secret_token=WEBHOOK_SECRET)
-```
