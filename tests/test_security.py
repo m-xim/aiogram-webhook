@@ -1,8 +1,12 @@
 import pytest
 
+from aiogram_webhook.engines.target import Target
+from aiogram_webhook.security.errors import SecretTokenError, SecurityCheckError
 from aiogram_webhook.security.secret_token import SECRET_TOKEN_HEADER, StaticSecretToken
 from aiogram_webhook.security.security import Security
-from tests.fixtures import DummyBoundRequest, DummyRequest, FailingCheck, PassingCheck
+from tests.fixtures import DummyRequest, FailingCheck, PassingCheck, dummy_web_request
+
+TARGET = Target(bot_id=42, bot_token="42:TEST")
 
 
 @pytest.mark.asyncio
@@ -37,10 +41,15 @@ from tests.fixtures import DummyBoundRequest, DummyRequest, FailingCheck, Passin
         "failing-last-passing",
     ],
 )
-async def test_security_checks(checks, expected, dispatcher):
+async def test_security_checks(checks, expected):
     sec = Security(*checks)
-    req = DummyBoundRequest()
-    assert await sec.verify("42:TEST", req, dispatcher=dispatcher) is expected
+    req = dummy_web_request()
+
+    if expected:
+        await sec.verify(target=TARGET, request=req, route_params={})
+    else:
+        with pytest.raises(SecurityCheckError):
+            await sec.verify(target=TARGET, request=req, route_params={})
 
 
 @pytest.mark.asyncio
@@ -71,8 +80,16 @@ async def test_security_checks(checks, expected, dispatcher):
         "no-checks-no-secret",
     ],
 )
-async def test_security_checks_and_secret_token(checks, secret_token, request_token, expected, dispatcher):
+async def test_security_checks_and_secret_token(checks, secret_token, request_token, expected):
     sec = Security(*checks, secret_token=secret_token)
     headers = {SECRET_TOKEN_HEADER: request_token} if request_token is not None else {}
-    req = DummyBoundRequest(DummyRequest(headers=headers))
-    assert await sec.verify("42:TEST", req, dispatcher=dispatcher) is expected
+    req = dummy_web_request(DummyRequest(headers=headers))
+
+    if expected:
+        await sec.verify(target=TARGET, request=req, route_params={})
+    elif secret_token is not None and request_token != "secret":
+        with pytest.raises(SecretTokenError):
+            await sec.verify(target=TARGET, request=req, route_params={})
+    else:
+        with pytest.raises(SecurityCheckError):
+            await sec.verify(target=TARGET, request=req, route_params={})
