@@ -23,7 +23,7 @@ from aiogram_webhook.route.errors import (
     UnusedRouteParamDeclarationError,
 )
 from aiogram_webhook.route.params import RouteParam, RouteParams
-from aiogram_webhook.route.query import QueryInput, QueryValue, normalize_query
+from aiogram_webhook.route.query import QueryInput, normalize_query
 from aiogram_webhook.web.base import WebRequest
 
 RawRequestT = TypeVar("RawRequestT")
@@ -39,7 +39,7 @@ class Route:
         "_path_params",
         "_path_template",
         "_query",
-        "_query_items"
+        "_query_items",
     )
 
     def __init__(
