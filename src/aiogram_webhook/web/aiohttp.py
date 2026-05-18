@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, cast
+from typing import Any
 
 from aiohttp.helpers import _SENTINEL, sentinel
 from aiohttp.web import Application, Request
@@ -14,9 +14,6 @@ from aiogram_webhook.web.base import (
     WebHandler,
     WebRequest,
 )
-
-if TYPE_CHECKING:
-    from asyncio import Transport
 
 
 class AiohttpWebRequest(WebRequest[Request]):
@@ -33,7 +30,11 @@ class AiohttpWebRequest(WebRequest[Request]):
 
     @property
     def client_ip(self) -> str | None:
-        if peer_name := cast("Transport", self._request.transport).get_extra_info("peername"):
+        transport = self._request.transport
+        if transport is None:
+            return None
+
+        if peer_name := transport.get_extra_info("peername"):
             return peer_name[0]
         return None
 
