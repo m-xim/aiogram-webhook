@@ -123,3 +123,15 @@ class BaseWebhookEngine(ABC, Generic[AppT, RawRequestT, FrameworkResponseT]):
 
     def _build_lifecycle_data(self, *, app: AppT, **kwargs) -> dict[str, Any]:
         return {"app": app, "dispatcher": self.dispatcher, **kwargs}
+
+    async def _build_webhook_kwargs(
+        self, target: Target, webhook_config: WebhookConfig | None = None
+    ) -> dict[str, Any]:
+        webhook_kwargs = dataclass_config_to_kwargs(self.webhook_config, webhook_config)
+
+        if self.security is not None:
+            secret_token = await self.security.secret_token(target)
+            if secret_token is not None:
+                webhook_kwargs["secret_token"] = secret_token
+
+        return webhook_kwargs

@@ -11,7 +11,6 @@ from aiogram_webhook.engines.multi import BaseMultiBotEngine
 from aiogram_webhook.engines.target import Target
 from aiogram_webhook.route import Route
 from aiogram_webhook.route.params import RouteParams
-from aiogram_webhook.utils.config import dataclass_config_to_kwargs
 from aiogram_webhook.web.base import WebAdapter, WebRequest
 
 if TYPE_CHECKING:
@@ -50,11 +49,8 @@ class TokenEngine(
     async def add_bot(self, token: str, webhook_config: WebhookConfig | None = None) -> Bot:
         target = Target(bot_id=extract_bot_id(token), bot_token=token)
         bot = await self._resolve_bot(target=target)
-
-        await bot.set_webhook(
-            url=await self.route.build_url(target=target),
-            **dataclass_config_to_kwargs(self.webhook_config, webhook_config),
-        )
+        webhook_kwargs = await self._build_webhook_kwargs(target=target, webhook_config=webhook_config)
+        await bot.set_webhook(url=await self.route.build_url(target=target), **webhook_kwargs)
 
         logger.info("Added bot %s to token engine and set webhook", bot.id)
 

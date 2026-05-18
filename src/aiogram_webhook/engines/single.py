@@ -1,4 +1,4 @@
-from typing import Any, Generic
+from typing import Generic
 
 from aiogram import Bot
 
@@ -8,7 +8,6 @@ from aiogram_webhook.engines.target import Target
 from aiogram_webhook.route import Route
 from aiogram_webhook.route.params import RouteParams
 from aiogram_webhook.tasks import TaskTracker
-from aiogram_webhook.utils.config import dataclass_config_to_kwargs
 from aiogram_webhook.web.base import WebAdapter, WebRequest
 
 
@@ -48,12 +47,10 @@ class SingleBotEngine(
     def _get_task_tracker(self, bot: Bot) -> TaskTracker:  # noqa: ARG002
         return self._task_tracker
 
-    async def set_webhook(self, webhook_config: WebhookConfig | None = None, **kwargs: Any) -> bool:
-        config_kwargs = dataclass_config_to_kwargs(self.webhook_config, webhook_config)
-        config_kwargs.update({name: value for name, value in kwargs.items() if value is not None})
-
+    async def set_webhook(self, webhook_config: WebhookConfig | None = None) -> bool:
         target = Target(bot_id=self.bot.id, bot_token=self.bot.token)
-        return await self.bot.set_webhook(url=await self.route.build_url(target=target), **config_kwargs)
+        webhook_kwargs = await self._build_webhook_kwargs(target=target, webhook_config=webhook_config)
+        return await self.bot.set_webhook(url=await self.route.build_url(target=target), **webhook_kwargs)
 
     async def on_startup(self, app: AppT, *args, **kwargs) -> None:  # noqa: ARG002
         logger.info("Starting single-bot webhook engine for bot %s", self.bot.id)
@@ -67,4 +64,5 @@ class SingleBotEngine(
         lifecycle_data = self._build_lifecycle_data(app=app, bot=self.bot, **kwargs)
         await self.dispatcher.emit_shutdown(**lifecycle_data)
 
-        await self.bot.session.close()
+        if self.bot.session is not None:
+            await self.bot.session.close()
