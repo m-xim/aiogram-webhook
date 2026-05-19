@@ -32,9 +32,9 @@ class SecurityCheckError(SecurityError):
         self.security_check = security_check
         self.client_ip = client_ip
 
-        messsage = f"Webhook security verification failed: security check rejected request. Check: {security_check!r}."
+        message = f"Webhook security verification failed: security check rejected request. Check: {security_check!r}."
 
         if client_ip is not None:
-            messsage += f" Client IP: {client_ip}"
+            message += f" Client IP: {client_ip}"
 
-        super().__init__(messsage)
+        super().__init__(message)
