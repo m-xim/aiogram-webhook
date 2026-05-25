@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from collections.abc import Awaitable, Callable, Mapping
 from typing import Any, Generic, Protocol, TypeAlias, TypeVar
 
+from aiohttp.payload import Payload
 from multidict import CIMultiDictProxy, MultiMapping
 
 AppT = TypeVar("AppT")
@@ -68,4 +69,11 @@ class WebAdapter(ABC, Generic[AppT, RawRequestT, FrameworkResponseT]):
         self, status_code: int, data: Any, headers: Mapping[str, str] | None = None
     ) -> FrameworkResponseT:
         """Create a JSON response for the framework."""
+        raise NotImplementedError
+
+    @abstractmethod
+    def payload_response(
+        self, status_code: int, payload: Payload, headers: Mapping[str, str] | None = None
+    ) -> FrameworkResponseT:
+        """Create a response from a prebuilt payload for the framework."""
         raise NotImplementedError

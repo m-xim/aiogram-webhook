@@ -14,8 +14,8 @@ from aiogram_webhook.route import Route
 from aiogram_webhook.route.params import RouteParams
 from aiogram_webhook.security import Security
 from aiogram_webhook.tasks import TaskTracker
+from aiogram_webhook.utils._payload import build_webhook_payload
 from aiogram_webhook.utils.config import dataclass_config_to_kwargs
-from aiogram_webhook.utils.webhook_payload import build_webhook_payload
 from aiogram_webhook.web.base import WebAdapter, WebRequest
 
 logger = get_logger("engines")
@@ -79,19 +79,12 @@ class BaseWebhookEngine(ABC, Generic[AppT, RawRequestT, FrameworkResponseT]):
 
             if self.handle_in_background:
                 self._get_task_tracker(bot).spawn(self._background_feed(bot, update))
+            else:
+                result = await self.dispatcher.feed_webhook_update(bot=bot, update=update)
+                if isinstance(result, TelegramMethod):
+                    return self.web.payload_response(status_code=200, payload=build_webhook_payload(bot, result))
 
-                return self.web.json_response(status_code=200, data={})
-
-            result = await self.dispatcher.feed_webhook_update(bot=bot, update=update)
-            if result is None:
-                return self.web.json_response(status_code=200, data={})
-
-            payload = build_webhook_payload(bot, result)
-            if payload is None:
-                await self.dispatcher.silent_call_request(bot=bot, result=result)
-                return self.web.json_response(status_code=200, data={})
-
-            return self.web.json_response(status_code=200, data=payload)
+            return self.web.json_response(status_code=200, data={})
 
         except AiogramWebhookError as exc:
             log_webhook_error(logger, exc)

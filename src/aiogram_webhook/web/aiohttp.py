@@ -1,7 +1,7 @@
 from collections.abc import Mapping
 from typing import Any
 
-from aiohttp.helpers import _SENTINEL, sentinel
+from aiohttp import Payload
 from aiohttp.web import Application, Request
 from aiohttp.web_response import Response, json_response
 
@@ -77,6 +77,11 @@ class AiohttpAdapter(WebAdapter[Application, Request, Response]):
         app.on_shutdown.append(on_shutdown)
 
     def json_response(
-        self, status_code: int, data: Mapping[str, str] | _SENTINEL = sentinel, headers: Mapping[str, str] | None = None
+        self, status_code: int, data: dict[str, str] | None = None, headers: Mapping[str, str] | None = None
     ) -> Response:
         return json_response(status=status_code, data=data, headers=headers)
+
+    def payload_response(
+        self, status_code: int, payload: Payload, headers: Mapping[str, str] | None = None
+    ) -> Response:
+        return Response(status=status_code, body=payload, headers=headers)
