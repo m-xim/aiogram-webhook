@@ -1,11 +1,3 @@
-from aiogram_webhook.web.base import (
-    WebAdapter,
-    WebHandler,
-    WebRequest,
-)
+from aiogram_webhook.web.base import WebAdapter, WebHandler, WebRequest
 
-__all__ = (
-    "WebAdapter",
-    "WebHandler",
-    "WebRequest",
-)
+__all__ = ("WebAdapter", "WebHandler", "WebRequest")

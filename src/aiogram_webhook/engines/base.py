@@ -116,7 +116,13 @@ class BaseWebhookEngine(ABC, Generic[AppT, RawRequestT, FrameworkResponseT]):
             await self.dispatcher.silent_call_request(bot=bot, result=result)
 
     def _build_lifecycle_data(self, *, app: AppT, **kwargs) -> dict[str, Any]:
-        return {"app": app, "dispatcher": self.dispatcher, **kwargs}
+        return {
+            "dispatcher": self.dispatcher,
+            **self.dispatcher.workflow_data,
+            "app": app,
+            "webhook_engine": self,
+            **kwargs,
+        }
 
     async def _build_webhook_kwargs(
         self, target: Target, webhook_config: WebhookConfig | None = None

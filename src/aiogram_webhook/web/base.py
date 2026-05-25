@@ -66,7 +66,7 @@ class WebAdapter(ABC, Generic[AppT, RawRequestT, FrameworkResponseT]):
 
     @abstractmethod
     def json_response(
-        self, status_code: int, data: Any, headers: Mapping[str, str] | None = None
+        self, status_code: int, data: dict[str, str] | None = None, headers: Mapping[str, str] | None = None
     ) -> FrameworkResponseT:
         """Create a JSON response for the framework."""
         raise NotImplementedError
