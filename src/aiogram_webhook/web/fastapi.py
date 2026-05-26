@@ -1,10 +1,12 @@
 from collections.abc import Mapping
 from typing import Any
 
+from aiohttp import Payload
 from fastapi import FastAPI, Request, Response
 from fastapi.responses import JSONResponse
 from multidict import CIMultiDict, CIMultiDictProxy, MultiDict, MultiDictProxy
 
+from aiogram_webhook.web._starlette import AiohttpPayloadResponse
 from aiogram_webhook.web.base import (
     Headers,
     LifecycleCallback,
@@ -67,6 +69,11 @@ class FastAPIAdapter(WebAdapter[FastAPI, Request, Response]):
         app.add_api_route(path=path, endpoint=endpoint, methods=["POST"])
 
     def json_response(
-        self, status_code: int, data: Mapping[str, str] | None = None, headers: Mapping[str, str] | None = None
+        self, status_code: int, data: dict[str, str] | None = None, headers: Mapping[str, str] | None = None
     ) -> Response:
         return JSONResponse(status_code=status_code, content=data, headers=headers)
+
+    def payload_response(
+        self, status_code: int, payload: Payload, headers: Mapping[str, str] | None = None
+    ) -> Response:
+        return AiohttpPayloadResponse(status_code=status_code, payload=payload, headers=headers)
