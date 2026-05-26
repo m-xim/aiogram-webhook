@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING, Generic
 
 from aiogram import Bot
 from aiogram.client.session.aiohttp import AiohttpSession
-from aiogram.utils.token import extract_bot_id
+from aiogram.utils.token import TokenValidationError, extract_bot_id
 
 from aiogram_webhook.configs.bot import BotConfig
 from aiogram_webhook.configs.webhook import WebhookConfig
@@ -85,7 +85,7 @@ class TokenEngine(
 
         try:
             bot_id = extract_bot_id(bot_token)
-        except ValueError:
+        except (TokenValidationError, ValueError):
             return None
 
         return Target(bot_id=bot_id, bot_token=bot_token)
