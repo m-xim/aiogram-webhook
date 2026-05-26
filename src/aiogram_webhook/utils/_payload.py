@@ -4,14 +4,14 @@ from typing import TYPE_CHECKING
 from aiogram import Bot
 from aiogram.methods import TelegramMethod
 from aiogram.methods.base import TelegramType
-from aiohttp import MultipartWriter, Payload
+from aiohttp import MultipartWriter
 
 if TYPE_CHECKING:
     from aiogram.types import InputFile
 
 
-def build_webhook_payload(bot: Bot, method: TelegramMethod[TelegramType]) -> Payload:
-    """Internal implementation: convert a TelegramMethod to multipart payload."""
+def build_webhook_payload(bot: Bot, method: TelegramMethod[TelegramType]) -> MultipartWriter:
+    """Convert a TelegramMethod to multipart payload."""
     writer = MultipartWriter(
         "form-data",
         boundary=f"webhookBoundary{secrets.token_urlsafe(16)}",

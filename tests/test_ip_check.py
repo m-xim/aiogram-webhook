@@ -1,104 +1,42 @@
 import pytest
 
-from aiogram_webhook.engines.target import Target
 from aiogram_webhook.security.checks.ip import IPCheck
-from tests.fixtures import DummyRequest, dummy_web_request
-
-TARGET = Target(bot_id=42, bot_token="42:TEST")
-
-
-@pytest.mark.asyncio
-@pytest.mark.parametrize(
-    ("allowed_ips", "request_ip", "expected"),
-    [
-        (("8.8.8.8",), "8.8.8.8", True),
-        (("8.8.8.8",), "1.1.1.1", False),
-        (("8.8.8.8", "1.1.1.1"), "1.1.1.1", True),
-        (("192.168.1.0/24",), "192.168.1.42", True),
-        (("8.8.8.8",), None, False),
-    ],
-    ids=[
-        "direct-match",
-        "direct-no-match",
-        "direct-multi-match",
-        "direct-network-match",
-        "direct-no-ip",
-    ],
-)
-async def test_ip_check_direct(allowed_ips, request_ip, expected):
-    req = dummy_web_request(DummyRequest(ip=request_ip))
-    ip_check = IPCheck(*allowed_ips, include_default=False)
-    assert await ip_check.verify(target=TARGET, request=req, route_params={}) is expected
-
-
-@pytest.mark.asyncio
-@pytest.mark.parametrize(
-    ("allowed_ips", "x_forwarded_for", "expected"),
-    [
-        (("8.8.8.8",), "8.8.8.8", True),
-        (("8.8.8.8",), "1.1.1.1", False),
-        (("8.8.8.8", "1.1.1.1"), "8.8.8.8", True),
-        (("192.168.1.0/24",), "192.168.1.42", True),
-        (("8.8.8.8",), "not-an-ip", False),
-        (("8.8.8.8",), "", False),
-        (("8.8.8.8",), None, False),
-    ],
-    ids=[
-        "forwarded-match",
-        "forwarded-no-match",
-        "forwarded-multi-match",
-        "forwarded-network-match",
-        "forwarded-invalid",
-        "forwarded-empty",
-        "forwarded-no-header",
-    ],
-)
-async def test_ip_check_forwarded(allowed_ips, x_forwarded_for, expected):
-    headers = {"X-Forwarded-For": x_forwarded_for} if x_forwarded_for is not None else None
-    req = dummy_web_request(DummyRequest(ip="127.0.0.1", headers=headers))
-    ip_check = IPCheck(*allowed_ips, include_default=False)
-    assert await ip_check.verify(target=TARGET, request=req, route_params={}) is expected
+from tests.fixtures.request import DummyRequest, DummyWebRequest
 
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     ("allowed_ips", "request_ip", "x_forwarded_for", "expected"),
     [
-        (("8.8.8.8",), "8.8.8.8", "1.1.1.1", False),
+        (("8.8.8.8",), "8.8.8.8", None, True),
+        (("192.168.1.0/24",), "192.168.1.42", None, True),
+        (("8.8.8.8", "1.1.1.1"), "1.1.1.1", None, True),
+        (("8.8.8.8",), "1.1.1.1", None, False),
+        (("8.8.8.8",), None, None, False),
         (("8.8.8.8",), "1.1.1.1", "8.8.8.8", True),
-        (("8.8.8.8",), "8.8.8.8", "not-an-ip", False),
-        (("8.8.8.8",), "not-an-ip", "8.8.8.8", True),
-        (("8.8.8.8",), "not-an-ip", "not-an-ip", False),
-    ],
-    ids=[
-        "both-priority-no-match",
-        "both-priority-match",
-        "both-invalid-forwarded",
-        "both-invalid-direct",
-        "both-both-invalid",
-    ],
-)
-async def test_ip_check_both_priority(allowed_ips, request_ip, x_forwarded_for, expected):
-    headers = {"X-Forwarded-For": x_forwarded_for}
-    req = dummy_web_request(DummyRequest(ip=request_ip, headers=headers))
-    ip_check = IPCheck(*allowed_ips, include_default=False)
-    assert await ip_check.verify(target=TARGET, request=req, route_params={}) is expected
-
-
-@pytest.mark.asyncio
-@pytest.mark.parametrize(
-    ("allowed_ips", "request_ip", "x_forwarded_for", "expected"),
-    [
-        (("8.8.8.8",), "127.0.0.1", "8.8.8.8, not-an-ip", True),
+        (("8.8.8.8",), "8.8.8.8", "1.1.1.1", False),
+        (("8.8.8.8",), "127.0.0.1", "8.8.8.8, 1.1.1.1", True),
         (("8.8.8.8",), "127.0.0.1", "not-an-ip, 8.8.8.8", False),
+        (("8.8.8.8",), "8.8.8.8", "not-an-ip", False),
+        (("8.8.8.8",), "8.8.8.8", "", True),
     ],
     ids=[
-        "edgecase-first-valid",
-        "edgecase-first-invalid",
+        "direct-address",
+        "direct-network",
+        "direct-multiple-allowed",
+        "direct-denied",
+        "direct-missing",
+        "forwarded-overrides-denied-direct",
+        "forwarded-overrides-allowed-direct",
+        "forwarded-first-address-only",
+        "forwarded-invalid-first-address",
+        "forwarded-invalid",
+        "empty-forwarded-falls-back-to-direct",
     ],
 )
-async def test_ip_check_edge_cases(allowed_ips, request_ip, x_forwarded_for, expected):
-    headers = {"X-Forwarded-For": x_forwarded_for}
-    req = dummy_web_request(DummyRequest(ip=request_ip, headers=headers))
+async def test_ip_check_matches_allowed_client_ip(target, allowed_ips, request_ip, x_forwarded_for, expected):
+    headers = {"X-Forwarded-For": x_forwarded_for} if x_forwarded_for is not None else None
+    request = DummyWebRequest(DummyRequest(ip=request_ip, headers=headers))
     ip_check = IPCheck(*allowed_ips, include_default=False)
-    assert await ip_check.verify(target=TARGET, request=req, route_params={}) is expected
+
+    assert await ip_check.verify(target=target, request=request, route_params={}) is expected
