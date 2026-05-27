@@ -3,19 +3,19 @@ import pytest
 from aiogram_webhook.security.errors import SecretTokenError, SecurityCheckError
 from aiogram_webhook.security.secret_token import SECRET_TOKEN_HEADER, StaticSecretToken
 from aiogram_webhook.security.security import Security
-from tests.fixtures.checks import RecordingCheck
-from tests.fixtures.request import DummyRequest, DummyWebRequest
+from tests.fixtures.security_checks import RecordingCheck
+from tests.fixtures.web_request import DummyRequest, DummyWebRequest
 
 
 @pytest.mark.asyncio
-async def test_security_passes_without_checks_or_secret_token(target):
+async def test_security_pipeline_allows_request_without_checks_or_secret_token(target):
     security = Security()
 
     await security.verify(target=target, request=DummyWebRequest(), route_params={})
 
 
 @pytest.mark.asyncio
-async def test_security_runs_checks_in_order_until_first_rejection(target):
+async def test_security_pipeline_stops_at_first_failed_check(target):
     calls: list[str] = []
     security = Security(
         RecordingCheck("first", result=True, calls=calls),
@@ -33,7 +33,7 @@ async def test_security_runs_checks_in_order_until_first_rejection(target):
 
 
 @pytest.mark.asyncio
-async def test_security_passes_when_secret_token_and_checks_are_valid(target):
+async def test_security_pipeline_allows_request_when_secret_token_and_checks_pass(target):
     calls: list[str] = []
     security = Security(
         RecordingCheck("check", result=True, calls=calls),
@@ -47,7 +47,7 @@ async def test_security_passes_when_secret_token_and_checks_are_valid(target):
 
 
 @pytest.mark.asyncio
-async def test_security_runs_checks_after_valid_secret_token(target):
+async def test_security_pipeline_runs_checks_after_valid_secret_token(target):
     calls: list[str] = []
     security = Security(
         RecordingCheck("check", result=False, calls=calls),
@@ -62,7 +62,7 @@ async def test_security_runs_checks_after_valid_secret_token(target):
 
 
 @pytest.mark.asyncio
-async def test_security_rejects_secret_token_before_running_checks(target):
+async def test_security_pipeline_rejects_bad_secret_token_before_checks(target):
     calls: list[str] = []
     security = Security(
         RecordingCheck("check", result=True, calls=calls),

@@ -61,7 +61,6 @@ build-backend = "uv_build"
 [tool.uv]
 package = true
 
-
 [tool.semantic_release]
 version_source = "pyproject"
 commit_message = "chore(release): {version}"

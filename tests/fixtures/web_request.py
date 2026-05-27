@@ -13,12 +13,14 @@ class DummyRequest:
         headers: Mapping[str, str | None] | None = None,
         ip: str | None = None,
         json_data: dict[str, Any] | None = None,
+        json_error: ValueError | None = None,
     ) -> None:
         self.path_params = dict(path_params or {})
         self.query: Mapping[str, Any] | Iterable[tuple[str, Any]] = query or {}
         self.headers = dict(headers or {})
         self.ip = ip
         self.json_data = json_data or {}
+        self.json_error = json_error
 
 
 class DummyWebRequest:
@@ -34,6 +36,9 @@ class DummyWebRequest:
         return self._request.ip
 
     async def json(self) -> dict[str, Any]:
+        if self._request.json_error is not None:
+            raise self._request.json_error
+
         return self._request.json_data
 
     @property

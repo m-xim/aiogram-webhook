@@ -26,7 +26,7 @@ def dataclass_field_names(cls: type[Any]) -> tuple[str, ...]:
     return tuple(field.name for field in fields(cls))
 
 
-def dataclass_config_to_kwargs(base: object, override: object | None = None) -> dict[str, Any]:
+def dataclass_config_to_kwargs(base: Any, override: Any | None = None) -> dict[str, Any]:
     if not is_dataclass(base) or isinstance(base, type):
         raise TypeError(f"Expected dataclass instance, got {type(base).__name__}")
 

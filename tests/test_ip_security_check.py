@@ -1,7 +1,7 @@
 import pytest
 
 from aiogram_webhook.security.checks.ip import IPCheck
-from tests.fixtures.request import DummyRequest, DummyWebRequest
+from tests.fixtures.web_request import DummyRequest, DummyWebRequest
 
 
 @pytest.mark.asyncio
@@ -34,7 +34,9 @@ from tests.fixtures.request import DummyRequest, DummyWebRequest
         "empty-forwarded-falls-back-to-direct",
     ],
 )
-async def test_ip_check_matches_allowed_client_ip(target, allowed_ips, request_ip, x_forwarded_for, expected):
+async def test_ip_security_check_accepts_configured_client_sources(
+    target, allowed_ips, request_ip, x_forwarded_for, expected
+):
     headers = {"X-Forwarded-For": x_forwarded_for} if x_forwarded_for is not None else None
     request = DummyWebRequest(DummyRequest(ip=request_ip, headers=headers))
     ip_check = IPCheck(*allowed_ips, include_default=False)
