@@ -81,18 +81,19 @@ async def test_route_parses_declared_path_params(bot_token):
 
 @pytest.mark.asyncio
 async def test_route_reports_invalid_path_param_value():
+    raw_bot_id = "not-int"
     route = Route(
         base_url="https://example.com",
         path="/webhook/{bot_id}",
         params={"bot_id": BotIdParam()},
     )
-    request = DummyWebRequest(DummyRequest(path_params={"bot_id": "not-int"}))
+    request = DummyWebRequest(DummyRequest(path_params={"bot_id": raw_bot_id}))
 
     with pytest.raises(InvalidPathParamError) as exc_info:
         await route.match(request)
 
     assert exc_info.value.param == "bot_id"
-    assert exc_info.value.value == "not-int"
+    assert exc_info.value.value == raw_bot_id
 
 
 @pytest.mark.asyncio
@@ -140,20 +141,21 @@ async def test_route_reports_missing_required_query_param(bot_token, query, avai
 
 @pytest.mark.asyncio
 async def test_route_reports_query_param_value_mismatch(bot_token):
+    wrong_token = "wrong"
     route = Route(
         base_url="https://example.com",
         path="/webhook/{bot_token}",
         params={"bot_token": BotTokenParam()},
         query={"token": Ref("bot_token")},
     )
-    request = DummyWebRequest(DummyRequest(path_params={"bot_token": bot_token}, query={"token": "wrong"}))
+    request = DummyWebRequest(DummyRequest(path_params={"bot_token": bot_token}, query={"token": wrong_token}))
 
     with pytest.raises(QueryParamMismatchError) as exc_info:
         await route.match(request)
 
     assert exc_info.value.query_param == "token"
     assert exc_info.value.expected == (bot_token,)
-    assert exc_info.value.got == ("wrong",)
+    assert exc_info.value.got == (wrong_token,)
 
 
 @pytest.mark.asyncio
