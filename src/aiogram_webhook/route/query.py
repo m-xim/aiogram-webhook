@@ -122,7 +122,7 @@ def normalize_query(query: Mapping[str, QueryInput]) -> tuple[tuple[str, tuple[Q
             normalized.append((name, (value,)))
             continue
 
-        if isinstance(value, str | int):
+        if isinstance(value, (str, int)):
             normalized.append((name, (Const(str(value)),)))
             continue
 
@@ -138,7 +138,7 @@ def normalize_query(query: Mapping[str, QueryInput]) -> tuple[tuple[str, tuple[Q
         for item in value:
             if isinstance(item, QueryValue):
                 values.append(item)
-            elif isinstance(item, str | int):
+            elif isinstance(item, (str, int)):
                 values.append(Const(str(item)))
             else:
                 raise RouteConfigError(f"Invalid Route config: query param has unsupported list item. Param: {name!r}.")
