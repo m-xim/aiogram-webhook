@@ -194,8 +194,8 @@ class QueryParamMismatchError(RouteMatchError):
         super().__init__(
             "Incoming request does not match route: query param values mismatch. "
             f"query_param={query_param!r}. "
-            f"Expected query param name: {self.query_param!r}. "
-            f"Got query param name: {self.query_param!r}."
+            f"Expected values: {self.expected!r}. "
+            f"Got values: {self.got!r}."
         )
 
 

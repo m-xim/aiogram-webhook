@@ -84,4 +84,6 @@ class AiohttpAdapter(WebAdapter[Application, Request, Response]):
     def payload_response(
         self, status_code: int, payload: Payload, headers: Mapping[str, str] | None = None
     ) -> Response:
-        return Response(status=status_code, body=payload, headers=headers)
+        response_headers = dict(payload.headers)
+        response_headers.update(headers or {})
+        return Response(status=status_code, body=payload, headers=response_headers)

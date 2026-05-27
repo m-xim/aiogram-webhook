@@ -86,4 +86,4 @@ def test_aiohttp_adapter_builds_multipart_payload_response(bot):
     assert response.status == 201
     assert response.headers["X-Test"] == "yes"
     assert response.body is payload
-    assert response.content_type == "multipart/form-data"
+    assert response.headers["Content-Type"] == payload.headers["Content-Type"]
