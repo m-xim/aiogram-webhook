@@ -1,9 +1,10 @@
 from collections.abc import Mapping
+from dataclasses import dataclass
 from typing import Any, Protocol, TypeAlias
 
 from aiogram_webhook.engines.target import Target
 
-RouteParams: TypeAlias = Mapping[str, str]
+RouteParams: TypeAlias = Mapping[str, Any]
 
 
 class RouteParam(Protocol):
@@ -18,6 +19,12 @@ class RouteParam(Protocol):
         """
         Parse incoming framework path param into a normalized route param value.
         """
+
+
+@dataclass(frozen=True, slots=True)
+class RouteParamBinding:
+    name: str
+    param: RouteParam
 
 
 class BotIdParam(RouteParam):

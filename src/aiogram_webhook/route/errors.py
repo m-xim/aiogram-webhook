@@ -157,22 +157,16 @@ class MissingPathParamError(RouteMatchError):
         )
 
 
-class NonePathParamError(RouteMatchError):
-    code = "route_match_none_path_param"
+class InvalidPathParamError(RouteMatchError):
+    code = "route_match_invalid_path_param"
 
-    def __init__(self, *, param: str) -> None:
+    def __init__(self, *, param: str, value: str) -> None:
         self.param = param
+        self.value = value
 
-        super().__init__(f"Incoming request does not match route: path param is None. param={param!r}.")
-
-
-class EmptyPathParamError(RouteMatchError):
-    code = "route_match_empty_path_param"
-
-    def __init__(self, *, param: str) -> None:
-        self.param = param
-
-        super().__init__(f"Incoming request does not match route: path param is empty. param={param!r}.")
+        super().__init__(
+            f"Incoming request does not match route: path param value is invalid. param={param!r}. value={value!r}."
+        )
 
 
 class MissingQueryParamError(RouteMatchError):
@@ -192,14 +186,28 @@ class MissingQueryParamError(RouteMatchError):
 class QueryParamMismatchError(RouteMatchError):
     code = "route_match_query_param_mismatch"
 
-    def __init__(self, *, query_param: str, expected: list[str], got: list[str]) -> None:
+    def __init__(self, *, query_param: str, expected: Iterable[str], got: Iterable[str]) -> None:
         self.query_param = query_param
-        self.expected = expected
-        self.got = got
+        self.expected = tuple(expected)
+        self.got = tuple(got)
 
         super().__init__(
             "Incoming request does not match route: query param values mismatch. "
             f"query_param={query_param!r}. "
-            f"Expected: {expected}. "
-            f"Got: {got}."
+            f"Expected: {self.expected}. "
+            f"Got: {self.got}."
+        )
+
+
+class UnexpectedQueryParamError(RouteMatchError):
+    code = "route_match_unexpected_query_param"
+
+    def __init__(self, *, query_params: Iterable[str], expected_query_params: Iterable[str]) -> None:
+        self.query_params = tuple(sorted(query_params))
+        self.expected_query_params = tuple(sorted(expected_query_params))
+
+        super().__init__(
+            "Incoming request does not match route: unexpected query params. "
+            f"Unexpected query params: {format_names(self.query_params)}. "
+            f"Expected query params: {format_names(self.expected_query_params)}."
         )

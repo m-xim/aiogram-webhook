@@ -21,17 +21,14 @@ class EngineProbe(BaseWebhookEngine[Any, Any, dict[str, Any]]):
         *,
         target: Target | None,
         web: CapturingAdapter,
-        handle_in_background: bool = False
+        handle_in_background: bool = False,
     ) -> None:
         self.bot = bot
         self.target = target
         self.task_tracker = TaskTracker()
 
         super().__init__(
-            dispatcher,
-            web=web,
-            route=DummyRoute({"bot_token": "42:TEST"}),
-            handle_in_background=handle_in_background
+            dispatcher, web=web, route=DummyRoute({"bot_token": "42:TEST"}), handle_in_background=handle_in_background
         )
 
     async def on_startup(self, _app: Any, *args: Any, **kwargs: Any) -> None:
