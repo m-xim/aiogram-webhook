@@ -1,15 +1,19 @@
 import asyncio
+from collections.abc import Coroutine
+from typing import Any, TypeVar
 
 from aiogram_webhook.logs import get_logger
 
 logger = get_logger("tasks")
 
+TaskResultT = TypeVar("TaskResultT")
+
 
 class TaskTracker:
     def __init__(self) -> None:
-        self._tasks: set[asyncio.Task] = set()
+        self._tasks: set[asyncio.Task[Any]] = set()
 
-    def spawn(self, coro) -> asyncio.Task:
+    def spawn(self, coro: Coroutine[Any, Any, TaskResultT]) -> asyncio.Task[TaskResultT]:
         """
         Starts a coroutine in the background and tracks it.
 
@@ -29,7 +33,9 @@ class TaskTracker:
         if not task.cancelled():
             exc = task.exception()
             if exc:
-                logger.error("Unhandled exception in background task: %s", exc, exc_info=exc)
+                logger.error(
+                    "Unhandled exception in background task: %s", exc, exc_info=(type(exc), exc, exc.__traceback__)
+                )
 
     async def close(self, timeout: float | None = 10.0) -> None:
         """
