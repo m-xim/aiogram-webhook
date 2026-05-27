@@ -45,7 +45,11 @@ class BaseWebhookEngine(ABC, Generic[AppT, RawRequestT, FrameworkResponseT]):
         self.handle_in_background = handle_in_background
 
         if self.security is None:
-            warnings.warn("Security is not configured", UserWarning, stacklevel=3)
+            warnings.warn(
+                f"Security is not configured for {type(self).__name__}. Pass security=... to verify webhook requests.",
+                UserWarning,
+                stacklevel=2,
+            )
 
     def register(self, app: AppT) -> None:
         logger.info("Registering webhook path %s via %s", self.route.path, self.web.__class__.__name__)

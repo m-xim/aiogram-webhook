@@ -56,3 +56,16 @@ async def test_token_webhook_engine_returns_not_found_when_route_token_is_missin
     assert response == {"kind": "json", "status_code": 404, "data": {"detail": "Not found"}, "headers": None}
     assert dispatcher.webhook_update is None
     assert engine.bots == {}
+
+
+def test_token_webhook_engine_security_warning_mentions_engine(bot, bot_token):
+    adapter = CapturingAdapter()
+    dispatcher = DummyDispatcher()
+
+    with pytest.warns(UserWarning, match="Security is not configured for TokenEngine"):
+        TokenEngine(
+            dispatcher,
+            web=adapter,
+            route=DummyRoute({"bot_token": bot_token}),
+            bot_config=BotConfig(session=bot.session),
+        )
