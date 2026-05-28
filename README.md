@@ -66,16 +66,18 @@ engine = SingleBotEngine(
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await engine.set_webhook()
-    await engine.on_startup(app)
-    try:
-        yield
-    finally:
-        await engine.on_shutdown(app)
+    yield
 
 
 app = FastAPI(lifespan=lifespan)
+# Registers the webhook route and wires engine startup/shutdown into FastAPI lifespan.
 engine.register(app)
 ```
+
+`engine.register(app)` registers the webhook route and automatically wires
+`engine.on_startup()` / `engine.on_shutdown()` into FastAPI lifespan. Keep your
+own application setup in `lifespan`; do not call engine lifecycle methods
+manually.
 
 ## 🌐 aiohttp
 
