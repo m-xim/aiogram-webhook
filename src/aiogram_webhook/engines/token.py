@@ -105,14 +105,14 @@ class TokenEngine(
         self._bots[bot.id] = bot
         return bot
 
-    async def on_startup(self, app: AppT, *args, **kwargs) -> None:  # noqa: ARG002
+    async def _on_startup(self, app: AppT, *args, **kwargs) -> None:  # noqa: ARG002
         startup_bots = set(self._bots.values())
 
         logger.info("Starting token-based webhook engine with %s bot(s)", len(startup_bots))
         workflow_data = self._build_lifecycle_data(app=app, bots=startup_bots, **kwargs)
         await self.dispatcher.emit_startup(**workflow_data)
 
-    async def on_shutdown(self, app: AppT, *args, **kwargs) -> None:  # noqa: ARG002
+    async def _on_shutdown(self, app: AppT, *args, **kwargs) -> None:  # noqa: ARG002
         logger.info("Stopping token-based webhook engine with %s bot(s)", len(self._bots))
         for tracker in self._task_trackers.values():
             await tracker.close()

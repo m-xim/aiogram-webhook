@@ -42,7 +42,7 @@ class BaseMultiBotEngine(
     def bots(self) -> Mapping[int, Bot]:
         return MappingProxyType(self._bots)
 
-    async def on_startup(self, app: AppT, *args: Any, bots: Iterable[Bot] | None = None, **kwargs: Any) -> None:  # noqa: ARG002
+    async def _on_startup(self, app: AppT, *args: Any, bots: Iterable[Bot] | None = None, **kwargs: Any) -> None:  # noqa: ARG002
         all_bots = set(self.bots.values())
 
         if bots is not None:

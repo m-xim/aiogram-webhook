@@ -65,3 +65,13 @@ class InvalidJsonError(EngineError):
             message += f" Original error type: {self.original_error_type}."
 
         super().__init__(message)
+
+
+class RequestHandlingStoppedError(EngineError):
+    code = "engine_request_handling_stopped"
+    status_code = 503
+    public_detail = "Service unavailable"
+    log_level = logging.DEBUG
+
+    def __init__(self) -> None:
+        super().__init__("Webhook engine is shutting down and no longer accepts requests.")

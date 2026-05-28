@@ -52,12 +52,12 @@ class SingleBotEngine(
         webhook_kwargs = await self._build_webhook_kwargs(target=target, webhook_config=webhook_config)
         return await self.bot.set_webhook(url=await self.route.build_url(target=target), **webhook_kwargs)
 
-    async def on_startup(self, app: AppT, *args, **kwargs) -> None:  # noqa: ARG002
+    async def _on_startup(self, app: AppT, *args, **kwargs) -> None:  # noqa: ARG002
         logger.info("Starting single-bot webhook engine for bot %s", self.bot.id)
         lifecycle_data = self._build_lifecycle_data(app=app, bot=self.bot, **kwargs)
         await self.dispatcher.emit_startup(**lifecycle_data)
 
-    async def on_shutdown(self, app: AppT, *args, **kwargs) -> None:  # noqa: ARG002
+    async def _on_shutdown(self, app: AppT, *args, **kwargs) -> None:  # noqa: ARG002
         logger.info("Stopping single-bot webhook engine for bot %s", self.bot.id)
         await self._task_tracker.close()
 

@@ -6,7 +6,12 @@ from aiogram import Bot
 from aiogram.methods import TelegramMethod
 
 from aiogram_webhook.configs.webhook import WebhookConfig
-from aiogram_webhook.engines.errors import BotNotFoundError, InvalidJsonError, TargetNotFoundError
+from aiogram_webhook.engines.errors import (
+    BotNotFoundError,
+    InvalidJsonError,
+    RequestHandlingStoppedError,
+    TargetNotFoundError,
+)
 from aiogram_webhook.engines.target import Target
 from aiogram_webhook.errors import AiogramWebhookError
 from aiogram_webhook.logs import get_logger, log_webhook_error
@@ -44,6 +49,8 @@ class BaseWebhookEngine(ABC, Generic[AppT, RawRequestT, FrameworkResponseT]):
         self.webhook_config = webhook_config or WebhookConfig()
         self.handle_in_background = handle_in_background
 
+        self._is_shutting_down = False
+
         if self.security is None:
             warnings.warn(
                 f"Security is not configured for {type(self).__name__}. Pass security=... to verify webhook requests.",
@@ -63,6 +70,9 @@ class BaseWebhookEngine(ABC, Generic[AppT, RawRequestT, FrameworkResponseT]):
 
     async def handle_request(self, request: WebRequest[RawRequestT]) -> FrameworkResponseT:
         try:
+            if self._is_shutting_down:
+                raise RequestHandlingStoppedError
+
             route_params = await self.route.match(request)
 
             target = await self._resolve_target(request=request, route_params=route_params)
@@ -95,12 +105,20 @@ class BaseWebhookEngine(ABC, Generic[AppT, RawRequestT, FrameworkResponseT]):
 
             return self.web.json_response(status_code=exc.status_code, data=exc.response_payload())
 
-    @abstractmethod
     async def on_startup(self, app: AppT, *args: Any, **kwargs: Any) -> None:
+        await self._on_startup(app, *args, **kwargs)
+        self._is_shutting_down = False
+
+    async def on_shutdown(self, app: AppT, *args: Any, **kwargs: Any) -> None:
+        self._is_shutting_down = True
+        await self._on_shutdown(app, *args, **kwargs)
+
+    @abstractmethod
+    async def _on_startup(self, app: AppT, *args: Any, **kwargs: Any) -> None:
         raise NotImplementedError
 
     @abstractmethod
-    async def on_shutdown(self, app: AppT, *args: Any, **kwargs: Any) -> None:
+    async def _on_shutdown(self, app: AppT, *args: Any, **kwargs: Any) -> None:
         raise NotImplementedError
 
     @abstractmethod
