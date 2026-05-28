@@ -16,7 +16,7 @@ class TargetNotFoundError(EngineError):
     code = "engine_target_not_found"
     status_code = 404
     public_detail = "Not found"
-    log_level = logging.DEBUG
+    log_level = logging.INFO
 
     def __init__(self, *, route_param_names: Iterable[str]) -> None:
         self.route_param_names = tuple(sorted(route_param_names))

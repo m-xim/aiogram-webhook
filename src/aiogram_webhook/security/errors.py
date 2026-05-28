@@ -12,8 +12,9 @@ class SecurityError(AiogramWebhookError):
 
 class SecretTokenError(SecurityError):
     code = "security_secret_token_invalid"
-    status_code = 401
-    public_detail = "Unauthorized"
+    status_code = 403
+    public_detail = "Forbidden"
+    log_level = logging.ERROR
 
     def __init__(self, *, target_bot_id: int) -> None:
         self.target_bot_id = target_bot_id
@@ -27,6 +28,7 @@ class SecurityCheckError(SecurityError):
     code = "security_check_failed"
     status_code = 403
     public_detail = "Forbidden"
+    log_level = logging.ERROR
 
     def __init__(self, *, security_check: str, client_ip: str | None = None) -> None:
         self.security_check = security_check

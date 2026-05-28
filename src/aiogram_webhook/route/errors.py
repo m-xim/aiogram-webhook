@@ -29,7 +29,7 @@ class RouteBuildError(RouteError):
 class RouteMatchError(RouteError):
     status_code = 404
     public_detail = "Not found"
-    log_level = logging.DEBUG
+    log_level = logging.INFO
 
 
 class InvalidBaseUrlError(RouteConfigError):
