@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import TypeVar
+from typing import Any, TypeVar
 from urllib.parse import quote
 
 from yarl import URL
@@ -78,7 +78,7 @@ class Route:
         return str(url)
 
     async def match(self, request: WebRequest[RawRequestT]) -> RouteParams:
-        route_params: dict[str, object] = {}
+        route_params: dict[str, Any] = {}
         request_path_params = request.path_params
 
         for binding in self._path_params:
