@@ -31,10 +31,10 @@ class EngineProbe(BaseWebhookEngine[Any, Any, dict[str, Any]]):
             dispatcher, web=web, route=DummyRoute({"bot_token": "42:TEST"}), handle_in_background=handle_in_background
         )
 
-    async def on_startup(self, _app: Any, *args: Any, **kwargs: Any) -> None:
+    async def _on_startup(self, _app: Any, *args: Any, **kwargs: Any) -> None:
         return None
 
-    async def on_shutdown(self, _app: Any, *args: Any, **kwargs: Any) -> None:
+    async def _on_shutdown(self, _app: Any, *args: Any, **kwargs: Any) -> None:
         return None
 
     async def _resolve_target(self, request: Any, route_params: RouteParams) -> Target | None:
@@ -54,9 +54,7 @@ async def test_foreground_engine_returns_telegram_method_as_webhook_payload(bot,
     with pytest.warns(UserWarning, match="Security is not configured"):
         engine = EngineProbe(dispatcher, bot, target=target, web=adapter)
 
-    response = await engine.handle_request(
-        DummyWebRequest(DummyRequest(json_data=update_payload)),
-    )
+    response = await engine.handle_request(DummyWebRequest(DummyRequest(json_data=update_payload)))
 
     assert response == {"kind": "payload", "status_code": 200, "headers": None}
     assert adapter.payload is not None
@@ -70,9 +68,7 @@ async def test_foreground_engine_acknowledges_empty_dispatcher_result(bot, targe
     with pytest.warns(UserWarning, match="Security is not configured"):
         engine = EngineProbe(dispatcher, bot, target=target, web=adapter)
 
-    response = await engine.handle_request(
-        DummyWebRequest(DummyRequest(json_data=update_payload)),
-    )
+    response = await engine.handle_request(DummyWebRequest(DummyRequest(json_data=update_payload)))
 
     assert response == {"kind": "json", "status_code": 200, "data": {}, "headers": None}
     assert adapter.payload is None
@@ -85,9 +81,7 @@ async def test_foreground_engine_acknowledges_non_method_dispatcher_result(bot, 
     with pytest.warns(UserWarning, match="Security is not configured"):
         engine = EngineProbe(dispatcher, bot, target=target, web=adapter)
 
-    response = await engine.handle_request(
-        DummyWebRequest(DummyRequest(json_data=update_payload)),
-    )
+    response = await engine.handle_request(DummyWebRequest(DummyRequest(json_data=update_payload)))
 
     assert response == {"kind": "json", "status_code": 200, "data": {}, "headers": None}
     assert adapter.payload is None
@@ -100,14 +94,43 @@ async def test_background_engine_acknowledges_without_webhook_payload(bot, targe
     with pytest.warns(UserWarning, match="Security is not configured"):
         engine = EngineProbe(dispatcher, bot, target=target, web=adapter, handle_in_background=True)
 
-    response = await engine.handle_request(
-        DummyWebRequest(DummyRequest(json_data=update_payload)),
-    )
+    response = await engine.handle_request(DummyWebRequest(DummyRequest(json_data=update_payload)))
     await asyncio.sleep(0)
 
     assert response == {"kind": "json", "status_code": 200, "data": {}, "headers": None}
     assert dispatcher.webhook_update == update_payload
     assert adapter.payload is None
+
+
+@pytest.mark.asyncio
+async def test_engine_stops_accepting_requests_after_shutdown_starts(bot, target, update_payload):
+    adapter = CapturingAdapter()
+    dispatcher = DummyDispatcher()
+    with pytest.warns(UserWarning, match="Security is not configured"):
+        engine = EngineProbe(dispatcher, bot, target=target, web=adapter)
+
+    await engine.on_shutdown(None)
+
+    response = await engine.handle_request(DummyWebRequest(DummyRequest(json_data=update_payload)))
+
+    assert response == {"kind": "json", "status_code": 503, "data": {"detail": "Service unavailable"}, "headers": None}
+    assert dispatcher.webhook_update is None
+
+
+@pytest.mark.asyncio
+async def test_engine_accepts_requests_again_after_startup(bot, target, update_payload):
+    adapter = CapturingAdapter()
+    dispatcher = DummyDispatcher()
+    with pytest.warns(UserWarning, match="Security is not configured"):
+        engine = EngineProbe(dispatcher, bot, target=target, web=adapter)
+
+    await engine.on_shutdown(None)
+    await engine.on_startup(None)
+
+    response = await engine.handle_request(DummyWebRequest(DummyRequest(json_data=update_payload)))
+
+    assert response == {"kind": "json", "status_code": 200, "data": {}, "headers": None}
+    assert dispatcher.webhook_update == update_payload
 
 
 @pytest.mark.asyncio
@@ -117,9 +140,7 @@ async def test_engine_returns_not_found_when_target_cannot_be_resolved(bot, upda
     with pytest.warns(UserWarning, match="Security is not configured"):
         engine = EngineProbe(dispatcher, bot, target=None, web=adapter)
 
-    response = await engine.handle_request(
-        DummyWebRequest(DummyRequest(json_data=update_payload)),
-    )
+    response = await engine.handle_request(DummyWebRequest(DummyRequest(json_data=update_payload)))
 
     assert response == {"kind": "json", "status_code": 404, "data": {"detail": "Not found"}, "headers": None}
     assert dispatcher.webhook_update is None
@@ -132,9 +153,7 @@ async def test_engine_returns_not_found_when_bot_cannot_be_resolved(target, upda
     with pytest.warns(UserWarning, match="Security is not configured"):
         engine = EngineProbe(dispatcher, bot=None, target=target, web=adapter)
 
-    response = await engine.handle_request(
-        DummyWebRequest(DummyRequest(json_data=update_payload)),
-    )
+    response = await engine.handle_request(DummyWebRequest(DummyRequest(json_data=update_payload)))
 
     assert response == {"kind": "json", "status_code": 404, "data": {"detail": "Not found"}, "headers": None}
     assert dispatcher.webhook_update is None
@@ -147,9 +166,7 @@ async def test_engine_returns_bad_request_when_json_payload_is_invalid(bot, targ
     with pytest.warns(UserWarning, match="Security is not configured"):
         engine = EngineProbe(dispatcher, bot, target=target, web=adapter)
 
-    response = await engine.handle_request(
-        DummyWebRequest(DummyRequest(json_error=ValueError("invalid json"))),
-    )
+    response = await engine.handle_request(DummyWebRequest(DummyRequest(json_error=ValueError("invalid json"))))
 
     assert response == {"kind": "json", "status_code": 400, "data": {"detail": "Bad request"}, "headers": None}
     assert dispatcher.webhook_update is None

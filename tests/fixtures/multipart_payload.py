@@ -62,13 +62,7 @@ def parse_multipart(content_type: str, body: bytes) -> list[MultipartPart]:
         if not isinstance(part_body, bytes):
             raise TypeError(f"Multipart part {name!r} must have a bytes body.")
 
-        parts.append(
-            MultipartPart(
-                name=name,
-                filename=part.get_filename(),
-                body=part_body,
-            )
-        )
+        parts.append(MultipartPart(name=name, filename=part.get_filename(), body=part_body))
 
     return parts
 

@@ -42,13 +42,7 @@ def test_aiohttp_adapter_registers_post_route_and_lifecycle_callbacks():
     async def on_shutdown(_app):
         return None
 
-    adapter.register(
-        app,
-        "/webhook",
-        handler,
-        on_startup=on_startup,
-        on_shutdown=on_shutdown,
-    )
+    adapter.register(app, "/webhook", handler, on_startup=on_startup, on_shutdown=on_shutdown)
 
     routes = list(app.router.routes())
     assert len(routes) == 1

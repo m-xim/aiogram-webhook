@@ -44,6 +44,6 @@ ban-relative-imports = "all"
     "TID252",
     "S106",
     "S105",
-    "ARG002"
+    "ARG002",
+    "SLF001"
 ]
-

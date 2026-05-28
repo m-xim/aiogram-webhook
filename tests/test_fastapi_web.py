@@ -35,13 +35,7 @@ def test_fastapi_adapter_passes_bound_request_to_registered_post_handler():
     async def on_shutdown(_app):
         return None
 
-    adapter.register(
-        app,
-        "/webhook/{bot_token}",
-        handler,
-        on_startup=on_startup,
-        on_shutdown=on_shutdown,
-    )
+    adapter.register(app, "/webhook/{bot_token}", handler, on_startup=on_startup, on_shutdown=on_shutdown)
 
     with TestClient(app) as client:
         response = client.post(

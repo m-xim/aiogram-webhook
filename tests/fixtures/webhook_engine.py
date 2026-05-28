@@ -27,10 +27,7 @@ class CapturingAdapter(WebAdapter):
         raise NotImplementedError
 
     def json_response(
-        self,
-        status_code: int,
-        data: dict[str, str] | None = None,
-        headers: Mapping[str, str] | None = None,
+        self, status_code: int, data: dict[str, str] | None = None, headers: Mapping[str, str] | None = None
     ):
         return {"kind": "json", "status_code": status_code, "data": data, "headers": headers}
 
