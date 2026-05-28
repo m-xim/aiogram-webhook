@@ -2,7 +2,6 @@ from typing import Generic
 
 from aiogram import Bot
 
-from aiogram_webhook.configs.webhook import WebhookConfig
 from aiogram_webhook.engines.base import AppT, BaseWebhookEngine, FrameworkResponseT, RawRequestT, logger
 from aiogram_webhook.engines.target import Target
 from aiogram_webhook.route import Route
@@ -47,9 +46,9 @@ class SingleBotEngine(
     def _get_task_tracker(self, bot: Bot) -> TaskTracker:  # noqa: ARG002
         return self._task_tracker
 
-    async def set_webhook(self, webhook_config: WebhookConfig | None = None) -> bool:
+    async def set_webhook(self) -> bool:
         target = Target(bot_id=self.bot.id, bot_token=self.bot.token)
-        webhook_kwargs = await self._build_webhook_kwargs(target=target, webhook_config=webhook_config)
+        webhook_kwargs = await self._build_webhook_kwargs(target=target)
         return await self.bot.set_webhook(url=await self.route.build_url(target=target), **webhook_kwargs)
 
     async def _on_startup(self, app: AppT, *args, **kwargs) -> None:  # noqa: ARG002

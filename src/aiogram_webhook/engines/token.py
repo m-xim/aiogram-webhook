@@ -49,11 +49,11 @@ class TokenEngine(
     async def add_bot(self, token: str, webhook_config: WebhookConfig | None = None) -> Bot:
         target = Target(bot_id=extract_bot_id(token), bot_token=token)
         bot = await self._resolve_bot(target=target)
+
         webhook_kwargs = await self._build_webhook_kwargs(target=target, webhook_config=webhook_config)
         await bot.set_webhook(url=await self.route.build_url(target=target), **webhook_kwargs)
 
         logger.info("Added bot %s to token engine and set webhook", bot.id)
-
         return bot
 
     async def remove_bot(self, bot_id: int, delete_webhook: bool, drop_pending_updates: bool | None = None) -> bool:
