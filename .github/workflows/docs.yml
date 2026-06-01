@@ -42,6 +42,7 @@ jobs:
       GITHUB_BASE_URL: https://api.github.com
       VCS_CONNECTOR_TYPE: github
       VCS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      NODE_PATH: ${{ github.workspace }}/node_modules
 
     steps:
       - name: Checkout repository
@@ -49,11 +50,18 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
       - name: Install project dependencies
         run: npm install
 
       - name: Build docs with Diplodoc
         uses: diplodoc-platform/docs-build-action@v3
+        env:
+          NODE_PATH: ${{ github.workspace }}/node_modules
         with:
           revision: ${{ github.event.pull_request.head.sha || github.sha }}
           src-root: "./docs"

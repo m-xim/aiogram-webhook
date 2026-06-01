@@ -5,9 +5,10 @@
     "doc": "docs"
   },
   "scripts": {
-    "build": "rimraf docs-html && yfm build -i ./docs -o ./docs-html",
-    "web": "http-server ./docs-html",
-    "run": "npm run build && npm run web"
+    "docs:build": "rimraf docs-html docs-md && yfm -i ./docs -o ./docs-html",
+    "docs:build:md": "yfm -i ./docs -o ./docs-md --output-format md --add-map-file --allow-custom-resources",
+    "docs:web": "http-server ./docs-html",
+    "docs": "npm run docs:build && npm run docs:web"
   },
   "repository": {
     "type": "git",
@@ -15,14 +16,9 @@
   },
   "author": "",
   "license": "ISC",
-  "workspaces": [
-    "tools/diplodoc-cli"
-  ],
   "devDependencies": {
+    "@diplodoc/cli": "5.39.6",
     "http-server": "^14.1.1",
     "rimraf": "^6.0.1"
-  },
-  "dependencies": {
-    "@diplodoc/cli": "^5.39.6"
   }
 }
