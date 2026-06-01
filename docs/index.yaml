@@ -1,0 +1,226 @@
+meta:
+  title: 'aiogram-webhook'
+  description: 'Webhook integration for aiogram with FastAPI and aiohttp.'
+
+blocks:
+  - type: 'header-block'
+    width: 'l'
+    offset: 'large'
+    overtitle: 'Webhook runtime for aiogram'
+    title: 'aiogram-webhook'
+    description: >-
+      A compact webhook layer for aiogram applications. Register FastAPI or
+      aiohttp endpoints, build public Telegram URLs, verify requests, and run
+      single-bot or token-based multi-bot webhooks.
+    verticalOffset: 'l'
+    resetPaddings: false
+    background:
+      light:
+        color: '#f6f9ff'
+        fullWidth: true
+      dark:
+        color: '#101827'
+        fullWidth: true
+    image:
+      light:
+        src: './_assets/brand/logo.png'
+        alt: 'aiogram-webhook logo'
+        loading: 'eager'
+        fetchPriority: 'high'
+      dark:
+        src: './_assets/brand/logo-dark.svg'
+        alt: 'aiogram-webhook logo'
+        loading: 'eager'
+        fetchPriority: 'high'
+    imageSize: 's'
+    mediaView: 'fit'
+    buttons:
+      - text: 'Quick start'
+        primary: true
+        theme: 'action'
+        size: 'l'
+        url: './pages/learn/quick-start.html'
+      - text: 'First webhook'
+        theme: 'outlined'
+        size: 'l'
+        url: './pages/learn/first-webhook.html'
+
+  - type: 'card-layout-block'
+    title: 'Main building blocks'
+    description: 'The important parts are visible directly in the navigation.'
+    colSizes:
+      all: 12
+      xl: 3
+      lg: 3
+      md: 6
+      sm: 12
+    indent:
+      top: 'm'
+      bottom: 's'
+    children:
+      - type: 'basic-card'
+        icon:
+          src: './_assets/icons/adapter.svg'
+        iconPosition: 'top'
+        title: 'Webs'
+        text: 'Choose FastAPI, aiohttp, or a custom web adapter for your framework boundary.'
+        url: './pages/webs/overview.html'
+        urlTitle: 'Open webs'
+        border: 'shadow'
+        controlPosition: 'content'
+      - type: 'basic-card'
+        icon:
+          src: './_assets/icons/engine.svg'
+        iconPosition: 'top'
+        title: 'Engines'
+        text: 'Resolve the target bot, call aiogram dispatcher, and control background handling.'
+        url: './pages/engines/overview.html'
+        urlTitle: 'Open engines'
+        border: 'shadow'
+        controlPosition: 'content'
+      - type: 'basic-card'
+        icon:
+          src: './_assets/icons/route.svg'
+        iconPosition: 'top'
+        title: 'Route'
+        text: 'Build Telegram webhook URLs and validate path and query parameters.'
+        url: './pages/route/overview.html'
+        urlTitle: 'Open route'
+        border: 'shadow'
+        controlPosition: 'content'
+      - type: 'basic-card'
+        icon:
+          src: './_assets/icons/security.svg'
+        iconPosition: 'top'
+        title: 'Security'
+        text: 'Verify Telegram secret-token headers, IP ranges, and custom request checks before dispatch.'
+        url: './pages/security/overview.html'
+        urlTitle: 'Open security'
+        border: 'shadow'
+        controlPosition: 'content'
+
+  - type: 'card-layout-block'
+    title: 'Configuration and behavior'
+    description: 'Tune Telegram registration and understand how requests are handled.'
+    colSizes:
+      all: 12
+      xl: 3
+      lg: 3
+      md: 6
+      sm: 12
+    indent:
+      top: 's'
+      bottom: 's'
+    children:
+      - type: 'basic-card'
+        icon:
+          src: './_assets/icons/webhook.svg'
+        iconPosition: 'top'
+        title: 'Telegram options'
+        text: 'Configure `setWebhook` fields such as allowed updates, pending updates, and max connections.'
+        url: './pages/configuration/telegram-options.html'
+        urlTitle: 'Open options'
+        border: 'line'
+        controlPosition: 'content'
+      - type: 'basic-card'
+        icon:
+          src: './_assets/icons/engine.svg'
+        iconPosition: 'top'
+        title: 'TokenEngine config'
+        text: 'Configure bot creation defaults and per-bot webhook options for multi-bot apps.'
+        url: './pages/engines/token-engine.html'
+        urlTitle: 'Open TokenEngine'
+        border: 'line'
+        controlPosition: 'content'
+      - type: 'basic-card'
+        icon:
+          src: './_assets/icons/lifecycle.svg'
+        iconPosition: 'top'
+        title: 'Webhook behavior'
+        text: 'Read about background handling, webhook replies, startup, and shutdown.'
+        url: './pages/behavior/overview.html'
+        urlTitle: 'Open behavior'
+        border: 'line'
+        controlPosition: 'content'
+      - type: 'basic-card'
+        icon:
+          src: './_assets/icons/security.svg'
+        iconPosition: 'top'
+        title: 'Operations'
+        text: 'Debug public error responses and prepare production deployments.'
+        url: './pages/operations/errors.html'
+        urlTitle: 'Open operations'
+        border: 'line'
+        controlPosition: 'content'
+
+  - type: 'content-layout-block'
+    textWidth: 'l'
+    textContent:
+      title: 'Minimal FastAPI setup'
+      text: |
+        ```python
+        from aiogram import Bot, Dispatcher
+        from fastapi import FastAPI
+
+        from aiogram_webhook import FastAPIAdapter, SingleBotEngine
+        from aiogram_webhook.route import Route
+
+        dispatcher = Dispatcher()
+        bot = Bot("BOT_TOKEN")
+
+        engine = SingleBotEngine(
+            dispatcher,
+            bot,
+            web=FastAPIAdapter(),
+            route=Route(base_url="https://example.com", path="/webhook"),
+        )
+
+        app = FastAPI()
+        engine.register(app)
+        ```
+
+        Call `await engine.set_webhook()` during application startup when your public HTTPS URL is ready.
+
+  - type: 'card-layout-block'
+    title: 'Recipes'
+    description: 'Use these after the individual parts are clear.'
+    colSizes:
+      all: 12
+      xl: 4
+      lg: 4
+      md: 6
+      sm: 12
+    indent:
+      top: 's'
+      bottom: 'm'
+    children:
+      - type: 'basic-card'
+        icon:
+          src: './_assets/icons/combine.svg'
+        iconPosition: 'left'
+        title: 'First webhook'
+        text: 'Combine `SingleBotEngine`, `Route`, one adapter, and optional `Security` for a first endpoint.'
+        url: './pages/learn/first-webhook.html'
+        urlTitle: 'Start guide'
+        border: 'line'
+        controlPosition: 'content'
+      - type: 'basic-card'
+        icon:
+          src: './_assets/icons/engine.svg'
+        iconPosition: 'left'
+        title: 'Multi-bot app'
+        text: 'Combine `TokenEngine`, `BotTokenParam`, `BotConfig`, and shared webhook defaults.'
+        url: './pages/recipes/multi-bot.html'
+        urlTitle: 'Multi-bot guide'
+        border: 'line'
+        controlPosition: 'content'
+      - type: 'basic-card'
+        icon:
+          src: './_assets/icons/webhook.svg'
+        iconPosition: 'left'
+        title: 'Errors'
+        text: 'Map public HTTP responses to route, security, engine, and shutdown causes.'
+        url: './pages/operations/errors.html'
+        urlTitle: 'Error guide'
+        border: 'line'
+        controlPosition: 'content'

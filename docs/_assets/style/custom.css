@@ -1,0 +1,75 @@
+/* Header action button */
+.pc-header-block__buttons .g-button_view_action {
+  --_--text-color: #ffffff !important;
+}
+
+.pc-header-block__buttons .g-button_view_action,
+.pc-header-block__buttons .g-button_view_action *,
+.pc-header-block__buttons .pc-button-block_theme_action,
+.pc-header-block__buttons .pc-button-block_theme_action * {
+  color: #ffffff !important;
+}
+
+/* Action button contrast variable used by Gravity UI */
+.g-root_theme_light,
+.g-root_theme_dark {
+  --g-color-text-brand-contrast: #ffffff;
+}
+
+/* Header logo spacing */
+.pc-desktop-navigation__wrapper {
+  padding-left: 20px;
+  padding-right: 20px;
+  box-sizing: border-box;
+}
+
+.pc-desktop-navigation__logo {
+  margin-left: 4px;
+}
+
+.g-root_theme_dark .pc-content-wrapper__icon[src$="github-mark.png"] {
+  filter: invert(1);
+}
+
+/* Landing page polish */
+.pc-header-block {
+  border-bottom: 1px solid var(--g-color-line-generic);
+}
+
+.g-root_theme_dark .pc-header-block__background,
+.g-root_theme_dark .pc-header-block__background-media,
+.g-root_theme_dark .pc-header-block__background .pc-Media {
+  background: #101827 !important;
+}
+
+.g-root_theme_dark .pc-header-block__title,
+.g-root_theme_dark .pc-header-block__description,
+.g-root_theme_dark .pc-header-block__overtitle {
+  color: rgba(255, 255, 255, 0.92) !important;
+}
+
+.pc-header-block__title {
+  letter-spacing: 0;
+}
+
+.pc-basic-card,
+.pc-layout-item,
+.pc-card-layout-block .pc-basic-card,
+.pc-card-layout-block .pc-layout-item {
+  border-radius: 8px !important;
+  overflow: hidden;
+}
+
+.yfm pre > code,
+.yfm .hljs {
+  border: 1px solid var(--g-color-line-generic);
+  border-radius: 10px;
+}
+
+.yfm table {
+  border-radius: 10px;
+}
+
+.yfm .yfm-note {
+  border: 1px solid var(--g-color-line-generic);
+}

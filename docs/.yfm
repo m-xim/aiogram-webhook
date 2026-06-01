@@ -1,0 +1,62 @@
+title: aiogram-webhook
+description: Webhook integration for aiogram with FastAPI and aiohttp
+lang: en
+langs:
+  - en
+strict: true
+linkify: true
+breaks: true
+allowCustomResources: true
+staticContent: true
+skipHtmlExtension: true
+supportGithubAnchors: true
+
+interface:
+  favicon-src: ./_assets/brand/logo-icon.svg
+  logo: ./_assets/brand/logo-icon.svg
+  feedback: false
+  toc: true
+  toc-header: true
+  search: true
+
+resources:
+  style:
+    - _assets/style/custom.css
+  script:
+    - _assets/script/fix_code_blocks.js
+
+docs-viewer:
+  lang: en
+  logo-options:
+    src: _assets/brand/logo.png
+    src-dark: _assets/brand/logo-dark.svg
+    url: https://github.com/m-xim/aiogram-webhook
+    title: aiogram-webhook
+  project-name: aiogram-webhook
+
+search:
+  provider: local
+  tolerance: 2
+  confidense: phrased
+
+vcs: true
+mtimes: true
+authors: true
+contributors: true
+
+extensions:
+  - github-vcs
+  - './extensions/vcs-control'
+  - './extensions/breadcrumbs'
+
+vcsControl:
+  url: 'https://github.com/m-xim/aiogram-webhook/edit/main/docs/{path}'
+  type: 'github'
+
+breadcrumbs:
+  tocAsRoot: true
+  appendLabeled: false
+
+codeHighlight:
+  light: github
+  dark: github-dark

@@ -1,91 +1,27 @@
 # aiogram-webhook
 
 [![PyPI version](https://img.shields.io/pypi/v/aiogram-webhook?color=blue)](https://pypi.org/project/aiogram-webhook)
-[![codecov](https://codecov.io/github/m-xim/aiogram-webhook/graph/badge.svg?token=H21MX17Y7D)](https://codecov.io/github/m-xim/aiogram-webhook)
 [![Tests Status](https://github.com/m-xim/aiogram-webhook/actions/workflows/tests.yml/badge.svg)](https://github.com/m-xim/aiogram-webhook/actions)
-[![Release Status](https://github.com/m-xim/aiogram-webhook/actions/workflows/release.yml/badge.svg)](https://github.com/m-xim/aiogram-webhook/actions)
 [![License](https://img.shields.io/github/license/m-xim/aiogram-webhook.svg)](/LICENSE)
-[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/m-xim/aiogram-webhook)
-[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
-[![ty](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ty/main/assets/badge/v0.json)](https://github.com/astral-sh/ty)
 
+`aiogram-webhook` is a small typed library for running aiogram bots through Telegram webhooks.
+It provides webhook engines for single-bot and token-based multi-bot applications, route builders, optional request checks, and adapters for FastAPI and aiohttp.
 
-**aiogram-webhook** is a modular Python library for webhook integration in aiogram.
-It supports single-bot and token-based multi-bot setups, with route building, optional request checks, and adapters for FastAPI and aiohttp.
-
-## ✨ Features
-
-- 🤖 Single-bot and token-based multi-bot webhook engines
-- ⚡ FastAPI and aiohttp adapters
-- 🛣️ Route building with path and query parameters
-- 🛡️ Optional secret-token and IP-based request checks
-- 🧩 Typed adapter interfaces for web frameworks
-
-## 📦 Installation
+## Install
 
 ```bash
-uv add "aiogram-webhook"
-# or
-pip install "aiogram-webhook"
+pip install aiogram-webhook
+pip install "aiogram-webhook[fastapi]"
+pip install "aiogram-webhook[aiohttp]"
 ```
 
-## 🚀 Quick Start
+## Quick Start
 
 ```python
-from contextlib import asynccontextmanager
-
-from aiogram import Bot, Dispatcher, Router
-from aiogram.filters import CommandStart
-from aiogram.types import Message
+from aiogram import Bot, Dispatcher
 from fastapi import FastAPI
 
-from aiogram_webhook import FastAPIAdapter, SingleBotEngine, WebhookConfig
-from aiogram_webhook.route import Route
-
-router = Router()
-
-
-@router.message(CommandStart())
-async def start(message: Message) -> None:
-    await message.answer("OK")
-
-
-dispatcher = Dispatcher()
-dispatcher.include_router(router)
-
-bot = Bot("BOT_TOKEN")
-engine = SingleBotEngine(
-    dispatcher,
-    bot,
-    web=FastAPIAdapter(),
-    route=Route(base_url="https://example.com", path="/webhook"),
-    webhook_config=WebhookConfig(drop_pending_updates=True),
-)
-
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    await engine.set_webhook()
-    yield
-
-
-app = FastAPI(lifespan=lifespan)
-# Registers the webhook route and wires engine startup/shutdown into FastAPI lifespan.
-engine.register(app)
-```
-
-`engine.register(app)` registers the webhook route and automatically wires
-`engine.on_startup()` / `engine.on_shutdown()` into FastAPI lifespan. Keep your
-own application setup in `lifespan`; do not call engine lifecycle methods
-manually.
-
-## 🌐 aiohttp
-
-```python
-from aiohttp import web
-from aiogram import Bot, Dispatcher
-
-from aiogram_webhook import AiohttpAdapter, SingleBotEngine
+from aiogram_webhook import FastAPIAdapter, SingleBotEngine
 from aiogram_webhook.route import Route
 
 dispatcher = Dispatcher()
@@ -94,52 +30,17 @@ bot = Bot("BOT_TOKEN")
 engine = SingleBotEngine(
     dispatcher,
     bot,
-    web=AiohttpAdapter(),
+    web=FastAPIAdapter(),
     route=Route(base_url="https://example.com", path="/webhook"),
 )
 
-
-async def set_webhook(app: web.Application) -> None:
-    await engine.set_webhook()
-
-
-app = web.Application()
-app.on_startup.append(set_webhook)
+app = FastAPI()
 engine.register(app)
 ```
 
-## 🔀 Multi-Bot Webhooks
+Call `await engine.set_webhook()` during your application startup to register the public webhook URL in Telegram.
+For production, pass `security=Security(...)` to verify Telegram requests.
 
-Use `TokenEngine` when the bot token is part of the webhook route:
+## Documentation
 
-```python
-from aiogram import Dispatcher
-
-from aiogram_webhook import FastAPIAdapter, TokenEngine
-from aiogram_webhook.route import BotTokenParam, Route
-
-dispatcher = Dispatcher()
-engine = TokenEngine(
-    dispatcher,
-    web=FastAPIAdapter(),
-    route=Route(
-        base_url="https://example.com",
-        path="/webhook/{bot_token}",
-        params={"bot_token": BotTokenParam()},
-    ),
-)
-```
-
-Then call `await engine.add_bot(token)` to register a bot and set its webhook.
-
-## 🛡️ Security
-
-Security checks are optional. `IPCheck` allows requests from Telegram IP ranges by default:
-
-```python
-from aiogram_webhook.security import IPCheck, Security, StaticSecretToken
-
-security = Security(IPCheck(), secret_token=StaticSecretToken("WEBHOOK_SECRET"))
-```
-
-Pass it to an engine with `security=security`.
+The full documentation is in [`docs`](docs). It covers installation, FastAPI and aiohttp setup, routing, security, lifecycle behavior, and the public API.

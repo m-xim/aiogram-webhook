@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 320" role="img" aria-label="aiogram-webhook logo">
+  <defs>
+    <linearGradient id="logo-dark-blue" x1="120" y1="40" x2="360" y2="280" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#60A5FA"/>
+      <stop offset="1" stop-color="#2563EB"/>
+    </linearGradient>
+  </defs>
+  <g transform="translate(72 44)">
+    <path d="M96 28v36" stroke="#60A5FA" stroke-width="14" stroke-linecap="round"/>
+    <circle cx="96" cy="28" r="24" fill="#0F172A" stroke="#60A5FA" stroke-width="14"/>
+    <path d="M40 178 8 198" stroke="#93C5FD" stroke-width="14" stroke-linecap="round"/>
+    <circle cx="0" cy="204" r="24" fill="#0F172A" stroke="#93C5FD" stroke-width="14"/>
+    <path d="M152 178 184 198" stroke="#60A5FA" stroke-width="14" stroke-linecap="round"/>
+    <circle cx="192" cy="204" r="24" fill="#0F172A" stroke="#60A5FA" stroke-width="14"/>
+    <path d="M42 76C18 92 4 120 4 152" stroke="url(#logo-dark-blue)" stroke-width="14" stroke-linecap="round"/>
+    <path d="M150 76c24 15 39 42 40 72" stroke="url(#logo-dark-blue)" stroke-width="14" stroke-linecap="round"/>
+    <path d="m178 140 13 16 15-13" stroke="#60A5FA" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M36 224c34 24 86 25 124 0" stroke="url(#logo-dark-blue)" stroke-width="14" stroke-linecap="round"/>
+    <path d="m44 208-17 14 14 17" stroke="#60A5FA" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="96" cy="148" r="64" fill="#E0F2FE"/>
+    <path d="M76 128h40c14 0 26 12 26 26v18c0 14-12 26-26 26H76c-14 0-26-12-26-26v-18c0-14 12-26 26-26Z" fill="#0F172A"/>
+    <path d="M96 100v28" stroke="#0F172A" stroke-width="10" stroke-linecap="round"/>
+    <circle cx="96" cy="96" r="12" fill="#0F172A"/>
+    <rect x="72" y="154" width="10" height="18" rx="5" fill="#E0F2FE"/>
+    <rect x="110" y="154" width="10" height="18" rx="5" fill="#E0F2FE"/>
+    <path d="M50 162h-9a13 13 0 0 0-13 13v7a13 13 0 0 0 13 13h9" fill="#0F172A"/>
+    <path d="M142 162h9a13 13 0 0 1 13 13v7a13 13 0 0 1-13 13h-9" fill="#0F172A"/>
+  </g>
+  <text x="330" y="182" fill="#E5E7EB" font-family="Inter, Arial, sans-serif" font-size="86" font-weight="800">aiogram-</text>
+  <text x="702" y="182" fill="#60A5FA" font-family="Inter, Arial, sans-serif" font-size="86" font-weight="800">webhook</text>
+</svg>

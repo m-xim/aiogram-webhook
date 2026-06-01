@@ -1,0 +1,85 @@
+name: Build and deploy Diplodoc docs
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "docs/**"
+      - ".yfm"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/docs.yml"
+
+  pull_request:
+    paths:
+      - "docs/**"
+      - ".yfm"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/docs.yml"
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build Diplodoc
+    runs-on: ubuntu-latest
+
+    env:
+      GITHUB_OWNER: ${{ github.repository_owner }}
+      GITHUB_REPO: ${{ github.event.repository.name }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_BASE_URL: https://api.github.com
+      VCS_CONNECTOR_TYPE: github
+      VCS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install project dependencies
+        run: npm install
+
+      - name: Build docs with Diplodoc
+        uses: diplodoc-platform/docs-build-action@v3
+        with:
+          revision: ${{ github.event.pull_request.head.sha || github.sha }}
+          src-root: "./docs"
+          lint-root: "./docs-html"
+          build-root: "./docs-md"
+
+      - name: Disable Jekyll
+        run: touch ./docs-html/.nojekyll
+
+      - name: Upload GitHub Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: "./docs-html"
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    runs-on: ubuntu-latest
+
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
