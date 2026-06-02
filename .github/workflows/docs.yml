@@ -52,8 +52,7 @@ jobs:
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
 
-      - name: Build docs with Diplodoc
-        uses: diplodoc-platform/docs-build-action@v3
+      - name: Build docs
         env:
           GITHUB_OWNER: ${{ github.repository_owner }}
           GITHUB_REPO: ${{ github.event.repository.name }}
@@ -61,13 +60,7 @@ jobs:
           GITHUB_BASE_URL: https://api.github.com
           VCS_CONNECTOR_TYPE: github
           VCS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NODE_PATH: ${{ github.workspace }}/node_modules
-        with:
-          revision: ${{ github.event.pull_request.head.sha || github.sha }}
-          src-root: "./docs"
-          lint-root: "./docs-html"
-          build-root: "./docs-md"
-          cli-version: "5.39.6"
+        run: npm run docs:build
 
       - name: Disable Jekyll
         run: touch ./docs-html/.nojekyll
