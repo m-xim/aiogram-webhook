@@ -45,7 +45,6 @@ authors: true
 contributors: true
 
 extensions:
-  - './extensions/vcs-path-fix'
   - github-vcs
   - './extensions/vcs-control'
   - './extensions/breadcrumbs'
