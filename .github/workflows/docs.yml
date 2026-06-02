@@ -60,7 +60,7 @@ jobs:
           GITHUB_BASE_URL: https://api.github.com
           VCS_CONNECTOR_TYPE: github
           VCS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npm run docs:build
+        run: npm run build
 
       - name: Disable Jekyll
         run: touch ./docs-html/.nojekyll
