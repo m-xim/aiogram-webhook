@@ -5,9 +5,7 @@
     "doc": "docs"
   },
   "scripts": {
-    "build": "npm run build:cli && npm run build:docs",
-    "build:cli": "npm ci --prefix ./tools/diplodoc-cli && npm run build --prefix ./tools/diplodoc-cli",
-    "build:docs": "rimraf docs-html docs-md && node ./tools/diplodoc-cli/build/index.js -i ./docs -o ./docs-html",
+    "build": "rimraf docs-html docs-md && yfm -i ./docs -o ./docs-html",
     "web": "http-server ./docs-html",
     "docs": "npm run build && npm run web"
   },
@@ -18,6 +16,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@diplodoc/cli": "github:m-xim/diplodoc-cli#all",
     "http-server": "^14.1.1",
     "rimraf": "^6.0.1"
   }

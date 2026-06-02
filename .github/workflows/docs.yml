@@ -6,8 +6,6 @@ on:
       - main
     paths:
       - "docs/**"
-      - ".gitmodules"
-      - "tools/diplodoc-cli"
       - "docs/.yfm"
       - "package.json"
       - "package-lock.json"
@@ -16,8 +14,6 @@ on:
   pull_request:
     paths:
       - "docs/**"
-      - ".gitmodules"
-      - "tools/diplodoc-cli"
       - "docs/.yfm"
       - "package.json"
       - "package-lock.json"
@@ -44,7 +40,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          submodules: recursive
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
