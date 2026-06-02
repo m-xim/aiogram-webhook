@@ -35,15 +35,6 @@ jobs:
     name: Build Diplodoc
     runs-on: ubuntu-latest
 
-    env:
-      GITHUB_OWNER: ${{ github.repository_owner }}
-      GITHUB_REPO: ${{ github.event.repository.name }}
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      GITHUB_BASE_URL: https://api.github.com
-      VCS_CONNECTOR_TYPE: github
-      VCS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      NODE_PATH: ${{ github.workspace }}/node_modules
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -58,9 +49,18 @@ jobs:
       - name: Install project dependencies
         run: npm install
 
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
       - name: Build docs with Diplodoc
         uses: diplodoc-platform/docs-build-action@v3
         env:
+          GITHUB_OWNER: ${{ github.repository_owner }}
+          GITHUB_REPO: ${{ github.event.repository.name }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_BASE_URL: https://api.github.com
+          VCS_CONNECTOR_TYPE: github
+          VCS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NODE_PATH: ${{ github.workspace }}/node_modules
         with:
           revision: ${{ github.event.pull_request.head.sha || github.sha }}
@@ -80,8 +80,11 @@ jobs:
     name: Deploy to GitHub Pages
     needs: build
     runs-on: ubuntu-latest
-
     # if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+
+    permissions:
+      pages: write
+      id-token: write
 
     environment:
       name: github-pages

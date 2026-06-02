@@ -5,9 +5,8 @@
     "doc": "docs"
   },
   "scripts": {
-    "docs:build": "rimraf docs-html docs-md && yfm -i ./docs -o ./docs-html",
-    "docs:build:md": "yfm -i ./docs -o ./docs-md --output-format md --add-map-file --allow-custom-resources",
-    "docs:web": "http-server ./docs-html",
+    "build": "rimraf docs-html docs-md && yfm -i ./docs -o ./docs-html",
+    "web": "http-server ./docs-html",
     "docs": "npm run docs:build && npm run docs:web"
   },
   "repository": {
