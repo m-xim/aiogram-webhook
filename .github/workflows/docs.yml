@@ -67,6 +67,7 @@ jobs:
           src-root: "./docs"
           lint-root: "./docs-html"
           build-root: "./docs-md"
+          cli-version: "5.39.6"
 
       - name: Disable Jekyll
         run: touch ./docs-html/.nojekyll
