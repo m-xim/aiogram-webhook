@@ -32,6 +32,10 @@ items:
   - name: Home
     href: index.yaml
 
+  - name: Page not found
+    href: 404.yaml
+    hidden: true
+
   - name: Learn
     labeled: true
     items:
