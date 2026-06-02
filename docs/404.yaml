@@ -5,36 +5,16 @@ meta:
 
 blocks:
   - type: 'header-block'
-    width: 'l'
-    offset: 'large'
     overtitle: 'HTTP 404'
     title: 'This webhook went nowhere'
-    description: >-
-      Telegram knocked, the route table shrugged, and this page was not
-      registered. Try the docs home, jump into the quick start, or inspect how
-      routes are built.
-    verticalOffset: 'l'
-    resetPaddings: false
+    description: 'Telegram knocked, the route table shrugged, and this page was not registered. Try the docs home, jump into the quick start, or inspect how routes are built.'
     background:
-      light:
-        color: '#f6f9ff'
-        fullWidth: true
       dark:
         color: '#101827'
         fullWidth: true
-    image:
       light:
-        src: './_assets/brand/logo.png'
-        alt: 'aiogram-webhook logo'
-        loading: 'eager'
-        fetchPriority: 'high'
-      dark:
-        src: './_assets/brand/logo-dark.svg'
-        alt: 'aiogram-webhook logo'
-        loading: 'eager'
-        fetchPriority: 'high'
-    imageSize: 's'
-    mediaView: 'fit'
+        color: '#f6f9ff'
+        fullWidth: true
     buttons:
       - text: 'Back home'
         primary: true

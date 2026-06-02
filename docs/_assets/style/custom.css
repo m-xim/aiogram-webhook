@@ -10,53 +10,39 @@
   color: #ffffff !important;
 }
 
-/* Action button contrast variable used by Gravity UI */
-.g-root_theme_light,
-.g-root_theme_dark {
-  --g-color-text-brand-contrast: #ffffff;
-}
-
 /* Header logo spacing */
 .pc-desktop-navigation__wrapper {
-  padding-left: 20px;
-  padding-right: 20px;
+  padding-left: 10px;
+  padding-right: 10px;
   box-sizing: border-box;
 }
-
-.pc-desktop-navigation__logo {
-  margin-left: 4px;
+/* FIX: reducing the logo when the window size is reduced */
+@media (max-width: 576px) {
+  .pc-navigation .pc-desktop-navigation__wrapper .pc-desktop-navigation__logo .pc-logo__icon {
+    max-width: none !important;
+  }
 }
 
 .g-root_theme_dark .pc-content-wrapper__icon[src$="github-mark.png"] {
   filter: invert(1);
 }
 
-/* Landing page polish */
-.pc-header-block {
-  border-bottom: 1px solid var(--g-color-line-generic);
+.pc-header-block__background {
+  border-radius: 20px !important;
 }
 
-.g-root_theme_dark .pc-header-block__background,
-.g-root_theme_dark .pc-header-block__background-media,
-.g-root_theme_dark .pc-header-block__background .pc-Media {
-  background: #101827 !important;
-}
-
-.g-root_theme_dark .pc-header-block__title,
-.g-root_theme_dark .pc-header-block__description,
-.g-root_theme_dark .pc-header-block__overtitle {
-  color: rgba(255, 255, 255, 0.92) !important;
-}
-
-.pc-header-block__title {
-  letter-spacing: 0;
-}
+/*FIX: page construct*/
+/*.g-root_theme_dark .pc-header-block__background,*/
+/*.g-root_theme_dark .pc-header-block__background-media,*/
+/*.g-root_theme_dark .pc-header-block__background .pc-Media {*/
+/*  background: #101827 !important;*/
+/*}*/
 
 .pc-basic-card,
 .pc-layout-item,
 .pc-card-layout-block .pc-basic-card,
 .pc-card-layout-block .pc-layout-item {
-  border-radius: 8px !important;
+  border-radius: 20px !important;
   overflow: hidden;
 }
 

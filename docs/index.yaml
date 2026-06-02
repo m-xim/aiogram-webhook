@@ -4,45 +4,22 @@ meta:
 
 blocks:
   - type: 'header-block'
-    width: 'l'
-    offset: 'large'
-    overtitle: 'Webhook runtime for aiogram'
-    title: 'aiogram-webhook'
-    description: >-
-      A compact webhook layer for aiogram applications. Register FastAPI or
-      aiohttp endpoints, build public Telegram URLs, verify requests, and run
-      single-bot or token-based multi-bot webhooks.
-    verticalOffset: 'l'
-    resetPaddings: false
+    title: 'Aiogram-webhook'
+    description: 'A modular Python library for seamless webhook integration with multiple web frameworks in aiogram. It enables both single and multi-bot operation via webhooks, with flexible routing and security features.'
     background:
-      light:
-        color: '#f6f9ff'
-        fullWidth: true
       dark:
         color: '#101827'
         fullWidth: true
-    image:
       light:
-        src: './_assets/brand/logo.png'
-        alt: 'aiogram-webhook logo'
-        loading: 'eager'
-        fetchPriority: 'high'
-      dark:
-        src: './_assets/brand/logo-dark.svg'
-        alt: 'aiogram-webhook logo'
-        loading: 'eager'
-        fetchPriority: 'high'
-    imageSize: 's'
-    mediaView: 'fit'
+        color: '#f6f9ff'
+        fullWidth: true
     buttons:
       - text: 'Quick start'
         primary: true
         theme: 'action'
-        size: 'l'
         url: './pages/learn/quick-start.html'
       - text: 'First webhook'
         theme: 'outlined'
-        size: 'l'
         url: './pages/learn/first-webhook.html'
 
   - type: 'card-layout-block'
@@ -148,7 +125,7 @@ blocks:
         iconPosition: 'top'
         title: 'Operations'
         text: 'Debug public error responses and prepare production deployments.'
-        url: './pages/operations/errors.html'
+        url: './pages/other/errors.html'
         urlTitle: 'Open operations'
         border: 'line'
         controlPosition: 'content'
@@ -220,7 +197,7 @@ blocks:
         iconPosition: 'left'
         title: 'Errors'
         text: 'Map public HTTP responses to route, security, engine, and shutdown causes.'
-        url: './pages/operations/errors.html'
+        url: './pages/other/errors.html'
         urlTitle: 'Error guide'
         border: 'line'
         controlPosition: 'content'

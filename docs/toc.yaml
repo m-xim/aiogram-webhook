@@ -2,13 +2,11 @@ href: index.yaml
 
 navigation:
   logo:
-    url: "./index.html"
+    url: "index.html"
     dark:
-      icon: "./_assets/brand/logo-icon.svg"
-      text: "aiogram-webhook"
+      icon: "_assets/brand/logo-dark.png"
     light:
-      icon: "./_assets/brand/logo-icon.svg"
-      text: "aiogram-webhook"
+      icon: "_assets/brand/logo-light.png"
 
   header:
     iconSize: 16
@@ -16,13 +14,13 @@ navigation:
       - text: "GitHub"
         type: "link"
         url: "https://github.com/m-xim/aiogram-webhook"
-        icon: "./_assets/icons/github-mark.png"
+        icon: "_assets/icons/github-mark.png"
         iconSize: 16
 
       - text: "PyPI"
         type: "link"
         url: "https://pypi.org/project/aiogram-webhook/"
-        icon: "./_assets/icons/pypi.svg"
+        icon: "_assets/icons/pypi.svg"
         iconSize: 16
 
     rightItems:
