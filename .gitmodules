@@ -1,0 +1,4 @@
+[submodule "tools/diplodoc-cli"]
+	path = tools/diplodoc-cli
+	url = https://github.com/m-xim/diplodoc-cli.git
+	branch = all
