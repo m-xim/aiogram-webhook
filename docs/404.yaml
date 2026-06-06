@@ -1,0 +1,71 @@
+meta:
+  title: '404 - Page not found'
+  description: 'The requested aiogram-webhook documentation page does not exist.'
+  noIndex: true
+
+blocks:
+  - type: 'header-block'
+    overtitle: 'HTTP 404'
+    title: 'This webhook went nowhere'
+    description: 'Telegram knocked, the route table shrugged, and this page was not registered. Try the docs home, jump into the quick start, or inspect how routes are built.'
+    background:
+      dark:
+        color: '#101827'
+        fullWidth: true
+      light:
+        color: '#f6f9ff'
+        fullWidth: true
+    buttons:
+      - text: 'Back home'
+        primary: true
+        theme: 'action'
+        size: 'l'
+        url: './index.html'
+      - text: 'Quick start'
+        theme: 'outlined'
+        size: 'l'
+        url: './pages/learn/quick-start.html'
+
+  - type: 'card-layout-block'
+    title: 'Useful escape routes'
+    description: 'Pick the most likely place for the thing you were looking for.'
+    colSizes:
+      all: 12
+      xl: 4
+      lg: 4
+      md: 6
+      sm: 12
+    indent:
+      top: 'm'
+      bottom: 'm'
+    children:
+      - type: 'basic-card'
+        icon:
+          src: './_assets/icons/route.svg'
+        iconPosition: 'top'
+        title: 'Routes'
+        text: 'Read how webhook paths, path parameters, and query parameters resolve targets.'
+        url: './pages/route/overview.html'
+        urlTitle: 'Open routes'
+        border: 'line'
+        controlPosition: 'content'
+      - type: 'basic-card'
+        icon:
+          src: './_assets/icons/engine.svg'
+        iconPosition: 'top'
+        title: 'Engines'
+        text: 'Find the bot dispatch layer that decides what happens after a request arrives.'
+        url: './pages/engines/overview.html'
+        urlTitle: 'Open engines'
+        border: 'line'
+        controlPosition: 'content'
+      - type: 'basic-card'
+        icon:
+          src: './_assets/icons/security.svg'
+        iconPosition: 'top'
+        title: 'Errors'
+        text: 'Map public responses to route, security, engine, and shutdown behavior.'
+        url: './pages/other/errors.html'
+        urlTitle: 'Open errors'
+        border: 'line'
+        controlPosition: 'content'

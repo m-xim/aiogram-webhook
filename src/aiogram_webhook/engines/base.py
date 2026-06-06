@@ -1,173 +1,159 @@
-from __future__ import annotations
-
-import asyncio
 import warnings
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any
+from typing import Any, Generic, TypeVar
 
+from aiogram import Bot
 from aiogram.methods import TelegramMethod
-from aiogram.utils.token import TokenValidationError
 
-from aiogram_webhook.config.webhook import WebhookConfig
+from aiogram_webhook.configs.webhook import WebhookConfig
+from aiogram_webhook.engines.errors import (
+    BotNotFoundError,
+    InvalidJsonError,
+    RequestHandlingStoppedError,
+    TargetNotFoundError,
+)
+from aiogram_webhook.engines.target import Target
+from aiogram_webhook.errors import AiogramWebhookError
+from aiogram_webhook.logs import get_logger, log_webhook_error
+from aiogram_webhook.route import Route
+from aiogram_webhook.route.params import RouteParams
+from aiogram_webhook.security import Security
+from aiogram_webhook.tasks import TaskTracker
+from aiogram_webhook.utils._payload import build_webhook_payload
+from aiogram_webhook.utils.config import dataclass_config_to_kwargs
+from aiogram_webhook.web.base import WebAdapter, WebRequest
 
-if TYPE_CHECKING:
-    from aiogram import Bot, Dispatcher
-    from aiogram.methods.base import TelegramType
-    from aiogram.types import InputFile
+logger = get_logger("engines")
 
-    from aiogram_webhook.adapters.base_adapter import BoundRequest, WebAdapter
-    from aiogram_webhook.routing.base import BaseRouting
-    from aiogram_webhook.security.security import Security
+AppT = TypeVar("AppT")
+RawRequestT = TypeVar("RawRequestT")
+FrameworkResponseT = TypeVar("FrameworkResponseT")
 
 
-class WebhookEngine(ABC):
-    """
-    Base webhook engine for processing Telegram bot updates.
-
-    Handles incoming webhook requests, bot resolution, security checks,
-    routing, and dispatching updates to the aiogram dispatcher. Supports
-    both synchronous and background processing.
-    """
-
+class BaseWebhookEngine(ABC, Generic[AppT, RawRequestT, FrameworkResponseT]):
     def __init__(
         self,
-        dispatcher: Dispatcher,
+        dispatcher,
         /,
-        web_adapter: WebAdapter,
-        routing: BaseRouting,
+        *,
+        web: WebAdapter[AppT, RawRequestT, FrameworkResponseT],
+        route: Route,
         security: Security | None = None,
         webhook_config: WebhookConfig | None = None,
         handle_in_background: bool = True,
     ) -> None:
         self.dispatcher = dispatcher
-        self.web_adapter = web_adapter
-        self.routing = routing
+        self.web = web
+        self.route = route
         self.security = security
         self.webhook_config = webhook_config or WebhookConfig()
         self.handle_in_background = handle_in_background
-        self._background_feed_update_tasks: set[asyncio.Task[Any]] = set()
+
+        self._is_shutting_down = False
 
         if self.security is None:
-            warnings.warn("Security is not configured, skipping verification", UserWarning, stacklevel=3)
+            warnings.warn(
+                f"Security is not configured for {type(self).__name__}. Pass security=... to verify webhook requests.",
+                UserWarning,
+                stacklevel=2,
+            )
 
-    @abstractmethod
-    async def set_webhook(self, *args, **kwargs) -> Bot:
-        raise NotImplementedError
-
-    @abstractmethod
-    async def on_startup(self, app: Any, *args, **kwargs) -> None:
-        raise NotImplementedError
-
-    @abstractmethod
-    async def on_shutdown(self, app: Any, *args, **kwargs) -> None:
-        raise NotImplementedError
-
-    def _build_workflow_data(self, app: Any, **kwargs) -> dict[str, Any]:
-        """Build workflow data for startup/shutdown events."""
-        return {
-            "app": app,
-            "dispatcher": self.dispatcher,
-            "webhook_engine": self,
-            **self.dispatcher.workflow_data,
-            **kwargs,
-        }
-
-    @abstractmethod
-    async def _get_bot_token_for_request(self, bound_request: BoundRequest) -> str | None:
-        raise NotImplementedError
-
-    @abstractmethod
-    async def _get_bot_by_token(self, token: str) -> Bot | None:
-        raise NotImplementedError
-
-    async def handle_request(self, bound_request: BoundRequest):
-        token = await self._get_bot_token_for_request(bound_request)
-        if token is None:
-            return self.web_adapter.create_json_response(status=400, payload={"detail": "Bot token not found"})
-
-        if self.security is not None and not await self.security.verify(
-            bot_token=token, bound_request=bound_request, dispatcher=self.dispatcher
-        ):
-            return self.web_adapter.create_json_response(status=403, payload={"detail": "Forbidden"})
-
-        try:
-            bot = await self._get_bot_by_token(token)
-        except TokenValidationError:
-            return self.web_adapter.create_json_response(status=400, payload={"detail": "Invalid bot token"})
-
-        if bot is None:
-            return self.web_adapter.create_json_response(status=400, payload={"detail": "Bot not found"})
-
-        update = await bound_request.json()
-        if self.handle_in_background:
-            return await self._handle_request_background(bot=bot, update=update)
-        return await self._handle_request(bot=bot, update=update)
-
-    def register(self, app: Any) -> None:
-        self.web_adapter.register(
+    def register(self, app: AppT) -> None:
+        logger.info("Registering webhook path %s via %s", self.route.path, self.web.__class__.__name__)
+        self.web.register(
             app=app,
-            path=self.routing.webhook_path,
+            path=self.route.path,
             handler=self.handle_request,
             on_startup=self.on_startup,
             on_shutdown=self.on_shutdown,
         )
 
-    async def _handle_request(self, bot: Bot, update: dict[str, Any]) -> dict[str, Any]:
-        result = await self.dispatcher.feed_webhook_update(bot=bot, update=update)
+    async def handle_request(self, request: WebRequest[RawRequestT]) -> FrameworkResponseT:
+        try:
+            if self._is_shutting_down:
+                raise RequestHandlingStoppedError
 
-        if result is None:
-            return self.web_adapter.create_json_response(status=200, payload={})
+            route_params = await self.route.match(request)
 
-        payload = self._build_webhook_payload(bot, result)
-        if payload is None:
-            # Has new files (InputFile) — execute directly via API
-            await self.dispatcher.silent_call_request(bot=bot, result=result)
-            return self.web_adapter.create_json_response(status=200, payload={})
+            target = await self._resolve_target(request=request, route_params=route_params)
+            if target is None:
+                raise TargetNotFoundError(route_param_names=route_params.keys())
 
-        return self.web_adapter.create_json_response(status=200, payload=payload)
+            if self.security is not None:
+                await self.security.verify(target=target, request=request, route_params=route_params)
 
-    async def _background_feed_update(self, bot: Bot, update: dict[str, Any]) -> None:
+            bot = await self._resolve_bot(target=target)
+            if bot is None:
+                raise BotNotFoundError(target_bot_id=target.bot_id, target_type=target.__class__.__name__)
+
+            try:
+                update = await request.json()
+            except ValueError as exc:
+                raise InvalidJsonError(original_error=exc) from exc
+
+            if self.handle_in_background:
+                self._get_task_tracker(bot).spawn(self._background_feed(bot, update))
+            else:
+                result = await self.dispatcher.feed_webhook_update(bot=bot, update=update)
+                if isinstance(result, TelegramMethod):
+                    return self.web.payload_response(status_code=200, payload=build_webhook_payload(bot, result))
+
+            return self.web.json_response(status_code=200, data={})
+
+        except AiogramWebhookError as exc:
+            log_webhook_error(logger, exc)
+
+            return self.web.json_response(status_code=exc.status_code, data=exc.response_payload())
+
+    async def on_startup(self, app: AppT, *args: Any, **kwargs: Any) -> None:
+        await self._on_startup(app, *args, **kwargs)
+        self._is_shutting_down = False
+
+    async def on_shutdown(self, app: AppT, *args: Any, **kwargs: Any) -> None:
+        self._is_shutting_down = True
+        await self._on_shutdown(app, *args, **kwargs)
+
+    @abstractmethod
+    async def _on_startup(self, app: AppT, *args: Any, **kwargs: Any) -> None:
+        raise NotImplementedError
+
+    @abstractmethod
+    async def _on_shutdown(self, app: AppT, *args: Any, **kwargs: Any) -> None:
+        raise NotImplementedError
+
+    @abstractmethod
+    async def _resolve_target(self, request: WebRequest[RawRequestT], route_params: RouteParams) -> Target | None: ...
+
+    @abstractmethod
+    async def _resolve_bot(self, target: Target) -> Bot | None: ...
+
+    @abstractmethod
+    def _get_task_tracker(self, bot: Bot) -> TaskTracker:
+        raise NotImplementedError
+
+    async def _background_feed(self, bot: Bot, update: dict[str, Any]) -> None:
         result = await self.dispatcher.feed_raw_update(bot=bot, update=update)
+
         if isinstance(result, TelegramMethod):
             await self.dispatcher.silent_call_request(bot=bot, result=result)
 
-    async def _handle_request_background(self, bot: Bot, update: dict[str, Any]):
-        feed_update_task = asyncio.create_task(self._background_feed_update(bot=bot, update=update))
-        self._background_feed_update_tasks.add(feed_update_task)
-        feed_update_task.add_done_callback(self._background_feed_update_tasks.discard)
+    def _build_lifecycle_data(self, *, app: AppT, **kwargs) -> dict[str, Any]:
+        return {
+            "dispatcher": self.dispatcher,
+            **self.dispatcher.workflow_data,
+            "app": app,
+            "webhook_engine": self,
+            **kwargs,
+        }
 
-        return self.web_adapter.create_json_response(status=200, payload={})
+    async def _build_webhook_kwargs(
+        self, target: Target, webhook_config: WebhookConfig | None = None
+    ) -> dict[str, Any]:
+        webhook_kwargs = dataclass_config_to_kwargs(self.webhook_config, webhook_config)
 
-    @staticmethod
-    def _build_webhook_payload(bot: Bot, method: TelegramMethod[TelegramType]) -> dict[str, Any] | None:
-        """
-        Convert TelegramMethod to webhook response payload.
+        if self.security is not None:
+            secret_token = await self.security.secret_token(target)
+            if secret_token is not None:
+                webhook_kwargs["secret_token"] = secret_token
 
-        See: https://core.telegram.org/bots/faq#how-can-i-make-requests-in-response-to-updates
-        """
-        files: dict[str, InputFile] = {}
-        params: dict[str, Any] = {}
-        for k, v in method.model_dump(warnings=False).items():
-            pv = bot.session.prepare_value(v, bot=bot, files=files)
-            # New files detected — can't use webhook response
-            if files:
-                return None
-            if pv is not None:
-                params[k] = pv
-        return {"method": method.__api_method__, **params}
-
-    def _build_webhook_config(
-        self,
-        *,
-        max_connections: int | None = None,
-        drop_pending_updates: bool | None = None,
-        allowed_updates: list[str] | None = None,
-    ) -> WebhookConfig:
-        overrides = {}
-        if max_connections is not None:
-            overrides["max_connections"] = max_connections
-        if drop_pending_updates is not None:
-            overrides["drop_pending_updates"] = drop_pending_updates
-        if allowed_updates is not None:
-            overrides["allowed_updates"] = allowed_updates
-        return self.webhook_config.model_copy(update=overrides) if overrides else self.webhook_config
+        return webhook_kwargs

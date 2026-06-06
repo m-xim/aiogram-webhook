@@ -1,0 +1,110 @@
+href: index.yaml
+
+navigation:
+  logo:
+    url: "index.html"
+    dark:
+      icon: "_assets/brand/logo-dark.png"
+    light:
+      icon: "_assets/brand/logo-light.png"
+
+  header:
+    iconSize: 16
+    leftItems:
+      - text: "GitHub"
+        type: "link"
+        url: "https://github.com/m-xim/aiogram-webhook"
+        icon: "_assets/icons/github-dark.svg"
+        iconSize: 16
+
+      - text: "PyPI"
+        type: "link"
+        url: "https://pypi.org/project/aiogram-webhook/"
+        icon: "_assets/icons/pypi.svg"
+        iconSize: 16
+
+    rightItems:
+      - type: controls
+
+items:
+  - name: Home
+    href: index.yaml
+
+  - name: Page not found
+    href: 404.yaml
+    hidden: true
+
+  - name: Learn
+    labeled: true
+    items:
+      - name: What is aiogram-webhook?
+        href: pages/learn/overview.md
+      - name: Quick start
+        href: pages/learn/quick-start.md
+      - name: First webhook
+        href: pages/learn/first-webhook.md
+
+  - name: Guide
+    labeled: true
+    items:
+      - name: Web adapters
+        href: pages/web/overview.md
+        items:
+          - name: FastAPI
+            href: pages/web/fastapi.md
+          - name: aiohttp
+            href: pages/web/aiohttp.md
+          - name: Custom adapter
+            href: pages/web/custom.md
+      - name: Engines
+        href: pages/engines/overview.md
+        items:
+          - name: SingleBotEngine
+            href: pages/engines/single-bot-engine.md
+          - name: TokenEngine
+            href: pages/engines/token-engine.md
+          - name: Custom engine
+            href: pages/engines/custom-engine.md
+      - name: Route
+        href: pages/route/overview.md
+        items:
+          - name: Path parameters
+            href: pages/route/path-parameters.md
+          - name: Query parameters
+            href: pages/route/query-parameters.md
+      - name: Security
+        href: pages/security/overview.md
+        items:
+          - name: Secret token
+            href: pages/security/secret-token.md
+          - name: IP check
+            href: pages/security/ip-check.md
+          - name: Custom checks
+            href: pages/security/custom-checks.md
+          - name: Custom secret token
+            href: pages/security/custom-secret-token.md
+      - name: Webhook behavior
+        href: pages/behavior/overview.md
+        items:
+          - name: Webhook replies
+            href: pages/behavior/webhook-replies.md
+      - name: Custom integrations
+        href: pages/extending/overview.md
+
+  - name: Recipes
+    labeled: true
+    items:
+      - name: Single-bot app
+        href: pages/recipes/single-bot.md
+      - name: Multi-bot app
+        href: pages/recipes/multi-bot.md
+
+  - name: Reference
+    labeled: true
+    items:
+      - name: WebhookConfig
+        href: pages/other/webhook-config.md
+      - name: Errors
+        href: pages/other/errors.md
+      - name: API reference
+        href: pages/other/api.md

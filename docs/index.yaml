@@ -1,0 +1,148 @@
+meta:
+  title: 'aiogram-webhook'
+  description: 'Webhook integration for aiogram with FastAPI and aiohttp.'
+
+blocks:
+  - type: 'header-block'
+    title: 'Aiogram-webhook'
+    description: 'Connect aiogram bots to Telegram webhooks. Follow Learn for a first app, then open Guide when you need one component in depth.'
+    background:
+      dark:
+        color: '#101827'
+        fullWidth: true
+      light:
+        color: '#f6f9ff'
+        fullWidth: true
+    buttons:
+      - text: 'What is it?'
+        theme: 'outlined'
+        url: './pages/learn/overview.html'
+      - text: 'Quick start'
+        primary: true
+        theme: 'action'
+        url: './pages/learn/quick-start.html'
+
+  - type: 'card-layout-block'
+    title: 'Documentation tracks'
+    description: 'Each track has a different job. Start with Learn; open the others when you need them.'
+    colSizes:
+      all: 12
+      xl: 3
+      lg: 3
+      md: 6
+      sm: 12
+    indent:
+      top: 'm'
+      bottom: 's'
+    children:
+      - type: 'basic-card'
+        icon:
+          src: './_assets/icons/combine.svg'
+        iconPosition: 'top'
+        title: 'Learn'
+        text: 'Mental model, minimal app, deployment checklist.'
+        url: './pages/learn/overview.html'
+        urlTitle: 'Start learning'
+        border: 'shadow'
+        controlPosition: 'content'
+      - type: 'basic-card'
+        icon:
+          src: './_assets/icons/engine.svg'
+        iconPosition: 'top'
+        title: 'Guide'
+        text: 'Adapters, engines, route, security, and webhook behavior — one topic per page.'
+        url: './pages/web/overview.html'
+        urlTitle: 'Open guide'
+        border: 'shadow'
+        controlPosition: 'content'
+      - type: 'basic-card'
+        icon:
+          src: './_assets/icons/webhook.svg'
+        iconPosition: 'top'
+        title: 'Recipes'
+        text: 'Single-bot and multi-bot project layout after the basics work.'
+        url: './pages/recipes/single-bot.html'
+        urlTitle: 'Open recipes'
+        border: 'shadow'
+        controlPosition: 'content'
+      - type: 'basic-card'
+        icon:
+          src: './_assets/icons/security.svg'
+        iconPosition: 'top'
+        title: 'Reference'
+        text: 'WebhookConfig fields, HTTP errors, and import table.'
+        url: './pages/other/webhook-config.html'
+        urlTitle: 'Open reference'
+        border: 'shadow'
+        controlPosition: 'content'
+
+  - type: 'card-layout-block'
+    title: 'Guide topics'
+    colSizes:
+      all: 12
+      xl: 3
+      lg: 3
+      md: 6
+      sm: 12
+    indent:
+      top: 's'
+      bottom: 's'
+    children:
+      - type: 'basic-card'
+        icon:
+          src: './_assets/icons/adapter.svg'
+        iconPosition: 'top'
+        title: 'Web adapters'
+        text: 'FastAPI, aiohttp, or a custom framework boundary.'
+        url: './pages/web/overview.html'
+        urlTitle: 'Web adapters'
+        border: 'line'
+        controlPosition: 'content'
+      - type: 'basic-card'
+        icon:
+          src: './_assets/icons/engine.svg'
+        iconPosition: 'top'
+        title: 'Engines'
+        text: 'SingleBotEngine, TokenEngine, or a custom resolver.'
+        url: './pages/engines/overview.html'
+        urlTitle: 'Engines'
+        border: 'line'
+        controlPosition: 'content'
+      - type: 'basic-card'
+        icon:
+          src: './_assets/icons/route.svg'
+        iconPosition: 'top'
+        title: 'Route'
+        text: 'Build Telegram webhook URLs and validate parameters.'
+        url: './pages/route/overview.html'
+        urlTitle: 'Route'
+        border: 'line'
+        controlPosition: 'content'
+      - type: 'basic-card'
+        icon:
+          src: './_assets/icons/security.svg'
+        iconPosition: 'top'
+        title: 'Security'
+        text: 'Secret token, IP allowlist, and custom checks.'
+        url: './pages/security/overview.html'
+        urlTitle: 'Security'
+        border: 'line'
+        controlPosition: 'content'
+
+  - type: 'content-layout-block'
+    textWidth: 'l'
+    textContent:
+      title: 'Smallest wiring'
+      text: |
+        ```python
+        engine = SingleBotEngine(
+            dispatcher,
+            bot,
+            web=FastAPIAdapter(),
+            route=Route(base_url="https://example.com", path="/webhook"),
+        )
+        app = FastAPI()
+        engine.register(app)
+        ```
+
+        Full example with handlers, security, and `set_webhook()`: [Quick start](./pages/learn/quick-start.html).

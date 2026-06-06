@@ -1,0 +1,70 @@
+langs: ['en']
+
+linkify: true
+lint: true
+sanitizeHtml: true
+allowHtml: true # for metrika
+staticContent: true
+strict: true
+supportGithubAnchors: true
+
+vcs: true
+mtimes: true
+authors: true
+
+extensions:
+  - github-vcs
+  - './extensions/vcs-control'
+  - './extensions/breadcrumbs'
+  - name: mdit-plugins
+    plugins:
+      - '@diplodoc/transform/lib/plugins/checkbox'
+
+analytics:
+  metrika:
+    - id: 109620556
+      params:
+        clickmap: true
+        webvisor: true
+        accurateTrackBounce: true
+        trackLinks: true
+
+allowCustomResources: true
+resources:
+  style:
+    - _assets/style/custom.css
+  script:
+    - _assets/script/fix_code_blocks.js
+
+docs-viewer: 
+  project-name: aiogram-webhook
+  lang: 'en'
+  langs: ['en']
+  favicon-src: _assets/brand/favicon.ico
+  github-url-prefix: https://github.com/diplodoc-platform/docs/blob/master
+  logo-options:
+    url: https://google.com
+    src: _assets/brand/favicon.ico
+    src-dark: _assets/brand/favicon.ico
+    src-preview: _assets/brand/banner.png
+    title: aiogram-webhook
+  themes: ['dark', 'light']
+
+search:
+  provider: local
+
+skipHtmlExtension: true
+
+vcsType: github
+
+vcsControl:
+  url: 'https://github.com/m-xim/aiogram-webhook/edit/main/docs/{path}'
+  type: 'github'
+
+breadcrumbs:
+  tocAsRoot: true
+  appendLabeled: false
+
+codeHighlight:
+  light: github
+  dark: github-dark

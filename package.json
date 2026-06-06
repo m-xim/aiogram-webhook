@@ -1,0 +1,21 @@
+{
+  "name": "aiogram-webhook",
+  "version": "1.0.0",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "build": "rimraf docs-html && yfm -i ./docs -o ./docs-html",
+    "web": "http-server ./docs-html",
+    "docs": "npm run build && npm run web"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "http-server": "^14.1.1",
+    "rimraf": "^6.0.1"
+  },
+  "dependencies": {
+    "@diplodoc/cli": "github:m-xim/diplodoc-cli#all"
+  }
+}

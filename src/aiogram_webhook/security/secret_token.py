@@ -3,9 +3,9 @@ from abc import ABC, abstractmethod
 from hmac import compare_digest
 from typing import Final
 
-from aiogram import Dispatcher
-
-from aiogram_webhook.adapters.base_adapter import BoundRequest
+from aiogram_webhook.engines.target import Target
+from aiogram_webhook.route.params import RouteParams
+from aiogram_webhook.web.base import WebRequest
 
 SECRET_TOKEN_PATTERN = re.compile(r"^[A-Za-z0-9_-]{1,256}$")
 SECRET_TOKEN_HEADER: Final[str] = "x-telegram-bot-api-secret-token"  # noqa: S105
@@ -16,18 +16,27 @@ class SecretToken(ABC):
     Base class for secret token verification in webhook requests.
     """
 
-    async def verify(self, bot_token: str, bound_request: BoundRequest, dispatcher: Dispatcher) -> bool:  # noqa: ARG002
-        incoming_secret_token = bound_request.headers.get(SECRET_TOKEN_HEADER)
+    async def verify(self, target: Target, request: WebRequest, route_params: RouteParams) -> bool:  # noqa: ARG002
+        """
+        Verify the incoming secret token from the request.
+
+        :param target: The target bot information.
+        :param request: The webhook request object.
+        :param route_params: Route parameters mapping.
+        :return: True if the token is valid, False otherwise.
+        """
+        incoming_secret_token = request.headers.get(SECRET_TOKEN_HEADER)
         if incoming_secret_token is None:
             return False
-        return compare_digest(incoming_secret_token, await self.secret_token(bot_token))
+        return compare_digest(incoming_secret_token, await self.secret_token(target=target))
 
     @abstractmethod
-    async def secret_token(self, bot_token: str) -> str:
+    async def secret_token(self, target: Target) -> str:
         """
         Return the webhook secret token associated with the given bot token.
 
-        :param bot_token: Bot token used to resolve expected secret token.
+        :param target: The target bot information.
+        :return: The secret token string for this bot.
         """
         raise NotImplementedError
 
@@ -45,5 +54,11 @@ class StaticSecretToken(SecretToken):
             raise ValueError("Invalid secret token format. Must be 1-256 characters, only A-Z, a-z, 0-9, _, -.")
         self.__secret_token = secret_token
 
-    async def secret_token(self, bot_token: str) -> str:  # noqa: ARG002
+    async def secret_token(self, target: Target) -> str:  # noqa: ARG002
+        """
+        Return the static secret token.
+
+        :param target: The target bot information (unused for static tokens).
+        :return: The configured secret token.
+        """
         return self.__secret_token
