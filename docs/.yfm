@@ -36,12 +36,13 @@ resources:
   script:
     - _assets/script/fix_code_blocks.js
 
+interface:
+  favicon-src: _assets/brand/favicon.ico
+
 docs-viewer: 
   project-name: aiogram-webhook
   lang: 'en'
   langs: ['en']
-  favicon-src: _assets/brand/favicon.ico
-  github-url-prefix: https://github.com/diplodoc-platform/docs/blob/master
   logo-options:
     url: https://google.com
     src: _assets/brand/favicon.ico
@@ -54,8 +55,6 @@ search:
   provider: local
 
 skipHtmlExtension: true
-
-vcsType: github
 
 vcsControl:
   url: 'https://github.com/m-xim/aiogram-webhook/edit/main/docs/{path}'
