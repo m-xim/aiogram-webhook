@@ -1,35 +1,33 @@
 # Single-bot App
 
-Use this recipe when one deployed service handles one Telegram bot. The component choice is simple: one engine, one route, one adapter, and one bot.
+Project shape for one Telegram bot on one service. For the runnable example, start with [Quick start](../learn/quick-start.md); this recipe adds structure and production knobs.
 
-## Component Choices
+## Components
 
-| Need | Component |
-| --- | --- |
-| One configured bot | `SingleBotEngine` |
-| FastAPI endpoint | `FastAPIAdapter` |
-| Public webhook URL | `Route(base_url=..., path=...)` |
-| Telegram request verification | `Security` with `StaticSecretToken` |
-| Telegram delivery options | `WebhookConfig` |
+| Need | Component | Guide |
+| --- | --- | --- |
+| One bot | `SingleBotEngine` | [SingleBotEngine](../engines/single-bot-engine.md) |
+| HTTP framework | `FastAPIAdapter` or `AiohttpAdapter` | [Web adapters](../web/overview.md) |
+| Public URL | `Route(base_url=..., path=...)` | [Route](../route/overview.md) |
+| Request verification | `Security` | [Security](../security/overview.md) |
+| Telegram delivery | `WebhookConfig` | [WebhookConfig](../other/webhook-config.md) |
 
-## Application Layout
+## Suggested layout
 
 ```text
 app/
-  bot.py
-  web.py
-  settings.py
+  bot.py        # handlers, Dispatcher, Router
+  web.py        # FastAPI/aiohttp app, engine wiring
+  settings.py   # tokens, base_url, secrets from env
 ```
 
-The important part is that the `Bot`, `Dispatcher`, `Route`, `Security`, and adapter are wired once.
+Wire `Bot`, `Dispatcher`, `Route`, `Security`, and the adapter once in `web.py`. Keep handlers free of HTTP details.
 
 {% include [Security warning](../../_includes/security-warning.md) %}
 
-## FastAPI Example
+## Webhook options
 
-{% include [FastAPI engine](../../_includes/fastapi-engine.md) %}
-
-## Add Webhook Options
+Add when defaults are not enough:
 
 ```python
 from aiogram_webhook import WebhookConfig
@@ -41,20 +39,18 @@ webhook_config = WebhookConfig(
 )
 ```
 
-| Option | Why it matters |
+| Option | Why |
 | --- | --- |
-| `allowed_updates` | Limits the update types Telegram sends. |
-| `drop_pending_updates` | Drops old queued updates during deployment or first setup. |
-| `max_connections` | Controls Telegram delivery concurrency. |
+| `allowed_updates` | Limits update types Telegram sends. |
+| `drop_pending_updates` | Clears stale queue on deploy or first setup. |
+| `max_connections` | Caps Telegram delivery concurrency. |
 
-## Shutdown Behavior
+## Shutdown
 
-During shutdown the engine rejects new webhook requests with `503`.
-Background tasks are closed before the bot session is closed.
+During shutdown the engine returns `503` for new webhook requests, waits for background tasks, then closes the bot session.
 
 {% note tip %}
 
-Keep long-running work outside the webhook request path.
-Acknowledge Telegram quickly, then use queues or background workers for expensive jobs.
+Keep expensive work off the webhook path. Acknowledge Telegram quickly; use a queue or worker for long jobs. See [Webhook behavior](../behavior/overview.md).
 
 {% endnote %}

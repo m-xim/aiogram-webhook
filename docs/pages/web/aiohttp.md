@@ -4,6 +4,8 @@
 
 Use it when your service already uses aiohttp or when you prefer aiohttp's lower-level web primitives.
 
+Runnable example with handlers and security: [Quick start — aiohttp](../learn/quick-start.md#minimal-app).
+
 ```python
 from aiohttp import web
 from aiogram import Bot, Dispatcher

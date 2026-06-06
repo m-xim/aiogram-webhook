@@ -1,16 +1,16 @@
 # SingleBotEngine
 
-`SingleBotEngine` handles one configured `Bot` instance. Every accepted webhook request is dispatched to that bot.
+Handles one configured `Bot`. Every accepted webhook request dispatches to that instance.
 
-## When to use it
+## When to use
 
-Use `SingleBotEngine` when:
+* One deployed application serves one Telegram bot.
+* The webhook URL does not need to identify which bot to use.
+* You want the simplest production path.
 
-* one deployed application serves one Telegram bot;
-* the webhook URL does not need to identify a bot;
-* you want the simplest production setup.
+For several bots identified by URL token, use [TokenEngine](token-engine.md).
 
-## Minimal setup
+## Setup
 
 ```python
 from aiogram import Bot, Dispatcher
@@ -30,20 +30,19 @@ engine = SingleBotEngine(
 )
 ```
 
-## How it combines with other parts
+Full example with handlers and security: [Quick start](../learn/quick-start.md#minimal-app).
 
-| Part | Typical value |
+## Typical pairing
+
+| Part | Value |
 | --- | --- |
-| Web | `FastAPIAdapter()` or `AiohttpAdapter()`. |
-| Route | Static path such as `/webhook`. |
-| Security | `StaticSecretToken` and optional `IPCheck`. |
-| Webhook options | One shared `WebhookConfig`. |
+| Route | Static path, e.g. `/webhook` |
+| Security | `StaticSecretToken` + `IPCheck` in production |
+| WebhookConfig | One shared config for the bot |
 
-Call `await engine.set_webhook()` when your public HTTPS endpoint is ready.
+{% include [Register vs setWebhook](../../_includes/register-vs-set-webhook.md) %}
 
 ## Telegram options
-
-`SingleBotEngine` uses one `WebhookConfig` for one Telegram webhook.
 
 ```python
 engine = SingleBotEngine(
@@ -58,22 +57,13 @@ engine = SingleBotEngine(
 )
 ```
 
-## Startup and shutdown
+Field reference: [WebhookConfig](../other/webhook-config.md).
 
-During engine startup, `SingleBotEngine` adds the configured `bot` to dispatcher startup workflow data.
+## Lifecycle
 
-| Hook | What happens |
+| Phase | Behavior |
 | --- | --- |
-| Startup | Emits dispatcher startup with `bot`, `app`, `dispatcher`, and `webhook_engine`. |
-| Shutdown | Rejects late webhook requests, waits for tracked tasks, emits dispatcher shutdown, and closes the bot session when owned by the engine. |
+| Startup | `emit_startup` with `bot`, `app`, `dispatcher`, `webhook_engine` in workflow data |
+| Shutdown | Rejects new requests (`503`), drains background tasks, `emit_shutdown`, closes bot session |
 
-Call `set_webhook()` from your web framework startup or lifespan function:
-
-```python
-@asynccontextmanager
-async def lifespan(app):
-    await engine.set_webhook()
-    yield
-```
-
-`engine.register(app)` wires local framework callbacks. `engine.set_webhook()` calls Telegram.
+Background dispatch and `handle_in_background`: [Webhook behavior](../behavior/overview.md).

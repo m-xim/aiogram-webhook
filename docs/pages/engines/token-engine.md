@@ -124,3 +124,5 @@ async def set_webhooks(app):
 ```
 
 `engine.register(app)` wires local framework callbacks. `engine.add_bot()` resolves the bot and calls Telegram.
+
+End-to-end multi-bot layout: [Multi-bot app](../recipes/multi-bot.md).

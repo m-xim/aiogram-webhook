@@ -5,7 +5,7 @@
     "doc": "docs"
   },
   "scripts": {
-    "build": "rimraf docs-html docs-md && yfm -i ./docs -o ./docs-html",
+    "build": "rimraf docs-html && yfm -i ./docs -o ./docs-html",
     "web": "http-server ./docs-html",
     "docs": "npm run build && npm run web"
   },

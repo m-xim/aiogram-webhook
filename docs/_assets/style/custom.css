@@ -23,7 +23,7 @@
   }
 }
 
-.g-root_theme_dark .pc-content-wrapper__icon[src$="github-mark.png"] {
+.g-root_theme_dark .pc-content-wrapper__icon[src*="github-dark"] {
   filter: invert(1);
 }
 

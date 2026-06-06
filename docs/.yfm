@@ -1,51 +1,61 @@
-title: aiogram-webhook
-description: Webhook integration for aiogram with FastAPI and aiohttp
-lang: en
-strict: true
+langs: ['en']
+
 linkify: true
-breaks: true
-allowCustomResources: true
+lint: true
+sanitizeHtml: true
+allowHtml: true # for metrika
 staticContent: true
-skipHtmlExtension: true
+strict: true
 supportGithubAnchors: true
 
-interface:
-  favicon-src: _assets/brand/favicon.ico
-  logo: _assets/brand/favicon.ico
-  feedback: false
-  toc: true
-  toc-header: true
-  search: true
+vcs: true
+mtimes: true
+authors: true
 
+extensions:
+  - github-vcs
+  - './extensions/vcs-control'
+  - './extensions/breadcrumbs'
+  - name: mdit-plugins
+    plugins:
+      - '@diplodoc/transform/lib/plugins/checkbox'
+
+analytics:
+  metrika:
+    - id: 109620556
+      params:
+        clickmap: true
+        webvisor: true
+        accurateTrackBounce: true
+        trackLinks: true
+
+allowCustomResources: true
 resources:
   style:
     - _assets/style/custom.css
   script:
     - _assets/script/fix_code_blocks.js
 
-docs-viewer:
-  lang: en
+docs-viewer: 
+  project-name: aiogram-webhook
+  lang: 'en'
+  langs: ['en']
+  favicon-src: _assets/brand/favicon.ico
+  github-url-prefix: https://github.com/diplodoc-platform/docs/blob/master
   logo-options:
+    url: https://google.com
     src: _assets/brand/favicon.ico
     src-dark: _assets/brand/favicon.ico
-    url: https://github.com/m-xim/aiogram-webhook
+    src-preview: _assets/brand/banner.png
     title: aiogram-webhook
-  project-name: aiogram-webhook
+  themes: ['dark', 'light']
 
 search:
   provider: local
-  tolerance: 2
-  confidense: phrased
 
-vcs: true
-mtimes: true
-authors: true
-contributors: true
+skipHtmlExtension: true
 
-extensions:
-  - github-vcs
-  - './extensions/vcs-control'
-  - './extensions/breadcrumbs'
+vcsType: github
 
 vcsControl:
   url: 'https://github.com/m-xim/aiogram-webhook/edit/main/docs/{path}'

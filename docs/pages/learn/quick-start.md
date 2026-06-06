@@ -1,10 +1,19 @@
 # Quick Start
 
-This page installs `aiogram-webhook` and shows the shortest useful setup for a single bot.
+Copy-paste path from zero to a running webhook app. For the mental model and request diagram, read [What is aiogram-webhook?](overview.md) first.
+
+## Before you start
+
+| Requirement | Details |
+| --- | --- |
+| Python | 3.10 or newer |
+| aiogram | 3.14 or newer (installed with the package) |
+| Bot token | From [@BotFather](https://t.me/BotFather) |
+| Public HTTPS URL | Required before `set_webhook()` — use a tunnel locally |
+
+Pick the framework tab that matches your project.
 
 ## Install
-
-`aiogram-webhook` requires Python 3.10 or newer and aiogram 3.14 or newer.
 
 {% list tabs group=package-manager %}
 - pip
@@ -22,23 +31,21 @@ This page installs `aiogram-webhook` and shows the shortest useful setup for a s
   ```
 {% endlist %}
 
-
-## Optional extras
-
-| Extra | Installs | Use it when |
-| --- | --- | --- |
-| `fastapi` | FastAPI integration dependencies | Your webhook endpoint is served by a FastAPI application. |
-| `aiohttp` | aiohttp integration dependencies | Your webhook endpoint is served by an aiohttp application. |
-| none | Core aiogram webhook logic | You write your own `WebAdapter` or only use shared route/security helpers. |
+| Extra | Use when |
+| --- | --- |
+| `fastapi` | Webhook endpoint lives in a FastAPI app. |
+| `aiohttp` | Webhook endpoint lives in an aiohttp app. |
+| none | You build a [custom adapter](../web/custom.md) or use route/security helpers only. |
 
 {% note info %}
 
-`FastAPIAdapter` is exported from `aiogram_webhook` only when FastAPI is installed.
-`AiohttpAdapter` is always importable because aiohttp is already used by aiogram's default HTTP session.
+`FastAPIAdapter` imports from `aiogram_webhook` only when FastAPI is installed. `AiohttpAdapter` is always available — aiohttp is already used by aiogram's default HTTP session.
 
 {% endnote %}
 
 ## Minimal app
+
+Replace `BOT_TOKEN`, `https://example.com`, and `webhook-secret`. `base_url` must be the HTTPS origin Telegram can reach.
 
 {% include [Security warning](../../_includes/security-warning.md) %}
 
@@ -135,20 +142,25 @@ This page installs `aiogram-webhook` and shows the shortest useful setup for a s
 
 {% endlist %}
 
-## What the engine does
+## What happens at runtime
 
-1. Registers a `POST` endpoint in the selected web framework.
-2. Matches path and query parameters with `Route`.
-3. Resolves the bot target.
-4. Runs security checks when configured.
-5. Parses Telegram's update JSON.
-6. Feeds the update into the aiogram `Dispatcher`.
-7. Returns either an empty `200` JSON response or a Telegram method payload.
+When a user sends `/start`:
 
-{% cut "When should I call set_webhook?" %}
+1. Telegram `POST`s JSON to your public URL.
+2. Security checks the secret token and source IP.
+3. The engine feeds the update to aiogram in the background.
+4. Your handler calls `message.answer("OK")` through the Bot API.
+5. Telegram gets an empty `200` from the webhook request itself.
 
-Call `set_webhook()` from your application startup code after the public URL is reachable.
-For `SingleBotEngine`, this method is available directly on the engine.
-For `TokenEngine`, call `add_bot(token)` for every bot you want to register; it creates or reuses a `Bot`, builds its URL, and calls Telegram's `setWebhook`.
+Step 4 is a separate HTTP call — normal for [background mode](../behavior/overview.md). Full sequence diagram: [What is aiogram-webhook?](overview.md#one-update-end-to-end).
 
-{% endcut %}
+{% include [Register vs setWebhook](../../_includes/register-vs-set-webhook.md) %}
+
+## Next steps
+
+| Goal | Page |
+| --- | --- |
+| Deploy behind HTTPS, verify Telegram accepted the URL | [First webhook](first-webhook.md) |
+| Understand one component | [Guide: Web adapters](../web/overview.md), [Engines](../engines/overview.md), [Route](../route/overview.md), [Security](../security/overview.md) |
+| Production project layout | [Single-bot app](../recipes/single-bot.md) |
+| HTTP `403` / `404` / `503` | [Errors](../other/errors.md) |

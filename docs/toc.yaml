@@ -14,7 +14,7 @@ navigation:
       - text: "GitHub"
         type: "link"
         url: "https://github.com/m-xim/aiogram-webhook"
-        icon: "_assets/icons/github-mark.png"
+        icon: "_assets/icons/github-dark.svg"
         iconSize: 16
 
       - text: "PyPI"
@@ -44,18 +44,18 @@ items:
       - name: First webhook
         href: pages/learn/first-webhook.md
 
-  - name: Main components
+  - name: Guide
     labeled: true
     items:
-      - name: Webs
-        href: pages/webs/overview.md
+      - name: Web adapters
+        href: pages/web/overview.md
         items:
           - name: FastAPI
-            href: pages/webs/fastapi.md
+            href: pages/web/fastapi.md
           - name: aiohttp
-            href: pages/webs/aiohttp.md
+            href: pages/web/aiohttp.md
           - name: Custom adapter
-            href: pages/webs/custom.md
+            href: pages/web/custom.md
       - name: Engines
         href: pages/engines/overview.md
         items:
@@ -63,6 +63,8 @@ items:
             href: pages/engines/single-bot-engine.md
           - name: TokenEngine
             href: pages/engines/token-engine.md
+          - name: Custom engine
+            href: pages/engines/custom-engine.md
       - name: Route
         href: pages/route/overview.md
         items:
@@ -70,7 +72,6 @@ items:
             href: pages/route/path-parameters.md
           - name: Query parameters
             href: pages/route/query-parameters.md
-
       - name: Security
         href: pages/security/overview.md
         items:
@@ -80,14 +81,15 @@ items:
             href: pages/security/ip-check.md
           - name: Custom checks
             href: pages/security/custom-checks.md
-
-  - name: Webhook behavior
-    labeled: true
-    items:
-      - name: Behavior choices
+          - name: Custom secret token
+            href: pages/security/custom-secret-token.md
+      - name: Webhook behavior
         href: pages/behavior/overview.md
-      - name: Webhook replies
-        href: pages/behavior/webhook-replies.md
+        items:
+          - name: Webhook replies
+            href: pages/behavior/webhook-replies.md
+      - name: Custom integrations
+        href: pages/extending/overview.md
 
   - name: Recipes
     labeled: true
@@ -97,7 +99,7 @@ items:
       - name: Multi-bot app
         href: pages/recipes/multi-bot.md
 
-  - name: Other
+  - name: Reference
     labeled: true
     items:
       - name: WebhookConfig

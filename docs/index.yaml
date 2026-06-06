@@ -5,7 +5,7 @@ meta:
 blocks:
   - type: 'header-block'
     title: 'Aiogram-webhook'
-    description: 'A modular Python library for seamless webhook integration with multiple web frameworks in aiogram. It enables both single and multi-bot operation via webhooks, with flexible routing and security features.'
+    description: 'Connect aiogram bots to Telegram webhooks. Follow Learn for a first app, then open Guide when you need one component in depth.'
     background:
       dark:
         color: '#101827'
@@ -14,17 +14,17 @@ blocks:
         color: '#f6f9ff'
         fullWidth: true
     buttons:
+      - text: 'What is it?'
+        theme: 'outlined'
+        url: './pages/learn/overview.html'
       - text: 'Quick start'
         primary: true
         theme: 'action'
         url: './pages/learn/quick-start.html'
-      - text: 'First webhook'
-        theme: 'outlined'
-        url: './pages/learn/first-webhook.html'
 
   - type: 'card-layout-block'
-    title: 'Main building blocks'
-    description: 'The important parts are visible directly in the navigation.'
+    title: 'Documentation tracks'
+    description: 'Each track has a different job. Start with Learn; open the others when you need them.'
     colSizes:
       all: 12
       xl: 3
@@ -37,48 +37,47 @@ blocks:
     children:
       - type: 'basic-card'
         icon:
-          src: './_assets/icons/adapter.svg'
+          src: './_assets/icons/combine.svg'
         iconPosition: 'top'
-        title: 'Webs'
-        text: 'Choose FastAPI, aiohttp, or a custom web adapter for your framework boundary.'
-        url: './pages/webs/overview.html'
-        urlTitle: 'Open webs'
+        title: 'Learn'
+        text: 'Mental model, minimal app, deployment checklist.'
+        url: './pages/learn/overview.html'
+        urlTitle: 'Start learning'
         border: 'shadow'
         controlPosition: 'content'
       - type: 'basic-card'
         icon:
           src: './_assets/icons/engine.svg'
         iconPosition: 'top'
-        title: 'Engines'
-        text: 'Resolve the target bot, call aiogram dispatcher, and control background handling.'
-        url: './pages/engines/overview.html'
-        urlTitle: 'Open engines'
+        title: 'Guide'
+        text: 'Adapters, engines, route, security, and webhook behavior — one topic per page.'
+        url: './pages/web/overview.html'
+        urlTitle: 'Open guide'
         border: 'shadow'
         controlPosition: 'content'
       - type: 'basic-card'
         icon:
-          src: './_assets/icons/route.svg'
+          src: './_assets/icons/webhook.svg'
         iconPosition: 'top'
-        title: 'Route'
-        text: 'Build Telegram webhook URLs and validate path and query parameters.'
-        url: './pages/route/overview.html'
-        urlTitle: 'Open route'
+        title: 'Recipes'
+        text: 'Single-bot and multi-bot project layout after the basics work.'
+        url: './pages/recipes/single-bot.html'
+        urlTitle: 'Open recipes'
         border: 'shadow'
         controlPosition: 'content'
       - type: 'basic-card'
         icon:
           src: './_assets/icons/security.svg'
         iconPosition: 'top'
-        title: 'Security'
-        text: 'Verify Telegram secret-token headers, IP ranges, and custom request checks before dispatch.'
-        url: './pages/security/overview.html'
-        urlTitle: 'Open security'
+        title: 'Reference'
+        text: 'WebhookConfig fields, HTTP errors, and import table.'
+        url: './pages/other/webhook-config.html'
+        urlTitle: 'Open reference'
         border: 'shadow'
         controlPosition: 'content'
 
   - type: 'card-layout-block'
-    title: 'Configuration and behavior'
-    description: 'Tune Telegram registration and understand how requests are handled.'
+    title: 'Guide topics'
     colSizes:
       all: 12
       xl: 3
@@ -91,113 +90,59 @@ blocks:
     children:
       - type: 'basic-card'
         icon:
-          src: './_assets/icons/webhook.svg'
+          src: './_assets/icons/adapter.svg'
         iconPosition: 'top'
-        title: 'Telegram options'
-        text: 'Configure `setWebhook` fields such as allowed updates, pending updates, and max connections.'
-        url: './pages/configuration/telegram-options.html'
-        urlTitle: 'Open options'
+        title: 'Web adapters'
+        text: 'FastAPI, aiohttp, or a custom framework boundary.'
+        url: './pages/web/overview.html'
+        urlTitle: 'Web adapters'
         border: 'line'
         controlPosition: 'content'
       - type: 'basic-card'
         icon:
           src: './_assets/icons/engine.svg'
         iconPosition: 'top'
-        title: 'TokenEngine config'
-        text: 'Configure bot creation defaults and per-bot webhook options for multi-bot apps.'
-        url: './pages/engines/token-engine.html'
-        urlTitle: 'Open TokenEngine'
+        title: 'Engines'
+        text: 'SingleBotEngine, TokenEngine, or a custom resolver.'
+        url: './pages/engines/overview.html'
+        urlTitle: 'Engines'
         border: 'line'
         controlPosition: 'content'
       - type: 'basic-card'
         icon:
-          src: './_assets/icons/lifecycle.svg'
+          src: './_assets/icons/route.svg'
         iconPosition: 'top'
-        title: 'Webhook behavior'
-        text: 'Read about background handling, webhook replies, startup, and shutdown.'
-        url: './pages/behavior/overview.html'
-        urlTitle: 'Open behavior'
+        title: 'Route'
+        text: 'Build Telegram webhook URLs and validate parameters.'
+        url: './pages/route/overview.html'
+        urlTitle: 'Route'
         border: 'line'
         controlPosition: 'content'
       - type: 'basic-card'
         icon:
           src: './_assets/icons/security.svg'
         iconPosition: 'top'
-        title: 'Operations'
-        text: 'Debug public error responses and prepare production deployments.'
-        url: './pages/other/errors.html'
-        urlTitle: 'Open operations'
+        title: 'Security'
+        text: 'Secret token, IP allowlist, and custom checks.'
+        url: './pages/security/overview.html'
+        urlTitle: 'Security'
         border: 'line'
         controlPosition: 'content'
 
   - type: 'content-layout-block'
     textWidth: 'l'
     textContent:
-      title: 'Minimal FastAPI setup'
+      title: 'Smallest wiring'
       text: |
         ```python
-        from aiogram import Bot, Dispatcher
-        from fastapi import FastAPI
-
-        from aiogram_webhook import FastAPIAdapter, SingleBotEngine
-        from aiogram_webhook.route import Route
-
-        dispatcher = Dispatcher()
-        bot = Bot("BOT_TOKEN")
-
         engine = SingleBotEngine(
             dispatcher,
             bot,
             web=FastAPIAdapter(),
             route=Route(base_url="https://example.com", path="/webhook"),
         )
-
         app = FastAPI()
         engine.register(app)
         ```
 
-        Call `await engine.set_webhook()` during application startup when your public HTTPS URL is ready.
-
-  - type: 'card-layout-block'
-    title: 'Recipes'
-    description: 'Use these after the individual parts are clear.'
-    colSizes:
-      all: 12
-      xl: 4
-      lg: 4
-      md: 6
-      sm: 12
-    indent:
-      top: 's'
-      bottom: 'm'
-    children:
-      - type: 'basic-card'
-        icon:
-          src: './_assets/icons/combine.svg'
-        iconPosition: 'left'
-        title: 'First webhook'
-        text: 'Combine `SingleBotEngine`, `Route`, one adapter, and optional `Security` for a first endpoint.'
-        url: './pages/learn/first-webhook.html'
-        urlTitle: 'Start guide'
-        border: 'line'
-        controlPosition: 'content'
-      - type: 'basic-card'
-        icon:
-          src: './_assets/icons/engine.svg'
-        iconPosition: 'left'
-        title: 'Multi-bot app'
-        text: 'Combine `TokenEngine`, `BotTokenParam`, `BotConfig`, and shared webhook defaults.'
-        url: './pages/recipes/multi-bot.html'
-        urlTitle: 'Multi-bot guide'
-        border: 'line'
-        controlPosition: 'content'
-      - type: 'basic-card'
-        icon:
-          src: './_assets/icons/webhook.svg'
-        iconPosition: 'left'
-        title: 'Errors'
-        text: 'Map public HTTP responses to route, security, engine, and shutdown causes.'
-        url: './pages/other/errors.html'
-        urlTitle: 'Error guide'
-        border: 'line'
-        controlPosition: 'content'
+        Full example with handlers, security, and `set_webhook()`: [Quick start](./pages/learn/quick-start.html).

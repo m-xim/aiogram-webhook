@@ -1,19 +1,19 @@
-![PyPI version](docs/_assets/brand/banner.png)
+![Версия PyPI](docs/_assets/brand/banner.png)
 
-# aiogram-webhook
-[![PyPI version](https://img.shields.io/pypi/v/aiogram-webhook?color=blue)](https://pypi.org/project/aiogram-webhook)
+# aiogram-веб-крючок
+[![Версия PyPI](https://img.shields.io/pypi/v/aiogram-webhook?color=blue)](https://pypi.org/project/aiogram-webhook)
 [![codecov](https://codecov.io/github/m-xim/aiogram-webhook/graph/badge.svg?token=H21MX17Y7D)](https://codecov.io/github/m-xim/aiogram-webhook)
-[![Tests Status](https://github.com/m-xim/aiogram-webhook/actions/workflows/tests.yml/badge.svg)](https://github.com/m-xim/aiogram-webhook/actions)
-[![Release Status](https://github.com/m-xim/aiogram-webhook/actions/workflows/release.yml/badge.svg)](https://github.com/m-xim/aiogram-webhook/actions)
-[![License](https://img.shields.io/github/license/m-xim/aiogram-webhook.svg)](/LICENSE)
-[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/m-xim/aiogram-webhook)
-[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![Статус тестирования](https://github.com/m-xim/aiogram-webhook/actions/workflows/tests.yml/badge.svg)](https://github.com/m-xim/aiogram-webhook/actions)
+[![Статус выпуска](https://github.com/m-xim/aiogram-webhook/actions/workflows/release.yml/badge.svg)](https://github.com/m-xim/aiogram-webhook/actions)
+[![Лицензия](https://img.shields.io/github/license/m-xim/aiogram-webhook.svg)](/LICENSE)
+[![Спросите у DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/m-xim/aiogram-webhook)
+[![Ерш](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![ty](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ty/main/assets/badge/v0.json)](https://github.com/astral-sh/ty)
 
-`aiogram-webhook` is a modular Python library for webhook integration in aiogram.
-It supports single-bot and token-based multi-bot setups, with route building, optional request checks, and adapters for FastAPI and aiohttp.
+`aiogram-webhook` это модульная библиотека Python для интеграции webhook в aiogram.
+Он поддерживает настройки с одним ботом и несколькими ботами на основе токенов, с построением маршрута, дополнительной проверкой запросов и адаптерами для FastAPI и aiohttp.
 
-## Install
+## Устанавливать
 
 ```bash
 pip install aiogram-webhook
@@ -21,7 +21,7 @@ pip install "aiogram-webhook[fastapi]"
 pip install "aiogram-webhook[aiohttp]"
 ```
 
-## Quick Start
+## быстрый старт
 
 ```python
 from aiogram import Bot, Dispatcher
@@ -44,9 +44,9 @@ app = FastAPI()
 engine.register(app)
 ```
 
-Call `await engine.set_webhook()` during your application startup to register the public webhook URL in Telegram.
-For production, pass `security=Security(...)` to verify Telegram requests.
+Вызов `подождите, пока engine.установит_webhook()` во время запуска вашего приложения зарегистрируйте общедоступный URL-адрес webhook в Telegram.
+В процессе работы введите команду `security=Безопасность(...)` для проверки запросов Telegram.
 
-## Documentation
+## Документация
 
-The full documentation is in [`docs`](https://aiogram-webhook.m-xim.ru). It covers installation, FastAPI and aiohttp setup, routing, security, lifecycle behavior, and the public API.
+Полная документация находится в [`доктора`](https://aiogram-webhook.m-xim.ru). Он охватывает установку, настройку FastAPI и aiohttp, маршрутизацию, безопасность, поведение в течение жизненного цикла и общедоступный API.

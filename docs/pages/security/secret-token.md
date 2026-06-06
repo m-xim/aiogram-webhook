@@ -29,3 +29,7 @@ The engine compares the incoming header with the configured token using constant
 
 When a secret token provider is configured, the engine also adds `secret_token` to Telegram `setWebhook` arguments. This keeps registration and verification aligned.
 
+## Per-bot secrets
+
+`StaticSecretToken` returns the same value for every `Target`. For secrets loaded per bot from storage or a vault, implement `SecretToken` — see [Custom secret token](custom-secret-token.md).
+

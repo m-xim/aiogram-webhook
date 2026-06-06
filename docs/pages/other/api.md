@@ -31,4 +31,14 @@ This reference lists the public objects users normally import.
 | `StaticSecretToken` | Static Telegram secret-token provider and verifier. |
 | `IPCheck` | Allows requests from configured IP addresses and networks. |
 | `SecurityCheck` | Protocol for custom checks. |
-| `SecretToken` | Base class for custom secret-token providers. |
+| `SecretToken` | Base class for custom secret-token providers. See [Custom secret token](../security/custom-secret-token.md). |
+
+## Extension bases (import from submodules)
+
+| Import path | Purpose |
+| --- | --- |
+| `aiogram_webhook.web.base.WebAdapter` | Custom HTTP framework integration. |
+| `aiogram_webhook.engines.base.BaseWebhookEngine` | Custom single-target engine logic. |
+| `aiogram_webhook.engines.multi.BaseMultiBotEngine` | Custom multi-bot engine with shared bot cache. |
+
+See [Custom integrations](../extending/overview.md).
