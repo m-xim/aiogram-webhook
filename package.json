@@ -9,14 +9,10 @@
     "web": "http-server ./docs-html",
     "docs": "npm run build && npm run web"
   },
-  "repository": {
-    "type": "git",
-    "url": "git@github.com-m:m-xim/aiogram-webhook.git"
-  },
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@diplodoc/cli": "github:m-xim/diplodoc-cli#all",
+    "@diplodoc/cli": "github:m-xim/diplodoc-cli",
     "http-server": "^14.1.1",
     "rimraf": "^6.0.1"
   }
