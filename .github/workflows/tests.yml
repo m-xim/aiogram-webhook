@@ -39,9 +39,16 @@ jobs:
         run: uv run ty check --output-format=github .
 
       - name: Run pytest
-        run: uv run pytest --cov --cov-branch --cov-report=xml
+        run: uv run pytest --cov --junitxml=junit.xml -o junit_family=legacy
 
       - name: Upload results to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v6
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Upload test results to Codecov
+        if: ${{ !cancelled() }}
+        uses: codecov/test-results-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          report-type: test_results
