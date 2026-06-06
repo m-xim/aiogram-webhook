@@ -59,3 +59,10 @@
 .yfm .yfm-note {
   border: 1px solid var(--g-color-line-generic);
 }
+
+/* Cut */
+/*.dc-doc-page .yfm .yfm-cut {*/
+/*  background-color: rgb(229, 236, 255); var(--g-color-base-simple-hover)*/
+/*  padding: 5px 14px 5px;*/
+/*  border-radius: 15px;*/
+/*}*/
