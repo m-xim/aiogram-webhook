@@ -83,11 +83,9 @@ items:
             href: pages/security/custom-checks.md
           - name: Custom secret token
             href: pages/security/custom-secret-token.md
-      - name: Webhook behavior
-        href: pages/behavior/overview.md
-        items:
-          - name: Webhook replies
-            href: pages/behavior/webhook-replies.md
+
+      - name: Dispatch Modes
+        href: pages/dispatch.md
       - name: Custom integrations
         href: pages/extending/overview.md
 

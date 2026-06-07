@@ -113,7 +113,7 @@ During engine startup, `TokenEngine` adds known `bots` to dispatcher startup wor
 | Hook | What happens |
 | --- | --- |
 | Startup | Emits dispatcher startup with `bots`, `app`, `dispatcher`, and `webhook_engine`. |
-| Shutdown | Rejects late webhook requests, waits for tracked tasks, emits dispatcher shutdown, and closes bot sessions owned by the engine. |
+| Shutdown | Rejects late webhook requests, drains all bot task trackers in parallel, emits dispatcher shutdown, and closes bot sessions owned by the engine. |
 
 Register each bot from your own startup flow:
 
@@ -124,5 +124,26 @@ async def set_webhooks(app):
 ```
 
 `engine.register(app)` wires local framework callbacks. `engine.add_bot()` resolves the bot and calls Telegram.
+
+### shutdown_timeout
+
+`shutdown_timeout` controls how long the engine waits for each bot's in-flight background tasks to finish before cancelling them. Default: `10.0` seconds.
+
+All bot trackers are drained in parallel, so total shutdown time is bounded by `shutdown_timeout` regardless of the number of bots registered.
+
+```python
+engine = TokenEngine(
+    dispatcher,
+    web=web,
+    route=route,
+    shutdown_timeout=30.0,
+)
+```
+
+{% note info %}
+
+The same timeout applies when removing a bot dynamically via `remove_bot()`.
+
+{% endnote %}
 
 End-to-end multi-bot layout: [Multi-bot app](../recipes/multi-bot.md).

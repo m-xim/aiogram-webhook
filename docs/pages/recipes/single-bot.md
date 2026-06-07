@@ -51,6 +51,6 @@ During shutdown the engine returns `503` for new webhook requests, waits for bac
 
 {% note tip %}
 
-Keep expensive work off the webhook path. Acknowledge Telegram quickly; use a queue or worker for long jobs. See [Webhook behavior](../behavior/overview.md).
+Keep expensive work off the webhook path. Acknowledge Telegram quickly; use a queue or worker for long jobs. See [Dispatch Modes](../dispatch.md).
 
 {% endnote %}

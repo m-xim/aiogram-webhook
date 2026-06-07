@@ -12,10 +12,10 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "http-server": "^14.1.1",
-    "rimraf": "^6.0.1"
+    "http-server": "^14.1.1"
   },
   "dependencies": {
-    "@diplodoc/cli": "github:m-xim/diplodoc-cli#all"
+    "@diplodoc/cli": "github:m-xim/diplodoc-cli#all",
+    "rimraf": "^6.0.1"
   }
 }

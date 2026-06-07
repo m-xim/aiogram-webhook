@@ -152,7 +152,7 @@ When a user sends `/start`:
 4. Your handler calls `message.answer("OK")` through the Bot API.
 5. Telegram gets an empty `200` from the webhook request itself.
 
-Step 4 is a separate HTTP call — normal for [background mode](../behavior/overview.md). Full sequence diagram: [What is aiogram-webhook?](overview.md#one-update-end-to-end).
+Step 4 is a separate HTTP call — normal for [background mode](../dispatch.md). Full sequence diagram: [What is aiogram-webhook?](overview.md#one-update-end-to-end).
 
 {% include [Register vs setWebhook](../../_includes/register-vs-set-webhook.md) %}
 

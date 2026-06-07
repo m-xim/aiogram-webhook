@@ -66,4 +66,24 @@ Field reference: [WebhookConfig](../other/webhook-config.md).
 | Startup | `emit_startup` with `bot`, `app`, `dispatcher`, `webhook_engine` in workflow data |
 | Shutdown | Rejects new requests (`503`), drains background tasks, `emit_shutdown`, closes bot session |
 
-Background dispatch and `handle_in_background`: [Webhook behavior](../behavior/overview.md).
+### shutdown_timeout
+
+`shutdown_timeout` controls how long the engine waits for in-flight background tasks to finish before cancelling them. Default: `10.0` seconds.
+
+```python
+engine = SingleBotEngine(
+    dispatcher,
+    bot,
+    web=web,
+    route=route,
+    shutdown_timeout=30.0,
+)
+```
+
+{% note tip %}
+
+Increase `shutdown_timeout` when handlers do slow work such as external API calls or file uploads. Decrease it when fast process exit matters more than draining every in-flight task.
+
+{% endnote %}
+
+Background dispatch and `handle_in_background`: [Dispatch Modes](../dispatch.md).
