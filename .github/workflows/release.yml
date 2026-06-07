@@ -9,6 +9,10 @@ jobs:
       group: ${{ github.workflow }}-release-${{ github.ref_name }}
       cancel-in-progress: true
 
+    environment:
+      name: pypi
+      url: https://pypi.org/project/aiogram-webhook
+
     permissions:
       id-token: write
       contents: write
