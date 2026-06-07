@@ -24,6 +24,7 @@ class BaseMultiBotEngine(
         route: Route,
         security: Security | None = None,
         handle_in_background: bool = True,
+        shutdown_timeout: float = 10.0,
     ) -> None:
 
         self.route = route
@@ -36,6 +37,7 @@ class BaseMultiBotEngine(
             route=route,
             security=security,
             handle_in_background=handle_in_background,
+            shutdown_timeout=shutdown_timeout,
         )
 
     @property

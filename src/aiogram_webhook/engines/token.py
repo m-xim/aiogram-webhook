@@ -31,6 +31,7 @@ class TokenEngine(
         bot_config: BotConfig | None = None,
         webhook_config: WebhookConfig | None = None,
         handle_in_background: bool = True,
+        shutdown_timeout: float = 10.0,
     ) -> None:
 
         super().__init__(
@@ -39,6 +40,7 @@ class TokenEngine(
             route=route,
             security=security,
             handle_in_background=handle_in_background,
+            shutdown_timeout=shutdown_timeout,
         )
 
         self.webhook_config = webhook_config or WebhookConfig()
@@ -115,7 +117,7 @@ class TokenEngine(
     async def _on_shutdown(self, app: AppT, *args, **kwargs) -> None:  # noqa: ARG002
         logger.info("Stopping token-based webhook engine with %s bot(s)", len(self._bots))
         for tracker in self._task_trackers.values():
-            await tracker.close()
+            await tracker.close(timeout=self.shutdown_timeout)
 
         self._task_trackers.clear()
 

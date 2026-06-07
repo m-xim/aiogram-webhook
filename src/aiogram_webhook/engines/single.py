@@ -24,6 +24,7 @@ class SingleBotEngine(
         security=None,
         webhook_config=None,
         handle_in_background: bool = True,
+        shutdown_timeout: float = 10.0,
     ) -> None:
         self.bot = bot
         self._task_tracker = TaskTracker()
@@ -35,6 +36,7 @@ class SingleBotEngine(
             security=security,
             webhook_config=webhook_config,
             handle_in_background=handle_in_background,
+            shutdown_timeout=shutdown_timeout,
         )
 
     async def _resolve_target(self, request: WebRequest[RawRequestT], route_params: RouteParams) -> Target | None:  # noqa: ARG002
@@ -58,7 +60,7 @@ class SingleBotEngine(
 
     async def _on_shutdown(self, app: AppT, *args, **kwargs) -> None:  # noqa: ARG002
         logger.info("Stopping single-bot webhook engine for bot %s", self.bot.id)
-        await self._task_tracker.close()
+        await self._task_tracker.close(timeout=self.shutdown_timeout)
 
         lifecycle_data = self._build_lifecycle_data(app=app, bot=self.bot, **kwargs)
         await self.dispatcher.emit_shutdown(**lifecycle_data)

@@ -41,6 +41,7 @@ class BaseWebhookEngine(ABC, Generic[AppT, RawRequestT, FrameworkResponseT]):
         security: Security | None = None,
         webhook_config: WebhookConfig | None = None,
         handle_in_background: bool = True,
+        shutdown_timeout: float = 10.0,
     ) -> None:
         self.dispatcher = dispatcher
         self.web = web
@@ -48,6 +49,7 @@ class BaseWebhookEngine(ABC, Generic[AppT, RawRequestT, FrameworkResponseT]):
         self.security = security
         self.webhook_config = webhook_config or WebhookConfig()
         self.handle_in_background = handle_in_background
+        self.shutdown_timeout = shutdown_timeout
 
         self._is_shutting_down = False
 
