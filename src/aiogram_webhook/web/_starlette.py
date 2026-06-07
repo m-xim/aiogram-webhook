@@ -40,12 +40,13 @@ class AiohttpPayloadResponse(Response):
         if headers is not None:
             response_headers.update(headers)
 
-        has_content_length = "content-length" in {name.lower() for name in response_headers}
+        if payload.size is not None:
+            response_headers["content-length"] = str(payload.size)
 
         super().__init__(content=b"", status_code=status_code, headers=response_headers)
         self.payload = payload
 
-        if not has_content_length:
+        if payload.size is None:
             self.raw_headers = [(name, value) for name, value in self.raw_headers if name != b"content-length"]
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:  # noqa: ARG002

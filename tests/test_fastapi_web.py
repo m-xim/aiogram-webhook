@@ -143,7 +143,7 @@ def test_fastapi_adapter_streams_webhook_method_payload_as_multipart(bot):
         response = client.post("/webhook")
 
     assert response.status_code == 200
-    assert "content-length" not in response.headers
+    assert int(response.headers["content-length"]) == len(response.content)
     assert_multipart_fields(
         response.headers["content-type"],
         response.content,
@@ -172,7 +172,7 @@ def test_fastapi_adapter_streams_webhook_payload_with_attached_file(bot):
         response = client.post("/webhook")
 
     assert response.status_code == 200
-    assert "content-length" not in response.headers
+    assert "content-length" not in response.headers  # payload.size is None for file attachments
     parts = assert_multipart_fields(
         response.headers["content-type"],
         response.content,
