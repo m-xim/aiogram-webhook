@@ -77,7 +77,7 @@ Do not use `http://localhost` in `base_url` unless Telegram can reach it. For lo
 Call **after** the endpoint is reachable:
 
 ```python
-await engine.set_webhook()          # SingleBotEngine
+await engine.set_webhook()  # SingleBotEngine
 await engine.add_bot("123456:ABCDEF")  # TokenEngine
 ```
 

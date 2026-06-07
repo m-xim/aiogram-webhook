@@ -17,7 +17,7 @@ engine = SingleBotEngine(
     bot,
     web=web,
     route=route,
-    handle_in_background=True,   # default
+    handle_in_background=True,  # default
 )
 ```
 
