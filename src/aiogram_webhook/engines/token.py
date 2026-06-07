@@ -1,3 +1,4 @@
+import asyncio
 from typing import TYPE_CHECKING, Generic
 
 from aiogram import Bot
@@ -73,7 +74,7 @@ class TokenEngine(
             )
 
         if (tracker := self._task_trackers.pop(bot_id, None)) is not None:
-            await tracker.close()
+            await tracker.close(timeout=self.shutdown_timeout)
         self._bots.pop(bot_id, None)
 
         logger.info("Removed bot %s from token engine", bot_id)
@@ -116,8 +117,9 @@ class TokenEngine(
 
     async def _on_shutdown(self, app: AppT, *args, **kwargs) -> None:  # noqa: ARG002
         logger.info("Stopping token-based webhook engine with %s bot(s)", len(self._bots))
-        for tracker in self._task_trackers.values():
-            await tracker.close(timeout=self.shutdown_timeout)
+        await asyncio.gather(
+            *(tracker.close(timeout=self.shutdown_timeout) for tracker in self._task_trackers.values()),
+        )
 
         self._task_trackers.clear()
 
