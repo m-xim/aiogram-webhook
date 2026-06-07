@@ -25,8 +25,8 @@ class FastAPIWebRequest(WebRequest[Request]):
 
     def __init__(self, request: Request) -> None:
         self._request = request
-        self._headers = CIMultiDictProxy(CIMultiDict(request.headers.items()))
-        self._query_params = MultiDictProxy[str](MultiDict(request.query_params.multi_items()))
+        self._headers: Headers | None = None
+        self._query_params: QueryParams | None = None
 
     @property
     def raw(self) -> Request:
@@ -41,10 +41,14 @@ class FastAPIWebRequest(WebRequest[Request]):
 
     @property
     def headers(self) -> Headers:
+        if self._headers is None:
+            self._headers = CIMultiDictProxy(CIMultiDict(self._request.headers.items()))
         return self._headers
 
     @property
     def query_params(self) -> QueryParams:
+        if self._query_params is None:
+            self._query_params = MultiDictProxy[str](MultiDict(self._request.query_params.multi_items()))
         return self._query_params
 
     @property
