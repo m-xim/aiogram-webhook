@@ -5,6 +5,7 @@ from typing import Any, Generic
 
 from aiogram import Bot
 
+from aiogram_webhook import WebhookConfig
 from aiogram_webhook.engines.base import AppT, BaseWebhookEngine, FrameworkResponseT, RawRequestT, logger
 from aiogram_webhook.route import Route
 from aiogram_webhook.security import Security
@@ -23,10 +24,10 @@ class BaseMultiBotEngine(
         web: WebAdapter[AppT, RawRequestT, FrameworkResponseT],
         route: Route,
         security: Security | None = None,
+        webhook_config: WebhookConfig | None = None,
         handle_in_background: bool = True,
         shutdown_timeout: float = 10.0,
     ) -> None:
-
         self.route = route
         self._task_trackers: dict[int, TaskTracker] = {}
         self._bots: dict[int, Bot] = {}
@@ -36,6 +37,7 @@ class BaseMultiBotEngine(
             web=web,
             route=route,
             security=security,
+            webhook_config=webhook_config,
             handle_in_background=handle_in_background,
             shutdown_timeout=shutdown_timeout,
         )

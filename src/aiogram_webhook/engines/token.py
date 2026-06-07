@@ -34,17 +34,16 @@ class TokenEngine(
         handle_in_background: bool = True,
         shutdown_timeout: float = 10.0,
     ) -> None:
-
         super().__init__(
             dispatcher,
             web=web,
             route=route,
             security=security,
+            webhook_config=webhook_config,
             handle_in_background=handle_in_background,
             shutdown_timeout=shutdown_timeout,
         )
 
-        self.webhook_config = webhook_config or WebhookConfig()
         self.bot_config = bot_config or BotConfig()
         self._owns_session = self.bot_config.session is None
         self._session: BaseSession | None = self.bot_config.session or AiohttpSession()

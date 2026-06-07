@@ -149,7 +149,9 @@ async def test_route_reports_query_param_value_mismatch(bot_token):
         params={"bot_token": BotTokenParam()},
         query={"token": Ref("bot_token")},
     )
-    request = DummyWebRequest(DummyRequest(path_params={"bot_token": bot_token}, query=MultiDict({"token": wrong_token})))
+    request = DummyWebRequest(
+        DummyRequest(path_params={"bot_token": bot_token}, query=MultiDict({"token": wrong_token}))
+    )
 
     with pytest.raises(QueryParamMismatchError) as exc_info:
         await route.match(request)
