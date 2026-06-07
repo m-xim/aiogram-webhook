@@ -71,7 +71,7 @@ class Route:
             path = self._path_template.value
             route_params = {}
 
-        url = self._base_url.joinpath(path.strip("/"), encoded=True)
+        url = self._base_url.joinpath(path.lstrip("/"), encoded=True)
         if self._query:
             url = url.with_query(self._query.build_items(route_params))
         return str(url)
