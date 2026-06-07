@@ -67,12 +67,11 @@ class Route:
                 route_params[binding.name] = await binding.param.build(target=target, params=route_params)
 
             path = self._path_template.build({name: quote(value, safe="") for name, value in route_params.items()})
-            url = self._base_url.joinpath(path.strip("/"), encoded=True)
         else:
             path = self._path_template.value
-            url = self._base_url.joinpath(path.strip("/"), encoded=True)
             route_params = {}
 
+        url = self._base_url.joinpath(path.strip("/"), encoded=True)
         if self._query:
             url = url.with_query(self._query.build_items(route_params))
         return str(url)
