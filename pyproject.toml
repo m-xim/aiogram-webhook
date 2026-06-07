@@ -37,7 +37,7 @@ classifiers = [
 Homepage = "https://github.com/m-xim/aiogram-webhook"
 Repository = "https://github.com/m-xim/aiogram-webhook"
 Issues = "https://github.com/m-xim/aiogram-webhook/issues"
-Documentation = "https://github.com/m-xim/aiogram-webhook#readme"
+Documentation = "https://aiogram-webhook.m-xim.ru"
 
 [project.optional-dependencies]
 fastapi = [
