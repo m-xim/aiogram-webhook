@@ -16,6 +16,7 @@ extensions:
   - github-vcs
   - './extensions/vcs-control'
   - './extensions/breadcrumbs'
+  - './extensions/base-href'
   - name: mdit-plugins
     plugins:
       - '@diplodoc/transform/lib/plugins/checkbox'
