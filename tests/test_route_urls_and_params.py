@@ -1,4 +1,5 @@
 import pytest
+from multidict import MultiDict
 
 from aiogram_webhook.route import BotIdParam, BotTokenParam, Const, Ref, Route
 from aiogram_webhook.route.errors import (
@@ -107,7 +108,7 @@ async def test_route_matches_repeated_query_params_in_any_order(bot_token):
     request = DummyWebRequest(
         DummyRequest(
             path_params={"bot_token": bot_token},
-            query=[("token", bot_token), ("kind", "webhook"), ("kind", "telegram")],
+            query=MultiDict([("token", bot_token), ("kind", "webhook"), ("kind", "telegram")]),
         )
     )
 
@@ -118,8 +119,8 @@ async def test_route_matches_repeated_query_params_in_any_order(bot_token):
 @pytest.mark.parametrize(
     ("query", "available_query_params"),
     [
-        ({}, ()),
-        ({"other": "value"}, ("other",)),
+        (MultiDict(), ()),
+        (MultiDict({"other": "value"}), ("other",)),
     ],
     ids=["no-query", "other-query"],
 )
@@ -148,7 +149,7 @@ async def test_route_reports_query_param_value_mismatch(bot_token):
         params={"bot_token": BotTokenParam()},
         query={"token": Ref("bot_token")},
     )
-    request = DummyWebRequest(DummyRequest(path_params={"bot_token": bot_token}, query={"token": wrong_token}))
+    request = DummyWebRequest(DummyRequest(path_params={"bot_token": bot_token}, query=MultiDict({"token": wrong_token})))
 
     with pytest.raises(QueryParamMismatchError) as exc_info:
         await route.match(request)
@@ -168,7 +169,7 @@ async def test_route_reports_unexpected_query_param(bot_token):
         strict_query=True,
     )
     request = DummyWebRequest(
-        DummyRequest(path_params={"bot_token": bot_token}, query={"token": bot_token, "extra": "value"})
+        DummyRequest(path_params={"bot_token": bot_token}, query=MultiDict({"token": bot_token, "extra": "value"}))
     )
 
     with pytest.raises(UnexpectedQueryParamError) as exc_info:
@@ -187,7 +188,7 @@ async def test_route_allows_unexpected_query_param_by_default(bot_token):
         query={"token": Ref("bot_token")},
     )
     request = DummyWebRequest(
-        DummyRequest(path_params={"bot_token": bot_token}, query={"token": bot_token, "extra": "value"})
+        DummyRequest(path_params={"bot_token": bot_token}, query=MultiDict({"token": bot_token, "extra": "value"}))
     )
 
     assert await route.match(request) == {"bot_token": bot_token}
@@ -196,7 +197,7 @@ async def test_route_allows_unexpected_query_param_by_default(bot_token):
 @pytest.mark.asyncio
 async def test_route_reports_any_query_param_when_strict_query_has_no_query_spec():
     route = Route(base_url="https://example.com", path="/webhook", strict_query=True)
-    request = DummyWebRequest(DummyRequest(query={"extra": "value"}))
+    request = DummyWebRequest(DummyRequest(query=MultiDict({"extra": "value"})))
 
     with pytest.raises(UnexpectedQueryParamError) as exc_info:
         await route.match(request)
