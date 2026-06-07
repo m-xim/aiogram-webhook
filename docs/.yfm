@@ -44,7 +44,7 @@ docs-viewer:
   lang: 'en'
   langs: ['en']
   logo-options:
-    url: https://google.com
+    url: https://aiogram-webhooks.m-xim.ru
     src: _assets/brand/favicon.ico
     src-dark: _assets/brand/favicon.ico
     src-preview: _assets/brand/banner.png
