@@ -10,6 +10,7 @@ dependencies = [
     "aiogram>=3.14.0",
     "yarl>=1.17.0",
     "multidict>=6.7.1",
+    "aiohttp>=3.9.0",
 ]
 
 keywords = [
@@ -52,7 +53,6 @@ dev = [
     "pytest-asyncio",
     "pytest-cov",
     "httpx2",
-    "rheostatic",
 ]
 
 [build-system]
