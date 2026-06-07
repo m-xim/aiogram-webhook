@@ -1,3 +1,4 @@
+title: 'Aiogram Webhook'
 href: index.yaml
 
 navigation:
@@ -37,10 +38,6 @@ items:
   - name: Learn
     labeled: true
     items:
-      - name: What is aiogram-webhook?
-        href: pages/learn/overview.md
-      - name: Quick start
-        href: pages/learn/quick-start.md
       - name: First webhook
         href: pages/learn/first-webhook.md
 
@@ -87,7 +84,7 @@ items:
       - name: Dispatch Modes
         href: pages/dispatch.md
       - name: Custom integrations
-        href: pages/extending/overview.md
+        href: pages/custom-integrations.md
 
   - name: Recipes
     labeled: true

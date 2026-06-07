@@ -32,11 +32,11 @@
 }
 
 /*FIX: page construct*/
-/*.g-root_theme_dark .pc-header-block__background,*/
-/*.g-root_theme_dark .pc-header-block__background-media,*/
-/*.g-root_theme_dark .pc-header-block__background .pc-Media {*/
-/*  background: #101827 !important;*/
-/*}*/
+.g-root_theme_dark .pc-header-block__background,
+.g-root_theme_dark .pc-header-block__background-media,
+.g-root_theme_dark .pc-header-block__background .pc-Media {
+  background: #101827 !important;
+}
 
 .pc-basic-card,
 .pc-layout-item,

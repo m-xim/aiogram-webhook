@@ -2,7 +2,7 @@
 
 Project shape when many bots share one service and each webhook URL carries a bot token.
 
-Component deep dive: [TokenEngine](../engines/token-engine.md). Runnable pieces: combine [Quick start](../learn/quick-start.md) wiring with the route and `add_bot()` calls below.
+Component deep dive: [TokenEngine](../engines/token-engine.md). Runnable pieces: combine [First webhook](../learn/first-webhook.md) wiring with the route and `add_bot()` calls below.
 
 ## Components
 

@@ -49,3 +49,7 @@ For production, pass `security=Security(...)` to verify Telegram requests.
 ## Documentation
 
 The full documentation is in [`docs`](https://aiogram-webhook.m-xim.ru). It covers installation, FastAPI and aiohttp setup, routing, security, lifecycle behavior, and the public API.
+
+## Contributing
+
+See [CONTRIBUTING.md](.github/CONTRIBUTING.md) for development setup, branch naming, commit conventions, and PR guidelines.

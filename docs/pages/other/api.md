@@ -41,4 +41,4 @@ This reference lists the public objects users normally import.
 | `aiogram_webhook.engines.base.BaseWebhookEngine` | Custom single-target engine logic. |
 | `aiogram_webhook.engines.multi.BaseMultiBotEngine` | Custom multi-bot engine with shared bot cache. |
 
-See [Custom integrations](../extending/overview.md).
+See [Custom integrations](../custom-integrations.md).

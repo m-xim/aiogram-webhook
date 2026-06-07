@@ -4,7 +4,7 @@
 
 Use it when the rest of your application already lives in FastAPI or when you want FastAPI's dependency, middleware, and deployment ecosystem around aiogram.
 
-Runnable example with handlers and security: [Quick start — FastAPI](../learn/quick-start.md#minimal-app).
+Runnable example with handlers and security: see **Minimal app — FastAPI** on the home page.
 
 ```python
 from contextlib import asynccontextmanager

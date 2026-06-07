@@ -1,6 +1,25 @@
 # Dispatch Modes
 
-How the engine responds to Telegram while handlers run. Wiring (`SingleBotEngine`, adapters, routes) lives in [Quick start](learn/quick-start.md) and the [Engines](engines/overview.md) guide.
+How the engine responds to Telegram while handlers run. Wiring (`SingleBotEngine`, adapters, routes) lives in [First webhook](learn/first-webhook.md) and the [Engines](engines/overview.md) guide.
+
+## One update, end to end
+
+Telegram sends a `POST` with JSON. The adapter normalizes it; the engine resolves the bot, runs security, and dispatches to aiogram.
+
+{% include [Request flow](../_includes/request-flow.md) %}
+
+The diagram above is the canonical request flow. Other pages link here instead of repeating it.
+
+### What each layer is responsible for
+
+| Layer | Responsibility | Does not |
+| --- | --- | --- |
+| Web framework (FastAPI, aiohttp, …) | TLS, routing, middleware, running the server | Parse Telegram updates or call handlers |
+| Web adapter | Register `POST`, map request/response types | Choose bot, verify Telegram, dispatch |
+| `Route` | Build the public `setWebhook` URL; match path and query on incoming requests | Run security or handlers |
+| `Security` | Verify secret token and optional checks before dispatch | Register routes or call `setWebhook` |
+| Engine | Resolve bot, dispatch update, lifecycle, `set_webhook()` / `add_bot()` | Replace aiogram routers |
+| aiogram `Dispatcher` | Handlers, filters, FSM, middleware | Expose a public HTTPS endpoint |
 
 ## Background vs foreground
 

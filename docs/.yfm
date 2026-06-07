@@ -38,6 +38,7 @@ resources:
 
 interface:
   favicon-src: _assets/brand/favicon.ico
+  toc-header: false
 
 docs-viewer: 
   project-name: aiogram-webhook
@@ -63,6 +64,10 @@ vcsControl:
 breadcrumbs:
   tocAsRoot: true
   appendLabeled: false
+
+csp:
+  - script-src:
+      - https://cdn.jsdelivr.net
 
 codeHighlight:
   light: github

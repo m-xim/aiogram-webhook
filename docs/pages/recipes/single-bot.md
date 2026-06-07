@@ -1,6 +1,6 @@
 # Single-bot App
 
-Project shape for one Telegram bot on one service. For the runnable example, start with [Quick start](../learn/quick-start.md); this recipe adds structure and production knobs.
+Project shape for one Telegram bot on one service. For the runnable example, start with [First webhook](../learn/first-webhook.md); this recipe adds structure and production knobs.
 
 ## Components
 

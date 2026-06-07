@@ -1,13 +1,13 @@
 meta:
-  title: '404 - Page not found'
-  description: 'The requested aiogram-webhook documentation page does not exist.'
+  title: '404 — Aiogram Webhook'
+  description: 'Page not found — Aiogram Webhook documentation.'
   noIndex: true
 
 blocks:
   - type: 'header-block'
     overtitle: 'HTTP 404'
     title: 'This webhook went nowhere'
-    description: 'Telegram knocked, the route table shrugged, and this page was not registered. Try the docs home, jump into the quick start, or inspect how routes are built.'
+    description: 'Telegram knocked, the route table shrugged, and this page was not registered. Try the docs home, open the first webhook guide, or inspect how routes are built.'
     background:
       dark:
         color: '#101827'
@@ -20,11 +20,11 @@ blocks:
         primary: true
         theme: 'action'
         size: 'l'
-        url: './index.html'
-      - text: 'Quick start'
+        url: '/index.html'
+      - text: 'First webhook'
         theme: 'outlined'
         size: 'l'
-        url: './pages/learn/quick-start.html'
+        url: '/pages/learn/first-webhook.html'
 
   - type: 'card-layout-block'
     title: 'Useful escape routes'
@@ -41,31 +41,31 @@ blocks:
     children:
       - type: 'basic-card'
         icon:
-          src: './_assets/icons/route.svg'
+          src: '/_assets/icons/route.png'
         iconPosition: 'top'
         title: 'Routes'
         text: 'Read how webhook paths, path parameters, and query parameters resolve targets.'
-        url: './pages/route/overview.html'
+        url: '/pages/route/overview.html'
         urlTitle: 'Open routes'
         border: 'line'
         controlPosition: 'content'
       - type: 'basic-card'
         icon:
-          src: './_assets/icons/engine.svg'
+          src: '/_assets/icons/engine.png'
         iconPosition: 'top'
         title: 'Engines'
         text: 'Find the bot dispatch layer that decides what happens after a request arrives.'
-        url: './pages/engines/overview.html'
+        url: '/pages/engines/overview.html'
         urlTitle: 'Open engines'
         border: 'line'
         controlPosition: 'content'
       - type: 'basic-card'
         icon:
-          src: './_assets/icons/security.svg'
+          src: '/_assets/icons/security.png'
         iconPosition: 'top'
         title: 'Errors'
         text: 'Map public responses to route, security, engine, and shutdown behavior.'
-        url: './pages/other/errors.html'
+        url: '/pages/other/errors.html'
         urlTitle: 'Open errors'
         border: 'line'
         controlPosition: 'content'

@@ -4,7 +4,7 @@ Adapters connect the engine to your HTTP framework. They register `POST`, map re
 
 {% note info %}
 
-First webhook? [Quick start](../learn/quick-start.md) picks FastAPI or aiohttp for you. Return here to compare options or plan a custom integration.
+First webhook? [First webhook](../learn/first-webhook.md) picks FastAPI or aiohttp for you. Return here to compare options or plan a custom integration.
 
 {% endnote %}
 
@@ -28,8 +28,8 @@ The adapter handles HTTP types only. It does **not** resolve bots, verify securi
 | Expose `client_ip`, headers, path/query params | Call `setWebhook` |
 | Build JSON and payload responses | Choose which bot handles the update |
 
-Full layer breakdown: [What is aiogram-webhook?](../learn/overview.md#what-each-layer-is-responsible-for).
+Full layer breakdown: [Dispatch modes](../dispatch.md#what-each-layer-is-responsible-for).
 
 ## Custom framework
 
-Shipped adapters are working references, not templates to copy verbatim. See [Custom integrations](../extending/overview.md).
+Shipped adapters are working references, not templates to copy verbatim. See [Custom integrations](../custom-integrations.md).

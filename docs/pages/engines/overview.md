@@ -4,7 +4,7 @@ The engine is the runtime coordinator: it receives a normalized request from an 
 
 {% note info %}
 
-New to the library? [Quick start](../learn/quick-start.md) wires `SingleBotEngine` first. Request flow diagram: [What is aiogram-webhook?](../learn/overview.md#one-update-end-to-end).
+New to the library? [First webhook](../learn/first-webhook.md) wires `SingleBotEngine` first. Request flow diagram: [Dispatch modes](../dispatch.md#one-update-end-to-end).
 
 {% endnote %}
 

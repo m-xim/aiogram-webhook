@@ -4,7 +4,7 @@
 
 Use it when your service already uses aiohttp or when you prefer aiohttp's lower-level web primitives.
 
-Runnable example with handlers and security: [Quick start — aiohttp](../learn/quick-start.md#minimal-app).
+Runnable example with handlers and security: see **Minimal app — aiohttp** on the home page.
 
 ```python
 from aiohttp import web

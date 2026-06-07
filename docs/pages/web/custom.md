@@ -7,7 +7,7 @@ Create a custom adapter when your web framework is not FastAPI or aiohttp. The a
 * `aiogram_webhook.web.fastapi` — router lifespan, Starlette payload bridge
 * `aiogram_webhook.web.aiohttp` — `web.Application` routes and startup/shutdown hooks
 
-See also [Extending overview](../extending/overview.md) for how adapters fit next to engines and security.
+See also [Extending overview](../custom-integrations.md) for how adapters fit next to engines and security.
 
 ## Contract: `WebAdapter`
 

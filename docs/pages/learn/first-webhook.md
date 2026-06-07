@@ -1,6 +1,6 @@
 # First Webhook
 
-Deployment checklist after [Quick start](quick-start.md). This page explains **why** each step matters — the full code stays in Quick start.
+Deployment checklist. This page explains **why** each step matters — copy-paste code is on the [home page](../../index.html).
 
 ## What changes from polling
 
@@ -39,7 +39,7 @@ dispatcher.include_router(router)
 
 ## 2. Wire engine and adapter
 
-Use the complete example from [Quick start — Minimal app](quick-start.md#minimal-app). The engine connects dispatcher, bot, adapter, route, and security in one place.
+The engine connects dispatcher, bot, adapter, route, and security in one place — copy the minimal app from the home page.
 
 {% include [Register vs setWebhook](../../_includes/register-vs-set-webhook.md) %}
 
@@ -102,7 +102,7 @@ Empty `url` or a set `last_error_message` means fix connectivity or TLS before d
 2. Confirm the handler reply arrives.
 3. On failure, check [Errors](../other/errors.md) and application logs (`aiogram_webhook` logger).
 
-Request flow diagram: [What is aiogram-webhook?](overview.md#one-update-end-to-end).
+Request flow diagram: [Dispatch modes](../dispatch.md#one-update-end-to-end).
 
 ## Where to go next
 

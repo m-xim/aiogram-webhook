@@ -30,7 +30,7 @@ engine = SingleBotEngine(
 )
 ```
 
-Full example with handlers and security: [Quick start](../learn/quick-start.md#minimal-app).
+Full example with handlers and security: see **Minimal app** on the home page.
 
 ## Typical pairing
 
