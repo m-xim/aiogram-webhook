@@ -1,32 +1,42 @@
 import re
 from abc import ABC, abstractmethod
 from hmac import compare_digest
+from typing import Final
 
-from aiogram import Bot
-
-from aiogram_webhook.adapters.base_adapter import BoundRequest
+from aiogram_webhook.engines.target import Target
+from aiogram_webhook.route.params import RouteParams
+from aiogram_webhook.web.base import WebRequest
 
 SECRET_TOKEN_PATTERN = re.compile(r"^[A-Za-z0-9_-]{1,256}$")
+SECRET_TOKEN_HEADER: Final[str] = "x-telegram-bot-api-secret-token"  # noqa: S105
 
 
 class SecretToken(ABC):
     """
-    Abstract base class for secret token verification in webhook requests.
+    Base class for secret token verification in webhook requests.
     """
 
-    secret_header: str = "x-telegram-bot-api-secret-token"  # noqa: S105
+    async def verify(self, target: Target, request: WebRequest, route_params: RouteParams) -> bool:  # noqa: ARG002
+        """
+        Verify the incoming secret token from the request.
+
+        :param target: The target bot information.
+        :param request: The webhook request object.
+        :param route_params: Route parameters mapping.
+        :return: True if the token is valid, False otherwise.
+        """
+        incoming_secret_token = request.headers.get(SECRET_TOKEN_HEADER)
+        if incoming_secret_token is None:
+            return False
+        return compare_digest(incoming_secret_token, await self.secret_token(target=target))
 
     @abstractmethod
-    async def verify(self, bot: Bot, bound_request: BoundRequest) -> bool:
+    async def secret_token(self, target: Target) -> str:
         """
-        Verify the secret token in the incoming request.
-        """
-        raise NotImplementedError
+        Return the webhook secret token associated with the given bot token.
 
-    @abstractmethod
-    def secret_token(self, bot: Bot) -> str:
-        """
-        Return the secret token for the given bot.
+        :param target: The target bot information.
+        :return: The secret token string for this bot.
         """
         raise NotImplementedError
 
@@ -39,16 +49,16 @@ class StaticSecretToken(SecretToken):
     See: https://core.telegram.org/bots/api#setwebhook
     """
 
-    def __init__(self, token: str) -> None:
-        if not SECRET_TOKEN_PATTERN.match(token):
+    def __init__(self, secret_token: str) -> None:
+        if not SECRET_TOKEN_PATTERN.match(secret_token):
             raise ValueError("Invalid secret token format. Must be 1-256 characters, only A-Z, a-z, 0-9, _, -.")
-        self._token = token
+        self.__secret_token = secret_token
 
-    async def verify(self, bot: Bot, bound_request: BoundRequest) -> bool:  # noqa: ARG002
-        incoming = bound_request.headers.get(self.secret_header)
-        if incoming is None:
-            return False
-        return compare_digest(incoming, self._token)
+    async def secret_token(self, target: Target) -> str:  # noqa: ARG002
+        """
+        Return the static secret token.
 
-    def secret_token(self, bot: Bot) -> str:  # noqa: ARG002
-        return self._token
+        :param target: The target bot information (unused for static tokens).
+        :return: The configured secret token.
+        """
+        return self.__secret_token

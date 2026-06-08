@@ -1,0 +1,7 @@
+light:
+  code-background: 'rgba(107, 132, 153, 0.15)'
+  inline-code-background: 'rgba(107, 132, 153, 0.15)'
+
+dark:
+  code-background: 'rgba(107, 132, 153, 0.15)'
+  inline-code-background: 'rgba(107, 132, 153, 0.15)'

@@ -1,0 +1,68 @@
+/* Header action button */
+.pc-header-block__buttons .g-button_view_action {
+  --_--text-color: #ffffff !important;
+}
+
+.pc-header-block__buttons .g-button_view_action,
+.pc-header-block__buttons .g-button_view_action *,
+.pc-header-block__buttons .pc-button-block_theme_action,
+.pc-header-block__buttons .pc-button-block_theme_action * {
+  color: #ffffff !important;
+}
+
+/* Header logo spacing */
+.pc-desktop-navigation__wrapper {
+  padding-left: 10px;
+  padding-right: 10px;
+  box-sizing: border-box;
+}
+/* FIX: reducing the logo when the window size is reduced */
+@media (max-width: 576px) {
+  .pc-navigation .pc-desktop-navigation__wrapper .pc-desktop-navigation__logo .pc-logo__icon {
+    max-width: none !important;
+  }
+}
+
+.g-root_theme_dark .pc-content-wrapper__icon[src*="github-dark"] {
+  filter: invert(1);
+}
+
+.pc-header-block__background {
+  border-radius: 20px !important;
+}
+
+/*FIX: page construct*/
+.g-root_theme_dark .pc-header-block__background,
+.g-root_theme_dark .pc-header-block__background-media,
+.g-root_theme_dark .pc-header-block__background .pc-Media {
+  background: #101827 !important;
+}
+
+.pc-basic-card,
+.pc-layout-item,
+.pc-card-layout-block .pc-basic-card,
+.pc-card-layout-block .pc-layout-item {
+  border-radius: 20px !important;
+  overflow: hidden;
+}
+
+.yfm pre > code,
+.yfm .hljs {
+  border: 1px solid var(--g-color-line-generic);
+  border-radius: 10px;
+}
+
+.yfm table {
+  border-radius: 10px;
+}
+
+.yfm .yfm-note {
+  border: 1px solid var(--g-color-line-generic);
+}
+
+/* Cut */
+/*.dc-doc-page .yfm .yfm-cut {*/
+/*  background-color: rgb(229, 236, 255); var(--g-color-base-simple-hover)*/
+/*  padding: 5px 14px 5px;*/
+/*  border-radius: 15px;*/
+/*}*/

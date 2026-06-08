@@ -1,0 +1,273 @@
+meta:
+  title: 'aiogram-webhook'
+  description: 'Webhook integration for aiogram with FastAPI and aiohttp.'
+
+blocks:
+  - type: 'header-block'
+    title: 'Aiogram Webhook'
+    description: 'Webhook adapter for aiogram. Plug FastAPI or aiohttp into your existing bot — handlers, FSM, and filters stay untouched.'
+    background:
+      dark:
+        color: '#101827'
+        fullWidth: true
+      light:
+        color: '#f6f9ff'
+        fullWidth: true
+    buttons:
+      - text: 'Quick start'
+        primary: true
+        theme: 'action'
+        url: './learn/first-webhook.md'
+      - text: 'PyPI'
+        theme: 'outlined'
+        url: 'https://pypi.org/project/aiogram-webhook/'
+
+  - type: 'card-layout-block'
+    title: 'What it does'
+    colSizes:
+      all: 12
+      xl: 3
+      lg: 3
+      md: 6
+      sm: 12
+    indent:
+      top: 'm'
+      bottom: 's'
+    children:
+      - type: 'basic-card'
+        icon:
+          src: './_assets/icons/web.png'
+        iconPosition: 'top'
+        title: 'FastAPI & aiohttp'
+        text: 'Register a webhook endpoint in your existing app. Only the wiring changes.'
+        border: 'line'
+        controlPosition: 'content'
+      - type: 'basic-card'
+        icon:
+          src: './_assets/icons/engine.png'
+        iconPosition: 'top'
+        title: 'Single-bot & multi-bot'
+        text: '`SingleBotEngine` for one bot. `TokenEngine` to route many bots by token in the URL.'
+        border: 'line'
+        controlPosition: 'content'
+      - type: 'basic-card'
+        icon:
+          src: './_assets/icons/security.png'
+        iconPosition: 'top'
+        title: 'Typed Route & Security'
+        text: 'Build `setWebhook` URLs with `Route`. Verify secret tokens and IP ranges with `Security`.'
+        border: 'line'
+        controlPosition: 'content'
+      - type: 'basic-card'
+        icon:
+          src: './_assets/icons/aiogram.png'
+        iconPosition: 'top'
+        url: 'https://aiogram.dev'
+        title: 'aiogram stays the same'
+        text: 'Routers, filters, FSM, middleware, handlers — untouched. You only change startup and the HTTP layer.'
+        border: 'line'
+        controlPosition: 'content'
+
+  - type: 'content-layout-block'
+    textWidth: 'l'
+    textContent:
+      title: 'Install'
+      text: |
+        Requires Python 3.10+, aiogram 3.14+, a bot token from [@BotFather](https://t.me/BotFather), and a public HTTPS URL.
+
+        {% list tabs group=package-manager %}
+        - uv
+          ```bash
+          uv add "aiogram-webhook[fastapi]"
+          uv add "aiogram-webhook[aiohttp]"
+          ```
+
+        - pip
+          ```bash
+          pip install "aiogram-webhook[fastapi]"
+          pip install "aiogram-webhook[aiohttp]"
+          ```
+        {% endlist %}
+
+        Omit the extra if you build a [custom adapter](./web/custom.md) or use route/security helpers only.
+      buttons:
+        - text: 'PyPI'
+          theme: 'outlined'
+          url: 'https://pypi.org/project/aiogram-webhook/'
+
+  - type: 'content-layout-block'
+    textWidth: 'l'
+    textContent:
+      title: 'Minimal app'
+      text: |
+        Replace `BOT_TOKEN`, `https://example.com`, and `webhook-secret`. `base_url` must be the HTTPS origin Telegram can reach.
+
+        {% list tabs group=framework %}
+        - FastAPI
+          ```python
+          from contextlib import asynccontextmanager
+
+          import uvicorn
+          from aiogram import Bot, Dispatcher, Router
+          from aiogram.filters import CommandStart
+          from aiogram.types import Message
+          from fastapi import FastAPI
+
+          from aiogram_webhook import FastAPIAdapter, SingleBotEngine, WebhookConfig
+          from aiogram_webhook.route import Route
+          from aiogram_webhook.security import IPCheck, Security, StaticSecretToken
+
+          router = Router()
+
+
+          @router.message(CommandStart())
+          async def start(message: Message) -> None:
+              await message.answer("OK")
+
+
+          dispatcher = Dispatcher()
+          dispatcher.include_router(router)
+
+          bot = Bot("BOT_TOKEN")
+          engine = SingleBotEngine(
+              dispatcher,
+              bot,
+              web=FastAPIAdapter(),
+              route=Route(base_url="https://example.com", path="/telegram/webhook"),
+              security=Security(IPCheck(), secret_token=StaticSecretToken("webhook-secret")),
+              webhook_config=WebhookConfig(drop_pending_updates=True),
+          )
+
+
+          @asynccontextmanager
+          async def lifespan(app: FastAPI):
+              await engine.set_webhook()
+              yield
+
+
+          app = FastAPI(lifespan=lifespan)
+          engine.register(app)
+
+
+          if __name__ == "__main__":
+              uvicorn.run(app, host="0.0.0.0", port=8000)
+          ```
+
+        - aiohttp
+          ```python
+          from aiohttp import web
+          from aiogram import Bot, Dispatcher, Router
+          from aiogram.filters import CommandStart
+          from aiogram.types import Message
+
+          from aiogram_webhook import AiohttpAdapter, SingleBotEngine, WebhookConfig
+          from aiogram_webhook.route import Route
+          from aiogram_webhook.security import IPCheck, Security, StaticSecretToken
+
+          router = Router()
+
+
+          @router.message(CommandStart())
+          async def start(message: Message) -> None:
+              await message.answer("OK")
+
+
+          dispatcher = Dispatcher()
+          dispatcher.include_router(router)
+
+          bot = Bot("BOT_TOKEN")
+          engine = SingleBotEngine(
+              dispatcher,
+              bot,
+              web=AiohttpAdapter(),
+              route=Route(base_url="https://example.com", path="/telegram/webhook"),
+              security=Security(IPCheck(), secret_token=StaticSecretToken("webhook-secret")),
+              webhook_config=WebhookConfig(drop_pending_updates=True),
+          )
+
+
+          async def set_webhook(app: web.Application) -> None:
+              await engine.set_webhook()
+
+
+          app = web.Application()
+          app.on_startup.append(set_webhook)
+          engine.register(app)
+
+
+          if __name__ == "__main__":
+              web.run_app(app, host="0.0.0.0", port=8000)
+          ```
+        {% endlist %}
+
+  - type: 'content-layout-block'
+    textWidth: 'l'
+    textContent:
+      title: 'What happens at runtime'
+      text: |
+        When a user sends `/start`:
+
+        1. Telegram `POST`s JSON to your public URL.
+        2. Security checks the secret token and source IP.
+        3. The engine feeds the update to aiogram in the background.
+        4. Your handler calls `message.answer("OK")` through the Bot API.
+        5. Telegram gets an empty `200` from the webhook request itself.
+
+        Step 4 is a separate HTTP call — normal for [background mode](./dispatch.md).
+      buttons:
+        - text: 'Dispatch modes'
+          theme: 'outlined'
+          url: './dispatch.md'
+
+  - type: 'card-layout-block'
+    title: 'Go deeper'
+    colSizes:
+      all: 12
+      xl: 3
+      lg: 3
+      md: 6
+      sm: 12
+    indent:
+      top: 'm'
+      bottom: 'm'
+    children:
+      - type: 'basic-card'
+        icon:
+          src: './_assets/icons/learn.png'
+        iconPosition: 'top'
+        title: 'Learn'
+        text: 'First webhook, deployment behind HTTPS, set_webhook checklist.'
+        url: './learn/first-webhook.md'
+        urlTitle: 'Start learning'
+        border: 'shadow'
+        controlPosition: 'content'
+      - type: 'basic-card'
+        icon:
+          src: './_assets/icons/engine.png'
+        iconPosition: 'top'
+        title: 'Guide'
+        text: 'Adapters, engines, route, security — one topic per page.'
+        url: './web/overview.md'
+        urlTitle: 'Open guide'
+        border: 'shadow'
+        controlPosition: 'content'
+      - type: 'basic-card'
+        icon:
+          src: './_assets/icons/recipes.png'
+        iconPosition: 'top'
+        title: 'Recipes'
+        text: 'Single-bot and multi-bot project layout once the basics are clear.'
+        url: './recipes/single-bot.md'
+        urlTitle: 'Open recipes'
+        border: 'shadow'
+        controlPosition: 'content'
+      - type: 'basic-card'
+        icon:
+          src: './_assets/icons/api.png'
+        iconPosition: 'top'
+        title: 'API'
+        text: 'WebhookConfig options, error codes, full API.'
+        url: './reference/api.md'
+        urlTitle: 'Open reference'
+        border: 'shadow'
+        controlPosition: 'content'

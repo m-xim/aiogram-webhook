@@ -1,8 +1,11 @@
+from functools import lru_cache
 from ipaddress import IPv4Address, IPv4Network, IPv6Address, IPv6Network, ip_address, ip_network
 from typing import Final
 
-from aiogram_webhook.adapters.base_adapter import BoundRequest
+from aiogram_webhook.engines.target import Target
+from aiogram_webhook.route.params import RouteParams
 from aiogram_webhook.security.checks.check import SecurityCheck
+from aiogram_webhook.web.base import WebRequest
 
 IPNetwork = IPv4Network | IPv6Network
 IPAddress = IPv4Address | IPv6Address
@@ -28,55 +31,52 @@ class IPCheck(SecurityCheck):
         :param *ip_entries: IP addresses or networks to allow.
         :param include_default: Whether to include default Telegram IP networks.
         """
-        self._networks: set[IPNetwork] = set()
-        self._addresses: set[IPAddress] = set()
+        self._networks: frozenset[IPNetwork] = frozenset()
+        self._addresses: frozenset[IPAddress] = frozenset()
 
-        if include_default:
-            self._networks.update(DEFAULT_TELEGRAM_NETWORKS)
+        networks = set(DEFAULT_TELEGRAM_NETWORKS) if include_default else set()
+        addresses = set()
 
         for item in ip_entries:
             parsed = self._parse(item)
             if parsed is None:
                 continue
-            if isinstance(parsed, IPNetwork):
-                self._networks.add(parsed)
-            else:
-                self._addresses.add(parsed)
+            if isinstance(parsed, (IPv4Network, IPv6Network)):
+                networks.add(parsed)
+            elif isinstance(parsed, (IPv4Address, IPv6Address)):
+                addresses.add(parsed)
 
-    async def verify(self, bot, bound_request: BoundRequest) -> bool:  # noqa: ARG002
-        raw_ip = self._get_client_ip(bound_request)
+        self._networks = frozenset(networks)
+        self._addresses = frozenset(addresses)
+
+    async def verify(self, target: Target, request: WebRequest, route_params: RouteParams) -> bool:  # noqa: ARG002
+        forwarded_for = request.headers.get("X-Forwarded-For")
+        raw_ip = forwarded_for.split(",", maxsplit=1)[0].strip() if forwarded_for else request.client_ip
+
         if not raw_ip:
             return False
+
         try:
-            ip_addr = ip_address(raw_ip)
+            ip_addr = self._parse_ip(raw_ip)
         except ValueError:
             return False
-        return (ip_addr in self._addresses) or any(ip_addr in network for network in self._networks)
 
-    def _get_client_ip(self, bound_request: BoundRequest) -> IPAddress | str | None:
-        # Try to resolve client IP over reverse proxy
-        # See: https://github.com/aiogram/aiogram/issues/672
-        if forwarded_for := self._extract_first_ip_from_header(bound_request.headers.get("X-Forwarded-For")):
-            return forwarded_for
+        # Direct address match (faster check first)
+        if ip_addr in self._addresses:
+            return True
 
-        # Get direct IP from connection
-        return bound_request.client_ip
+        # Network match (short-circuit on first match)
+        return any(ip_addr in network for network in self._networks)
 
     @staticmethod
-    def _extract_first_ip_from_header(header_value: str | None) -> str | None:
-        """
-        Extract the first IP from a comma-separated header value (e.g., X-Forwarded-For).
-
-        :param header_value: header value with possible IP chain
-        :return: first IP or None
-        """
-        if header_value:
-            return header_value.split(",", maxsplit=1)[0].strip()
-        return None
+    @lru_cache(maxsize=256)
+    def _parse_ip(ip_str: str) -> IPv4Address | IPv6Address:
+        """Parse and cache IP address parsing results."""
+        return ip_address(ip_str)
 
     @staticmethod
     def _parse(item: IPAddress | IPNetwork | str) -> IPAddress | IPNetwork | None:
-        if isinstance(item, (IPNetwork, IPAddress)):
+        if isinstance(item, (IPv4Network, IPv6Network, IPv4Address, IPv6Address)):
             return item
         if isinstance(item, str):
             return ip_network(item, strict=False) if "/" in item else ip_address(item)

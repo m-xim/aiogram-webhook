@@ -9,15 +9,17 @@ requires-python = ">=3.10"
 dependencies = [
     "aiogram>=3.14.0",
     "yarl>=1.17.0",
+    "multidict>=6.7.1",
+    "aiohttp>=3.9.0",
 ]
 
 keywords = [
     "aiogram",
+    "multibot",
     "telegram",
     "webhook",
     "fastapi",
     "aiohttp",
-    "multibot",
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
@@ -28,13 +30,14 @@ classifiers = [
     "Programming Language :: Python :: 3.14",
     "Topic :: Software Development :: Libraries",
     "Operating System :: OS Independent",
+    "Typing :: Typed",
 ]
 
 [project.urls]
 Homepage = "https://github.com/m-xim/aiogram-webhook"
 Repository = "https://github.com/m-xim/aiogram-webhook"
 Issues = "https://github.com/m-xim/aiogram-webhook/issues"
-Documentation = "https://github.com/m-xim/aiogram-webhook#readme"
+Documentation = "https://aiogram-webhook.m-xim.ru"
 
 [project.optional-dependencies]
 fastapi = [
@@ -48,16 +51,16 @@ dev = [
     "ty",
     "pytest",
     "pytest-asyncio",
-    "httpx"
+    "pytest-cov",
+    "httpx2",
 ]
 
 [build-system]
-requires = ["uv_build"]
+requires = ["uv_build<0.12"]
 build-backend = "uv_build"
 
 [tool.uv]
 package = true
-
 
 [tool.semantic_release]
 version_source = "pyproject"
