@@ -4,7 +4,7 @@ from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from typing import Any, Generic, TypeVar
 
-from aiogram import Bot
+from aiogram import Bot, Dispatcher
 from aiogram.methods import TelegramMethod
 
 from aiogram_webhook.engines.errors import (
@@ -33,9 +33,7 @@ FrameworkResponseT = TypeVar("FrameworkResponseT")
 class BaseWebhookEngine(ABC, Generic[AppT, RawRequestT, FrameworkResponseT]):
     def __init__(
         self,
-        dispatcher,
-        /,
-        *,
+        dispatcher: Dispatcher,
         web: WebAdapter[AppT, RawRequestT, FrameworkResponseT],
         route: Route,
         security: Security | None = None,

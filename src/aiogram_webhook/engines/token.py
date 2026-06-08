@@ -24,8 +24,6 @@ class TokenEngine(
     def __init__(
         self,
         dispatcher,
-        /,
-        *,
         web: WebAdapter[AppT, RawRequestT, FrameworkResponseT],
         route: Route,
         security=None,
@@ -35,7 +33,7 @@ class TokenEngine(
         shutdown_timeout: float = 10.0,
     ) -> None:
         super().__init__(
-            dispatcher,
+            dispatcher=dispatcher,
             web=web,
             route=route,
             security=security,

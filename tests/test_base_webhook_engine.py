@@ -28,7 +28,10 @@ class EngineProbe(BaseWebhookEngine[Any, Any, dict[str, Any]]):
         self.task_tracker = TaskTracker()
 
         super().__init__(
-            dispatcher, web=web, route=DummyRoute({"bot_token": "42:TEST"}), handle_in_background=handle_in_background
+            dispatcher,  # ty:ignore[invalid-argument-type]
+            web=web,
+            route=DummyRoute({"bot_token": "42:TEST"}),
+            handle_in_background=handle_in_background,
         )
 
     async def _on_startup(self, _app: Any, *args: Any, **kwargs: Any) -> None:

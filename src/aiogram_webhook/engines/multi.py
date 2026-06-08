@@ -21,8 +21,6 @@ class BaseMultiBotEngine(
     def __init__(
         self,
         dispatcher,
-        /,
-        *,
         web: WebAdapter[AppT, RawRequestT, FrameworkResponseT],
         route: Route,
         security: Security | None = None,
@@ -34,7 +32,7 @@ class BaseMultiBotEngine(
         self._bots: dict[int, Bot] = {}
         self.webhook_config = webhook_config or WebhookConfig()
         super().__init__(
-            dispatcher,
+            dispatcher=dispatcher,
             web=web,
             route=route,
             security=security,

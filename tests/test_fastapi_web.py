@@ -86,7 +86,7 @@ def test_fastapi_adapter_registers_lifecycle_callbacks_with_app_lifespan(bot):
 
     with pytest.warns(UserWarning, match="Security is not configured"):
         engine = SpyEngine(
-            DummyDispatcher(),
+            DummyDispatcher(),  # ty:ignore[invalid-argument-type]
             web=adapter,
             route=Route(base_url="https://example.com", path="/webhook"),
             handle_in_background=False,
