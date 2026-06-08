@@ -91,11 +91,7 @@ class Route:
                 raise InvalidPathParamError(param=binding.name, value=raw_value) from exc
 
         if self._query:
-            self._query.match(
-                query_params=request.query_params,
-                route_params=route_params,
-                strict=self._strict_query,
-            )
+            self._query.match(query_params=request.query_params, route_params=route_params, strict=self._strict_query)
         elif self._strict_query and request.query_params:
             raise UnexpectedQueryParamError(query_params=request.query_params.keys(), expected_query_params=())
 
