@@ -2,6 +2,89 @@
 
 <!-- version list -->
 
+## v3.0.0 (2026-06-08)
+
+### Bug Fixes
+
+- **docs**: 404 base path for style, scripts etc
+  ([`6cb75c7`](https://github.com/m-xim/aiogram-webhook/commit/6cb75c74f8a2b3c06e51dbf331dd77e28e327a03))
+
+- **docs**: Favicon
+  ([`127036b`](https://github.com/m-xim/aiogram-webhook/commit/127036b9d67dd1f60a1930f550d62e63a71252e3))
+
+- **docs**: Links
+  ([`6d414dc`](https://github.com/m-xim/aiogram-webhook/commit/6d414dc551c6ce53f314c6ad1573f30b3f877fd5))
+
+- **docs**: Remove release badge
+  ([`00da2bb`](https://github.com/m-xim/aiogram-webhook/commit/00da2bbd39af701049949e74429700bea6093040))
+
+- **docs**: Remove release badge
+  ([`266591a`](https://github.com/m-xim/aiogram-webhook/commit/266591a8b6182c3965df129f652bfc42faf76c82))
+
+- **docs**: Translate
+  ([`81f42be`](https://github.com/m-xim/aiogram-webhook/commit/81f42bef5b08d0b5e451b88c621e7a5a61e40f17))
+
+- **docs**: Url
+  ([`ab19aca`](https://github.com/m-xim/aiogram-webhook/commit/ab19acac6af1fdb1fe9bdcb8290f51cd55613fb0))
+
+- **engine**: Webhook config
+  ([`6937704`](https://github.com/m-xim/aiogram-webhook/commit/6937704850c150f20a847fe825b1adf1fe3c7687))
+
+- **pyproject**: Documentation url
+  ([`194ec19`](https://github.com/m-xim/aiogram-webhook/commit/194ec19cda2b0b27ac58fda063728a393f20c1ab))
+
+- **route**: Use lstrip instead of strip for path joining
+  ([`5664207`](https://github.com/m-xim/aiogram-webhook/commit/5664207c17e9ed7f400db354a9053f68bbaf629f))
+
+- **token**: _on_shutdown and add timeout in remove_bot
+  ([`20736b6`](https://github.com/m-xim/aiogram-webhook/commit/20736b66a9b0b3aee473f9293fcbe12a4bfe9dec))
+
+- **web**: Add lazy headers and query_params
+  ([`566f8f9`](https://github.com/m-xim/aiogram-webhook/commit/566f8f9a0ad00470707a0d73bf8fa17c185cc3ed))
+
+- **web**: Content-length for fastapi
+  ([`1bd5f11`](https://github.com/m-xim/aiogram-webhook/commit/1bd5f1144317343ff099d4c4ccb31fbcd771aaaa))
+
+### Chores
+
+- Style
+  ([`cbf8ba6`](https://github.com/m-xim/aiogram-webhook/commit/cbf8ba6ffb52f728eaf85451582d110f5fd0c408))
+
+### Features
+
+- **ci**: Add environment
+  ([`86ab6b8`](https://github.com/m-xim/aiogram-webhook/commit/86ab6b8566d7610010d3c888dedf5ec8497bb9eb))
+
+- **docs**: Add new icons, add new home
+  ([`5bfc684`](https://github.com/m-xim/aiogram-webhook/commit/5bfc68476104e0b1b470422ae3be44b8a48eccbd))
+
+- **docs**: Add shutdown_timeout and update dispatch
+  ([`aa687bd`](https://github.com/m-xim/aiogram-webhook/commit/aa687bd073175fa0e0379a15e90859588ee0d2c8))
+
+- **docs**: Update mermaid
+  ([`e2ac6aa`](https://github.com/m-xim/aiogram-webhook/commit/e2ac6aa680f282579e73250f4d913aa5cd286a86))
+
+- **docs**: Update paths
+  ([`b40271f`](https://github.com/m-xim/aiogram-webhook/commit/b40271fcb2f97f2dd22a8275c66c24969d9cf267))
+
+- **engines**: Add configurable shutdown_timeout parameter
+  ([`3aed1a4`](https://github.com/m-xim/aiogram-webhook/commit/3aed1a4c3f5814646180e3e6de8f9b39383bbd44))
+
+### Refactoring
+
+- **docs**: Webhook config
+  ([`4c39573`](https://github.com/m-xim/aiogram-webhook/commit/4c3957368a93da849965f7fafd5acf9eb01cd0b9))
+
+- **engine**: Webhook config
+  ([`965331e`](https://github.com/m-xim/aiogram-webhook/commit/965331edc923935fbef30b5b5b0e1906adcdb146))
+
+- **route**: Build_url
+  ([`cb9ee93`](https://github.com/m-xim/aiogram-webhook/commit/cb9ee93c5f87ed7c83e9ec6ad87ef180ef77c808))
+
+- **test**: Use MultiDict directly in DummyRequest
+  ([`8175e4d`](https://github.com/m-xim/aiogram-webhook/commit/8175e4d5063cdb436cf49c1ee4e96af7610c0f20))
+
+
 ## v2.0.1 (2026-02-21)
 
 ### Bug Fixes
