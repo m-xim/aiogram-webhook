@@ -141,8 +141,9 @@ blocks:
 
           @asynccontextmanager
           async def lifespan(app: FastAPI):
-              await engine.set_webhook()
-              yield
+              async with engine.lifespan(app):
+                  await engine.set_webhook()
+                  yield
 
 
           app = FastAPI(lifespan=lifespan)

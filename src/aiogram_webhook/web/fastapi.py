@@ -1,12 +1,10 @@
-from collections.abc import AsyncIterator, Mapping
-from contextlib import asynccontextmanager
+from collections.abc import Mapping
 from typing import Any
 
 from aiohttp import Payload
-from fastapi import APIRouter, FastAPI, Request, Response
+from fastapi import FastAPI, Request, Response
 from fastapi.responses import JSONResponse
 from multidict import CIMultiDict, CIMultiDictProxy, MultiDict, MultiDictProxy
-from starlette.types import Lifespan
 
 from aiogram_webhook.web._starlette import AiohttpPayloadResponse
 from aiogram_webhook.web.base import (
@@ -60,33 +58,19 @@ class FastAPIAdapter(WebAdapter[FastAPI, Request, Response]):
     def bind_request(self, request: Request) -> WebRequest[Request]:
         return FastAPIWebRequest(request)
 
-    @staticmethod
-    def _build_lifespan(on_startup: LifecycleCallback, on_shutdown: LifecycleCallback) -> Lifespan[FastAPI]:
-        @asynccontextmanager
-        async def lifespan(app: FastAPI) -> AsyncIterator[None]:
-            await on_startup(app)
-            try:
-                yield
-            finally:
-                await on_shutdown(app)
-
-        return lifespan
-
     def register(
         self,
         app: FastAPI,
         path: str,
         handler: WebHandler[Request, Response],
         *,
-        on_startup: LifecycleCallback,
-        on_shutdown: LifecycleCallback,
+        on_startup: LifecycleCallback,  # noqa: ARG002
+        on_shutdown: LifecycleCallback,  # noqa: ARG002
     ) -> None:
         async def endpoint(request: Request) -> Response:
             return await handler(self.bind_request(request))
 
-        router = APIRouter(lifespan=self._build_lifespan(on_startup, on_shutdown))
-        router.add_api_route(path=path, endpoint=endpoint, methods=["POST"])
-        app.include_router(router)
+        app.add_api_route(path=path, endpoint=endpoint, methods=["POST"])
 
     def json_response(
         self, status_code: int, data: dict[str, str] | None = None, headers: Mapping[str, str] | None = None
