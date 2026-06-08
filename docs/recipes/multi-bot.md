@@ -11,7 +11,7 @@ Component deep dive: [TokenEngine](../engines/token-engine.md). Runnable pieces:
 | Many token-based bots | `TokenEngine` | [TokenEngine](../engines/token-engine.md) |
 | Token in URL | `Route` + `BotTokenParam` | [Route](../route/overview.md) |
 | Bot creation defaults | `BotConfig` | [TokenEngine](../engines/token-engine.md#bot-configuration) |
-| Shared Telegram defaults | Engine-level `WebhookConfig` | [WebhookConfig](../other/webhook-config.md) |
+| Shared Telegram defaults | Engine-level `WebhookConfig` | [WebhookConfig](../reference/webhook-config.md) |
 | Per-bot overrides | `add_bot(..., webhook_config=...)` | [TokenEngine](../engines/token-engine.md#telegram-options) |
 
 ## Route

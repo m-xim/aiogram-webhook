@@ -6,7 +6,7 @@ How the engine responds to Telegram while handlers run. Wiring (`SingleBotEngine
 
 Telegram sends a `POST` with JSON. The adapter normalizes it; the engine resolves the bot, runs security, and dispatches to aiogram.
 
-{% include [Request flow](../_includes/request-flow.md) %}
+{% include [Request flow](_includes/request-flow.md) %}
 
 The diagram above is the canonical request flow. Other pages link here instead of repeating it.
 

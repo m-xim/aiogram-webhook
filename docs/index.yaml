@@ -17,7 +17,7 @@ blocks:
       - text: 'Quick start'
         primary: true
         theme: 'action'
-        url: './pages/learn/first-webhook.md'
+        url: './learn/first-webhook.md'
       - text: 'PyPI'
         theme: 'outlined'
         url: 'https://pypi.org/project/aiogram-webhook/'
@@ -89,7 +89,7 @@ blocks:
           ```
         {% endlist %}
 
-        Omit the extra if you build a [custom adapter](./pages/web/custom.md) or use route/security helpers only.
+        Omit the extra if you build a [custom adapter](./web/custom.md) or use route/security helpers only.
       buttons:
         - text: 'PyPI'
           theme: 'outlined'
@@ -213,11 +213,11 @@ blocks:
         4. Your handler calls `message.answer("OK")` through the Bot API.
         5. Telegram gets an empty `200` from the webhook request itself.
 
-        Step 4 is a separate HTTP call — normal for [background mode](./pages/dispatch.md).
+        Step 4 is a separate HTTP call — normal for [background mode](./dispatch.md).
       buttons:
         - text: 'Dispatch modes'
           theme: 'outlined'
-          url: './pages/dispatch.md'
+          url: './dispatch.md'
 
   - type: 'card-layout-block'
     title: 'Go deeper'
@@ -237,7 +237,7 @@ blocks:
         iconPosition: 'top'
         title: 'Learn'
         text: 'First webhook, deployment behind HTTPS, set_webhook checklist.'
-        url: './pages/learn/first-webhook.md'
+        url: './learn/first-webhook.md'
         urlTitle: 'Start learning'
         border: 'shadow'
         controlPosition: 'content'
@@ -247,7 +247,7 @@ blocks:
         iconPosition: 'top'
         title: 'Guide'
         text: 'Adapters, engines, route, security — one topic per page.'
-        url: './pages/web/overview.md'
+        url: './web/overview.md'
         urlTitle: 'Open guide'
         border: 'shadow'
         controlPosition: 'content'
@@ -257,7 +257,7 @@ blocks:
         iconPosition: 'top'
         title: 'Recipes'
         text: 'Single-bot and multi-bot project layout once the basics are clear.'
-        url: './pages/recipes/single-bot.md'
+        url: './recipes/single-bot.md'
         urlTitle: 'Open recipes'
         border: 'shadow'
         controlPosition: 'content'
@@ -267,7 +267,7 @@ blocks:
         iconPosition: 'top'
         title: 'API'
         text: 'WebhookConfig options, error codes, full API.'
-        url: './pages/other/api.md'
+        url: './reference/api.md'
         urlTitle: 'Open reference'
         border: 'shadow'
         controlPosition: 'content'

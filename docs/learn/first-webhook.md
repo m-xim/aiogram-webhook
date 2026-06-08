@@ -1,6 +1,6 @@
 # First Webhook
 
-Deployment checklist. This page explains **why** each step matters — copy-paste code is on the [home page](../../index.html).
+Deployment checklist. This page explains **why** each step matters — copy-paste code is on the [home page](../index.html).
 
 ## What changes from polling
 
@@ -41,7 +41,7 @@ dispatcher.include_router(router)
 
 The engine connects dispatcher, bot, adapter, route, and security in one place — copy the minimal app from the home page.
 
-{% include [Register vs setWebhook](../../_includes/register-vs-set-webhook.md) %}
+{% include [Register vs setWebhook](../_includes/register-vs-set-webhook.md) %}
 
 Adapter-specific details: [FastAPI](../web/fastapi.md) · [aiohttp](../web/aiohttp.md)
 
@@ -81,7 +81,7 @@ await engine.set_webhook()  # SingleBotEngine
 await engine.add_bot("123456:ABCDEF")  # TokenEngine
 ```
 
-The engine forwards `WebhookConfig` fields and the secret from `Security`, so Telegram registration and request verification stay aligned. Details: [WebhookConfig](../other/webhook-config.md).
+The engine forwards `WebhookConfig` fields and the secret from `Security`, so Telegram registration and request verification stay aligned. Details: [WebhookConfig](../reference/webhook-config.md).
 
 {% cut "How do I know Telegram accepted it?" %}
 
@@ -100,7 +100,7 @@ Empty `url` or a set `last_error_message` means fix connectivity or TLS before d
 
 1. Send `/start` in Telegram.
 2. Confirm the handler reply arrives.
-3. On failure, check [Errors](../other/errors.md) and application logs (`aiogram_webhook` logger).
+3. On failure, check [Errors](../reference/errors.md) and application logs (`aiogram_webhook` logger).
 
 Request flow diagram: [Dispatch modes](../dispatch.md#one-update-end-to-end).
 
@@ -109,6 +109,6 @@ Request flow diagram: [Dispatch modes](../dispatch.md#one-update-end-to-end).
 | Topic | Page |
 | --- | --- |
 | Secret token and IP checks | [Security](../security/overview.md) |
-| `allowed_updates`, `drop_pending_updates` | [WebhookConfig](../other/webhook-config.md) |
+| `allowed_updates`, `drop_pending_updates` | [WebhookConfig](../reference/webhook-config.md) |
 | Project file layout | [Single-bot app](../recipes/single-bot.md) |
 | Several bots on one service | [Multi-bot app](../recipes/multi-bot.md) |

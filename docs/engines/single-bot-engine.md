@@ -39,7 +39,7 @@ Full example with handlers and security: see **Minimal app** on the home page.
 | Security | `StaticSecretToken` + `IPCheck` in production |
 | WebhookConfig | Passed to `set_webhook()` per call |
 
-{% include [Register vs setWebhook](../../_includes/register-vs-set-webhook.md) %}
+{% include [Register vs setWebhook](../_includes/register-vs-set-webhook.md) %}
 
 ## Telegram options
 
@@ -56,7 +56,7 @@ await engine.set_webhook(
 )
 ```
 
-Field reference: [WebhookConfig](../other/webhook-config.md).
+Field reference: [WebhookConfig](../reference/webhook-config.md).
 
 ## Lifecycle
 

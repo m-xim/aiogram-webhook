@@ -10,7 +10,7 @@ Project shape for one Telegram bot on one service. For the runnable example, sta
 | HTTP framework | `FastAPIAdapter` or `AiohttpAdapter` | [Web adapters](../web/overview.md) |
 | Public URL | `Route(base_url=..., path=...)` | [Route](../route/overview.md) |
 | Request verification | `Security` | [Security](../security/overview.md) |
-| Telegram delivery | `WebhookConfig` | [WebhookConfig](../other/webhook-config.md) |
+| Telegram delivery | `WebhookConfig` | [WebhookConfig](../reference/webhook-config.md) |
 
 ## Suggested layout
 
@@ -23,7 +23,7 @@ app/
 
 Wire `Bot`, `Dispatcher`, `Route`, `Security`, and the adapter once in `web.py`. Keep handlers free of HTTP details.
 
-{% include [Security warning](../../_includes/security-warning.md) %}
+{% include [Security warning](../_includes/security-warning.md) %}
 
 ## Webhook options
 

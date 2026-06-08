@@ -41,9 +41,9 @@ engine = SingleBotEngine(
 | Topic | Page |
 | --- | --- |
 | Background vs foreground dispatch | [Dispatch Modes](../dispatch.md) |
-| Telegram `setWebhook` fields | [WebhookConfig](../other/webhook-config.md) |
+| Telegram `setWebhook` fields | [WebhookConfig](../reference/webhook-config.md) |
 | Per-bot overrides on `TokenEngine` | [TokenEngine](token-engine.md) |
-| HTTP errors during dispatch | [Errors](../other/errors.md) |
+| HTTP errors during dispatch | [Errors](../reference/errors.md) |
 
 {% note tip %}
 

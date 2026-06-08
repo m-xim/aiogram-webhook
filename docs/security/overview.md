@@ -2,7 +2,7 @@
 
 Security runs **after** route matching and **before** the update reaches aiogram. It is optional in code and important on any public endpoint.
 
-{% include [Security warning](../../_includes/security-warning.md) %}
+{% include [Security warning](../_includes/security-warning.md) %}
 
 ## Built-in pieces
 
