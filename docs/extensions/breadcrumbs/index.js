@@ -85,7 +85,7 @@ function createBreadcrumbsMap(toc, options) {
         }
     }
     const initialBreadcrumbItems = options.tocAsRoot && toc.title && toc.href
-        ? [{ name: toc.title, url: toc.href }]
+        ? [{ name: toc.title, url: "/" }] // fix: index.yaml
         : [];
     toc.items.forEach(item => processItem(item, initialBreadcrumbItems));
     return breadcrumbsMap;
