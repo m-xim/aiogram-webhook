@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v3.0.1 (2026-06-08)
+
+### Bug Fixes
+
+- **engine**: Params
+  ([`1ec279f`](https://github.com/m-xim/aiogram-webhook/commit/1ec279ff3a33f0038aa00b58e6f2ba90430bf958))
+
+
 ## v3.0.0 (2026-06-08)
 
 ### Bug Fixes
