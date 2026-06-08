@@ -19,8 +19,6 @@ class SingleBotEngine(
         self,
         dispatcher,
         bot: Bot,
-        /,
-        *,
         web: WebAdapter[AppT, RawRequestT, FrameworkResponseT],
         route: Route,
         security=None,
@@ -31,7 +29,7 @@ class SingleBotEngine(
         self._task_tracker = TaskTracker()
 
         super().__init__(
-            dispatcher,
+            dispatcher=dispatcher,
             web=web,
             route=route,
             security=security,
