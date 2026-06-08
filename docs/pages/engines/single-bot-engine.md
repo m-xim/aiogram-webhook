@@ -15,7 +15,7 @@ For several bots identified by URL token, use [TokenEngine](token-engine.md).
 ```python
 from aiogram import Bot, Dispatcher
 
-from aiogram_webhook import FastAPIAdapter, SingleBotEngine, WebhookConfig
+from aiogram_webhook import FastAPIAdapter, SingleBotEngine
 from aiogram_webhook.route import Route
 
 dispatcher = Dispatcher()
@@ -26,7 +26,6 @@ engine = SingleBotEngine(
     bot,
     web=FastAPIAdapter(),
     route=Route(base_url="https://example.com", path="/webhook"),
-    webhook_config=WebhookConfig(drop_pending_updates=True),
 )
 ```
 
@@ -38,18 +37,18 @@ Full example with handlers and security: see **Minimal app** on the home page.
 | --- | --- |
 | Route | Static path, e.g. `/webhook` |
 | Security | `StaticSecretToken` + `IPCheck` in production |
-| WebhookConfig | One shared config for the bot |
+| WebhookConfig | Passed to `set_webhook()` per call |
 
 {% include [Register vs setWebhook](../../_includes/register-vs-set-webhook.md) %}
 
 ## Telegram options
 
+Pass `WebhookConfig` when calling `set_webhook()`:
+
 ```python
-engine = SingleBotEngine(
-    dispatcher,
-    bot,
-    web=web,
-    route=route,
+from aiogram_webhook import WebhookConfig
+
+await engine.set_webhook(
     webhook_config=WebhookConfig(
         allowed_updates=["message", "callback_query"],
         drop_pending_updates=True,

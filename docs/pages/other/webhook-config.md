@@ -34,7 +34,7 @@ If security has a secret-token provider, the engine adds `secret_token` to Teleg
 
 | Engine | How options are used |
 | --- | --- |
-| `SingleBotEngine` | Pass `webhook_config` to the engine. `set_webhook()` uses it for the single bot. |
+| `SingleBotEngine` | Pass `webhook_config` to `set_webhook()` directly. No engine-level default. |
 | `TokenEngine` | Pass engine defaults through `webhook_config`; override per bot in `add_bot(..., webhook_config=...)`. |
 
 See the engine pages for concrete setup examples.
