@@ -1,6 +1,6 @@
 # FastAPI Adapter
 
-`FastAPIAdapter` is the web-framework component for FastAPI applications. It binds a webhook engine to a `FastAPI` app, registers a `POST` route, and composes engine lifecycle callbacks with the application's lifespan.
+`FastAPIAdapter` is the web-framework component for FastAPI applications. It binds a webhook engine to a `FastAPI` app and registers a `POST` route. Engine lifecycle is managed separately via `engine.lifespan(app)` inside the application's lifespan function.
 
 Use it when the rest of your application already lives in FastAPI or when you want FastAPI's dependency, middleware, and deployment ecosystem around aiogram.
 
@@ -28,12 +28,13 @@ engine = SingleBotEngine(
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    await engine.set_webhook()
-    yield
+    engine.register(app)
+    async with engine.lifespan(app):
+        await engine.set_webhook()
+        yield
 
 
 app = FastAPI(lifespan=lifespan)
-engine.register(app)
 ```
 
 ## Request mapping
@@ -49,8 +50,8 @@ engine.register(app)
 
 {% note tip %}
 
-FastAPI keeps your application lifespan.
-The adapter adds engine startup/shutdown through the included router, so you can keep application setup and webhook registration in the app lifespan.
+FastAPI does not wire engine lifecycle through `register()`.
+Use `engine.lifespan(app)` as an async context manager inside the application lifespan to run engine startup and shutdown in the correct order.
 
 {% endnote %}
 
@@ -66,4 +67,4 @@ The adapter streams it as Telegram-compatible multipart payload when needed, inc
 | Engine | Calls `register(app)` with a FastAPI app. |
 | Route | Provides the path that becomes a FastAPI `POST` route. |
 | Security | Runs inside the engine after the adapter normalizes the request. |
-| Lifecycle | Uses router lifespan, so application lifespan can still call `set_webhook()`. |
+| Lifecycle | Use `engine.lifespan(app)` inside your app lifespan; call `set_webhook()` after entering it. |
