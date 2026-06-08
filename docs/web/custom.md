@@ -4,7 +4,7 @@ Create a custom adapter when your web framework is not FastAPI or aiohttp. The a
 
 `FastAPIAdapter` and `AiohttpAdapter` are shipped reference implementations — useful to read, not mandatory templates. Study their source when you need working lifecycle wiring or multipart reply handling:
 
-* `aiogram_webhook.web.fastapi` — router lifespan, Starlette payload bridge
+* `aiogram_webhook.web.fastapi` — `engine.lifespan(app)` context manager pattern, Starlette payload bridge
 * `aiogram_webhook.web.aiohttp` — `web.Application` routes and startup/shutdown hooks
 
 See also [Extending overview](../custom-integrations.md) for how adapters fit next to engines and security.

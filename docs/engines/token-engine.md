@@ -123,7 +123,7 @@ async def set_webhooks(app):
     await engine.add_bot("654321:UVWXYZ")
 ```
 
-`engine.register(app)` wires local framework callbacks. `engine.add_bot()` resolves the bot and calls Telegram.
+`engine.register(app)` registers the local route (with aiohttp, also wires lifecycle callbacks). For FastAPI, wrap startup in `engine.lifespan(app)` — see [FastAPI adapter](../web/fastapi.md). `engine.add_bot()` resolves the bot and calls Telegram.
 
 ### shutdown_timeout
 
