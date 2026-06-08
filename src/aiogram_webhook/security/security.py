@@ -12,13 +12,11 @@ class Security:
         self._checks: tuple[SecurityCheck, ...] = checks
 
     async def verify(self, *, target: Target, request: WebRequest, route_params: RouteParams) -> None:
-        # Verify secret token first
         if self._secret_token is not None:
             ok = await self._secret_token.verify(target=target, request=request, route_params=route_params)
             if not ok:
                 raise SecretTokenError(target_bot_id=target.bot_id)
 
-        # Run all configured security checks
         for check in self._checks:
             ok = await check.verify(target=target, request=request, route_params=route_params)
             if not ok:

@@ -5,7 +5,6 @@ from typing import Any, Generic, TypeVar
 from aiogram import Bot
 from aiogram.methods import TelegramMethod
 
-from aiogram_webhook.configs.webhook import WebhookConfig
 from aiogram_webhook.engines.errors import (
     BotNotFoundError,
     InvalidJsonError,
@@ -20,7 +19,6 @@ from aiogram_webhook.route.params import RouteParams
 from aiogram_webhook.security import Security
 from aiogram_webhook.tasks import TaskTracker
 from aiogram_webhook.utils._payload import build_webhook_payload
-from aiogram_webhook.utils.config import dataclass_config_to_kwargs
 from aiogram_webhook.web.base import WebAdapter, WebRequest
 
 logger = get_logger("engines")
@@ -39,7 +37,6 @@ class BaseWebhookEngine(ABC, Generic[AppT, RawRequestT, FrameworkResponseT]):
         web: WebAdapter[AppT, RawRequestT, FrameworkResponseT],
         route: Route,
         security: Security | None = None,
-        webhook_config: WebhookConfig | None = None,
         handle_in_background: bool = True,
         shutdown_timeout: float = 10.0,
     ) -> None:
@@ -47,7 +44,6 @@ class BaseWebhookEngine(ABC, Generic[AppT, RawRequestT, FrameworkResponseT]):
         self.web = web
         self.route = route
         self.security = security
-        self.webhook_config = webhook_config or WebhookConfig()
         self.handle_in_background = handle_in_background
 
         self.shutdown_timeout = shutdown_timeout
@@ -147,15 +143,3 @@ class BaseWebhookEngine(ABC, Generic[AppT, RawRequestT, FrameworkResponseT]):
             "webhook_engine": self,
             **kwargs,
         }
-
-    async def _build_webhook_kwargs(
-        self, target: Target, webhook_config: WebhookConfig | None = None
-    ) -> dict[str, Any]:
-        webhook_kwargs = dataclass_config_to_kwargs(self.webhook_config, webhook_config)
-
-        if self.security is not None:
-            secret_token = await self.security.secret_token(target)
-            if secret_token is not None:
-                webhook_kwargs["secret_token"] = secret_token
-
-        return webhook_kwargs

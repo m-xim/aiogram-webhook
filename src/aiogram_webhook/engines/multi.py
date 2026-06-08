@@ -7,9 +7,11 @@ from aiogram import Bot
 
 from aiogram_webhook import WebhookConfig
 from aiogram_webhook.engines.base import AppT, BaseWebhookEngine, FrameworkResponseT, RawRequestT, logger
+from aiogram_webhook.engines.target import Target
 from aiogram_webhook.route import Route
 from aiogram_webhook.security import Security
 from aiogram_webhook.tasks import TaskTracker
+from aiogram_webhook.utils.config import dataclass_config_to_kwargs
 from aiogram_webhook.web.base import WebAdapter
 
 
@@ -28,19 +30,27 @@ class BaseMultiBotEngine(
         handle_in_background: bool = True,
         shutdown_timeout: float = 10.0,
     ) -> None:
-        self.route = route
         self._task_trackers: dict[int, TaskTracker] = {}
         self._bots: dict[int, Bot] = {}
-
+        self.webhook_config = webhook_config or WebhookConfig()
         super().__init__(
             dispatcher,
             web=web,
             route=route,
             security=security,
-            webhook_config=webhook_config,
             handle_in_background=handle_in_background,
             shutdown_timeout=shutdown_timeout,
         )
+
+    async def _build_webhook_kwargs(
+        self, target: Target, webhook_config: WebhookConfig | None = None
+    ) -> dict[str, Any]:
+        kwargs = dataclass_config_to_kwargs(self.webhook_config, webhook_config)
+        if self.security is not None:
+            secret_token = await self.security.secret_token(target)
+            if secret_token is not None:
+                kwargs["secret_token"] = secret_token
+        return kwargs
 
     @property
     def bots(self) -> Mapping[int, Bot]:

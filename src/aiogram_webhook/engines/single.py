@@ -2,11 +2,13 @@ from typing import Generic
 
 from aiogram import Bot
 
+from aiogram_webhook.configs.webhook import WebhookConfig
 from aiogram_webhook.engines.base import AppT, BaseWebhookEngine, FrameworkResponseT, RawRequestT, logger
 from aiogram_webhook.engines.target import Target
 from aiogram_webhook.route import Route
 from aiogram_webhook.route.params import RouteParams
 from aiogram_webhook.tasks import TaskTracker
+from aiogram_webhook.utils.config import dataclass_config_to_kwargs
 from aiogram_webhook.web.base import WebAdapter, WebRequest
 
 
@@ -22,7 +24,6 @@ class SingleBotEngine(
         web: WebAdapter[AppT, RawRequestT, FrameworkResponseT],
         route: Route,
         security=None,
-        webhook_config=None,
         handle_in_background: bool = True,
         shutdown_timeout: float = 10.0,
     ) -> None:
@@ -34,7 +35,6 @@ class SingleBotEngine(
             web=web,
             route=route,
             security=security,
-            webhook_config=webhook_config,
             handle_in_background=handle_in_background,
             shutdown_timeout=shutdown_timeout,
         )
@@ -48,10 +48,14 @@ class SingleBotEngine(
     def _get_task_tracker(self, bot: Bot) -> TaskTracker:  # noqa: ARG002
         return self._task_tracker
 
-    async def set_webhook(self) -> bool:
+    async def set_webhook(self, webhook_config: WebhookConfig | None = None) -> bool:
         target = Target(bot_id=self.bot.id, bot_token=self.bot.token)
-        webhook_kwargs = await self._build_webhook_kwargs(target=target)
-        return await self.bot.set_webhook(url=await self.route.build_url(target=target), **webhook_kwargs)
+        kwargs = dataclass_config_to_kwargs(webhook_config or WebhookConfig())
+        if self.security is not None:
+            secret_token = await self.security.secret_token(target)
+            if secret_token is not None:
+                kwargs["secret_token"] = secret_token
+        return await self.bot.set_webhook(url=await self.route.build_url(target=target), **kwargs)
 
     async def _on_startup(self, app: AppT, *args, **kwargs) -> None:  # noqa: ARG002
         logger.info("Starting single-bot webhook engine for bot %s", self.bot.id)
