@@ -1,11 +1,11 @@
 meta:
   title: 'aiogram-webhook'
-  description: 'Webhook integration for aiogram with FastAPI and aiohttp.'
+  description: 'Webhook layer for aiogram — route registration, setWebhook, request verification, and lifecycle management for FastAPI and aiohttp.'
 
 blocks:
   - type: 'header-block'
     title: 'Aiogram Webhook'
-    description: 'Webhook adapter for aiogram. Plug FastAPI or aiohttp into your existing bot — handlers, FSM, and filters stay untouched.'
+    description: 'Handles the webhook layer for aiogram bots. Registers the endpoint, calls Telegram setWebhook, verifies incoming requests, and manages engine lifecycle.'
     background:
       dark:
         color: '#101827'
@@ -141,9 +141,8 @@ blocks:
 
           @asynccontextmanager
           async def lifespan(app: FastAPI):
-              async with engine.lifespan(app):
-                  await engine.set_webhook()
-                  yield
+              await engine.set_webhook()
+              yield
 
 
           app = FastAPI(lifespan=lifespan)

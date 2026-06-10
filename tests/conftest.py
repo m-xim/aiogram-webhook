@@ -2,6 +2,8 @@ import pytest
 from aiogram import Bot
 
 from aiogram_webhook.engines.target import Target
+from tests.fixtures.web_request import DummyRequest, DummyWebRequest
+from tests.fixtures.webhook_engine import CapturingAdapter, DummyDispatcher
 
 
 @pytest.fixture
@@ -25,5 +27,15 @@ def target(bot_id: int, bot_token: str) -> Target:
 
 
 @pytest.fixture
-def update_payload() -> dict[str, int]:
-    return {"update_id": 1}
+def adapter() -> CapturingAdapter:
+    return CapturingAdapter()
+
+
+@pytest.fixture
+def update_request() -> DummyWebRequest:
+    return DummyWebRequest(DummyRequest(json_data={"update_id": 1}))
+
+
+@pytest.fixture
+def dispatcher() -> DummyDispatcher:
+    return DummyDispatcher()
