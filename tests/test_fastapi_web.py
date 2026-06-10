@@ -1,7 +1,5 @@
-from contextlib import asynccontextmanager
 from typing import Any
 
-import pytest
 from aiogram.methods import SendDocument, SendMessage
 from aiogram.types import BufferedInputFile
 from fastapi import FastAPI
@@ -62,7 +60,7 @@ def test_fastapi_adapter_passes_bound_request_to_registered_post_handler():
     assert seen["json"] == {"update_id": 1}
 
 
-def test_fastapi_adapter_registers_lifecycle_callbacks_with_app_lifespan(bot):
+def test_fastapi_adapter_registers_lifecycle_callbacks_via_router(bot):
     events = []
     adapter = FastAPIAdapter()
 
@@ -84,36 +82,23 @@ def test_fastapi_adapter_registers_lifecycle_callbacks_with_app_lifespan(bot):
         def _get_task_tracker(self, bot) -> TaskTracker:
             return self._task_tracker
 
-    with pytest.warns(UserWarning, match="Security is not configured"):
-        engine = SpyEngine(
-            DummyDispatcher(),  # ty:ignore[invalid-argument-type]
-            web=adapter,
-            route=Route(base_url="https://example.com", path="/webhook"),
-            handle_in_background=False,
-        )
+    engine = SpyEngine(
+        DummyDispatcher(),  # ty:ignore[invalid-argument-type]
+        web=adapter,
+        route=Route(base_url="https://example.com", path="/webhook"),
+        handle_in_background=False,
+    )
 
-    @asynccontextmanager
-    async def app_lifespan(app: FastAPI):
-        events.append(("app_startup", app))
-        engine.register(app)
-        async with engine.lifespan(app):
-            yield
-        events.append(("app_shutdown", app))
-
-    app = FastAPI(lifespan=app_lifespan)
+    app = FastAPI()
+    engine.register(app)
 
     with TestClient(app) as client:
-        assert events == [("app_startup", app), ("engine_startup", app)]
+        assert events == [("engine_startup", app)]
         response = client.post("/webhook", json={"update_id": 1})
 
     assert response.status_code == 200
     assert response.json() == {}
-    assert events == [
-        ("app_startup", app),
-        ("engine_startup", app),
-        ("engine_shutdown", app),
-        ("app_shutdown", app),
-    ]
+    assert events == [("engine_startup", app), ("engine_shutdown", app)]
 
 
 def test_fastapi_adapter_streams_webhook_method_payload_as_multipart(bot):

@@ -1,12 +1,11 @@
 from collections.abc import Mapping
 from typing import Any
 
-from aiogram_webhook.route import Route
 from aiogram_webhook.route.params import RouteParams
 from aiogram_webhook.web.base import WebAdapter
 
 
-class DummyRoute(Route):
+class DummyRoute:
     path = "/webhook"
 
     def __init__(self, route_params: Mapping[str, str] | None = None) -> None:
@@ -54,4 +53,10 @@ class DummyDispatcher:
         return self.result
 
     async def silent_call_request(self, bot, result):
+        return None
+
+    async def emit_startup(self, **kwargs) -> None:
+        return None
+
+    async def emit_shutdown(self, **kwargs) -> None:
         return None

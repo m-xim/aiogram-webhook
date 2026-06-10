@@ -27,7 +27,7 @@ security = Security(
 engine = SingleBotEngine(dispatcher, bot, web=adapter, route=route, security=security)
 ```
 
-Pass `security` to the engine, not the adapter — verification stays independent of FastAPI, aiohttp, or a custom framework.
+Pass `security` to the engine, not the adapter — verification stays independent of the web framework.
 
 {% note info %}
 

@@ -1,8 +1,9 @@
 from collections.abc import Mapping
+from contextlib import asynccontextmanager
 from typing import Any
 
 from aiohttp import Payload
-from fastapi import FastAPI, Request, Response
+from fastapi import APIRouter, FastAPI, Request, Response
 from fastapi.responses import JSONResponse
 from multidict import CIMultiDict, CIMultiDictProxy, MultiDict, MultiDictProxy
 
@@ -64,13 +65,23 @@ class FastAPIAdapter(WebAdapter[FastAPI, Request, Response]):
         path: str,
         handler: WebHandler[Request, Response],
         *,
-        on_startup: LifecycleCallback,  # noqa: ARG002
-        on_shutdown: LifecycleCallback,  # noqa: ARG002
+        on_startup: LifecycleCallback,
+        on_shutdown: LifecycleCallback,
     ) -> None:
         async def endpoint(request: Request) -> Response:
             return await handler(self.bind_request(request))
 
-        app.add_api_route(path=path, endpoint=endpoint, methods=["POST"])
+        @asynccontextmanager
+        async def lifespan(_router: APIRouter):
+            try:
+                await on_startup(app)
+                yield
+            finally:
+                await on_shutdown(app)
+
+        router = APIRouter(lifespan=lifespan)
+        router.add_api_route(path=path, endpoint=endpoint, methods=["POST"])
+        app.include_router(router)
 
     def json_response(
         self, status_code: int, data: dict[str, str] | None = None, headers: Mapping[str, str] | None = None

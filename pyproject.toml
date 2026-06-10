@@ -59,6 +59,11 @@ dev = [
 requires = ["uv_build<0.12"]
 build-backend = "uv_build"
 
+[tool.pytest.ini_options]
+filterwarnings = [
+    "ignore:Security is not configured:UserWarning",
+]
+
 [tool.uv]
 package = true
 

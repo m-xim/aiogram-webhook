@@ -32,9 +32,6 @@ class BlockingShutdownDispatcher(DummyDispatcher):
         self.background_session_closed.append(getattr(bot.session, "closed", None))
         await self.background_continue.wait()
 
-    async def silent_call_request(self, bot: Any, result: Any) -> None:
-        return None
-
 
 class BlockingDispatcher(DummyDispatcher):
     """Test dispatcher that blocks raw update handling until released."""
