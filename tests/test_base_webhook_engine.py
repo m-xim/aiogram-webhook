@@ -153,10 +153,11 @@ async def test_engine_returns_bad_request_when_json_payload_is_invalid(bot, targ
 async def test_engine_lifespan_runs_startup_then_shutdown(bot, target, adapter, dispatcher, update_request):
     engine = EngineProbe(dispatcher, bot, target=target, web=adapter)
 
-    async with engine.lifespan(app=None):
-        assert not engine._is_shutting_down
-        response = await engine.handle_request(update_request)
-        assert response["status_code"] == 200
+    await engine.on_startup(None)
+    assert not engine._is_shutting_down
+    response = await engine.handle_request(update_request)
+    assert response["status_code"] == 200
+    await engine.on_shutdown(None)
 
     assert engine._is_shutting_down
     response = await engine.handle_request(update_request)
