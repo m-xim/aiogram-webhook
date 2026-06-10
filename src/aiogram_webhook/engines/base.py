@@ -1,7 +1,5 @@
 import warnings
 from abc import ABC, abstractmethod
-from collections.abc import AsyncGenerator
-from contextlib import asynccontextmanager
 from typing import Any, Generic, TypeVar
 
 from aiogram import Bot, Dispatcher
@@ -110,14 +108,6 @@ class BaseWebhookEngine(ABC, Generic[AppT, RawRequestT, FrameworkResponseT]):
     async def on_shutdown(self, app: AppT, *args: Any, **kwargs: Any) -> None:
         self._is_shutting_down = True
         await self._on_shutdown(app, *args, **kwargs)
-
-    @asynccontextmanager
-    async def lifespan(self, app: AppT) -> AsyncGenerator[None, Any]:
-        try:
-            await self.on_startup(app=app)
-            yield
-        finally:
-            await self.on_shutdown(app=app)
 
     @abstractmethod
     async def _on_startup(self, app: AppT, *args: Any, **kwargs: Any) -> None:
