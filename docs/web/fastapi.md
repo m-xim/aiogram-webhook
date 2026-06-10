@@ -43,6 +43,12 @@ engine.register(app)
 When `handle_in_background=False`, aiogram may return a `TelegramMethod`.
 The adapter streams it as Telegram-compatible multipart payload when needed, including attached files.
 
+{% note warning %}
+
+`engine.register(app)` wires lifecycle through a `lifespan` context manager on an internal `APIRouter`. Due to FastAPI's behavior, **`app.on_startup` and `app.on_shutdown` handlers are not called when a `lifespan` is in use** — they are mutually exclusive. Use the `lifespan` parameter on `FastAPI(lifespan=...)` for any additional startup or shutdown logic instead.
+
+{% endnote %}
+
 ## Combining with other components
 
 | Component | What FastAPIAdapter expects |
