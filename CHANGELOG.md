@@ -2,6 +2,20 @@
 
 <!-- version list -->
 
+## v3.1.0 (2026-06-10)
+
+### Features
+
+- **web**: Add auto lifespan for fastapi, update tests
+  ([`13af449`](https://github.com/m-xim/aiogram-webhook/commit/13af449c1b3001aada0802b58a4db475db909820))
+
+- **web**: Add note about lifespan in fastapi
+  ([`7d4f375`](https://github.com/m-xim/aiogram-webhook/commit/7d4f37542f8e6665a61d9b510f3973399cec6556))
+
+- **web**: Remove old lifespan
+  ([`aa48ba9`](https://github.com/m-xim/aiogram-webhook/commit/aa48ba94102991eefae47fa4b5407a66fa75d9c8))
+
+
 ## v3.0.1 (2026-06-08)
 
 ### Bug Fixes
