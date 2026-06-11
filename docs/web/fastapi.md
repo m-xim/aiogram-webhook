@@ -45,7 +45,7 @@ The adapter streams it as Telegram-compatible multipart payload when needed, inc
 
 {% note warning %}
 
-`engine.register(app)` wires lifecycle through a `lifespan` context manager on an internal `APIRouter`. Due to FastAPI's behavior, **`app.on_startup` and `app.on_shutdown` handlers are not called when a `lifespan` is in use** — they are mutually exclusive. Use the `lifespan` parameter on `FastAPI(lifespan=...)` for any additional startup or shutdown logic instead.
+Call `engine.register(app)` at module level, not inside a `lifespan`. FastAPI does not trigger `on_startup` / `on_shutdown` when a `lifespan` is active, so placing `register` inside one will silently skip engine startup and shutdown.
 
 {% endnote %}
 
