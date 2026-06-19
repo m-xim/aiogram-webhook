@@ -15,7 +15,7 @@
     "http-server": "^14.1.1"
   },
   "dependencies": {
-    "@diplodoc/cli": "github:m-xim/diplodoc-cli#master",
+    "@diplodoc/cli": "^5",
     "rimraf": "^6.0.1"
   }
 }
