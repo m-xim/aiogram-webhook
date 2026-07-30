@@ -83,14 +83,14 @@ class BaseWebhookEngine(ABC, Generic[AppT, RawRequestT, FrameworkResponseT]):
                 raise BotNotFoundError(target_bot_id=target.bot_id, target_type=target.__class__.__name__)
 
             try:
-                update = await request.json()
+                raw_update = await request.json()
             except ValueError as exc:
                 raise InvalidJsonError(original_error=exc) from exc
 
             if self.handle_in_background:
-                self._get_task_tracker(bot).spawn(self._background_feed(bot, update))
+                self._get_task_tracker(bot).spawn(self._background_feed(bot, raw_update))
             else:
-                result = await self.dispatcher.feed_webhook_update(bot=bot, update=update)
+                result = await self.dispatcher.feed_webhook_update(bot=bot, update=raw_update)
                 if isinstance(result, TelegramMethod):
                     return self.web.payload_response(status_code=200, payload=build_webhook_payload(bot, result))
 
@@ -98,7 +98,6 @@ class BaseWebhookEngine(ABC, Generic[AppT, RawRequestT, FrameworkResponseT]):
 
         except AiogramWebhookError as exc:
             log_webhook_error(logger, exc)
-
             return self.web.json_response(status_code=exc.status_code, data=exc.response_payload())
 
     async def on_startup(self, app: AppT, *args: Any, **kwargs: Any) -> None:

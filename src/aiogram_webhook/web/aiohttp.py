@@ -35,7 +35,7 @@ class AiohttpWebRequest(WebRequest[Request]):
             return None
 
         if peer_name := transport.get_extra_info("peername"):
-            return peer_name[0]
+            return str(peer_name[0])
         return None
 
     async def json(self) -> dict[str, Any]:

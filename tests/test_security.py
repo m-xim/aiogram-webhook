@@ -8,7 +8,7 @@ from tests.fixtures.web_request import DummyRequest, DummyWebRequest
 
 
 @pytest.mark.asyncio
-async def test_security_pipeline_allows_request_without_checks_or_secret_token(target):
+async def test_security_verify_noop_without_checks_or_secret_token(target):
     security = Security()
 
     await security.verify(target=target, request=DummyWebRequest(), route_params={})

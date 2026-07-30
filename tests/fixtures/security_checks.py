@@ -1,3 +1,5 @@
+from typing import Any
+
 from aiogram_webhook.engines.target import Target
 from aiogram_webhook.route.params import RouteParams
 from aiogram_webhook.security.checks.check import SecurityCheck
@@ -10,6 +12,6 @@ class RecordingCheck(SecurityCheck):
         self.result = result
         self.calls = calls
 
-    async def verify(self, target: Target, request: WebRequest, route_params: RouteParams) -> bool:
+    async def verify(self, target: Target, request: WebRequest[Any], route_params: RouteParams) -> bool:
         self.calls.append(self.name)
         return self.result
