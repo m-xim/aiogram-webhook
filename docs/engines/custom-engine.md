@@ -64,7 +64,7 @@ class BotIdEngine(BaseMultiBotEngine):
         record = await self._registry.get(target.bot_id)
         if record is None:
             return None
-        bot = Bot(token=record.token, session=self._session)
+        bot = Bot(token=record.token)  # self._session is not provided by BaseMultiBotEngine — bring your own if you need one
         self._bots[bot.id] = bot
         return bot
 
