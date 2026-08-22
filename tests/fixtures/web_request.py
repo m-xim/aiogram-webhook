@@ -1,7 +1,7 @@
 from collections.abc import Mapping
 from typing import Any
 
-from multidict import CIMultiDict, MultiDict, CIMultiDictProxy
+from multidict import CIMultiDict, CIMultiDictProxy, MultiDict
 
 
 class DummyRequest:
