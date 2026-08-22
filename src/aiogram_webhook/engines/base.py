@@ -87,6 +87,8 @@ class BaseWebhookEngine(ABC, Generic[AppT, RawRequestT, FrameworkResponseT]):
             except ValueError as exc:
                 raise InvalidJsonError(original_error=exc) from exc
 
+            logger.debug("New update: %s", raw_update)
+
             if self.handle_in_background:
                 self._get_task_tracker(bot).spawn(self._background_feed(bot, raw_update))
             else:
