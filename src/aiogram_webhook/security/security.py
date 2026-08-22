@@ -1,3 +1,5 @@
+from typing import Any
+
 from aiogram_webhook.engines.target import Target
 from aiogram_webhook.route.params import RouteParams
 from aiogram_webhook.security.checks.check import SecurityCheck
@@ -11,7 +13,7 @@ class Security:
         self._secret_token = secret_token
         self._checks: tuple[SecurityCheck, ...] = checks
 
-    async def verify(self, *, target: Target, request: WebRequest, route_params: RouteParams) -> None:
+    async def verify(self, *, target: Target, request: WebRequest[Any], route_params: RouteParams) -> None:
         if self._secret_token is not None:
             ok = await self._secret_token.verify(target=target, request=request, route_params=route_params)
             if not ok:
@@ -22,7 +24,7 @@ class Security:
             if not ok:
                 raise SecurityCheckError(
                     security_check=check.__class__.__name__,
-                    client_ip=str(request.client_ip) if request.client_ip is not None else None,
+                    client_ip=request.client_ip if request.client_ip is not None else None,
                 )
 
     async def secret_token(self, target: Target) -> str | None:

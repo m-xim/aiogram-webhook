@@ -1,18 +1,13 @@
-from typing import Any
-
 from aiogram.methods import SendDocument, SendMessage
 from aiogram.types import BufferedInputFile
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from aiogram_webhook.engines.base import BaseWebhookEngine
-from aiogram_webhook.engines.target import Target
 from aiogram_webhook.route import Route
-from aiogram_webhook.tasks import TaskTracker
 from aiogram_webhook.utils._payload import build_webhook_payload
 from aiogram_webhook.web.fastapi import FastAPIAdapter
 from tests.fixtures.multipart_payload import assert_attached_file, assert_multipart_fields
-from tests.fixtures.webhook_engine import DummyDispatcher
+from tests.fixtures.webhook_engine import DummyDispatcher, SpyEngine
 
 
 def test_fastapi_adapter_passes_bound_request_to_registered_post_handler():
@@ -64,29 +59,13 @@ def test_fastapi_adapter_registers_lifecycle_callbacks_via_router(bot):
     events = []
     adapter = FastAPIAdapter()
 
-    class SpyEngine(BaseWebhookEngine[Any, Any, Any]):
-        _task_tracker = TaskTracker()
-
-        async def _on_startup(self, app, *args, **kwargs) -> None:
-            events.append(("engine_startup", app))
-
-        async def _on_shutdown(self, app, *args, **kwargs) -> None:
-            events.append(("engine_shutdown", app))
-
-        async def _resolve_target(self, request, route_params) -> Target:
-            return Target(bot_id=bot.id, bot_token=bot.token)
-
-        async def _resolve_bot(self, target) -> Any:
-            return bot
-
-        def _get_task_tracker(self, bot) -> TaskTracker:
-            return self._task_tracker
-
     engine = SpyEngine(
-        DummyDispatcher(),  # ty:ignore[invalid-argument-type]
+        DummyDispatcher(),
         web=adapter,
         route=Route(base_url="https://example.com", path="/webhook"),
         handle_in_background=False,
+        bot=bot,
+        events=events,
     )
 
     app = FastAPI()

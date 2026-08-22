@@ -7,9 +7,12 @@ Known `aiogram-webhook` errors are converted into safe public JSON responses. De
 | Invalid JSON payload | `400` | `{"detail": "Bad request"}` | Request body and client. |
 | Security check failed | `403` | `{"detail": "Forbidden"}` | [Security](../security/overview.md). |
 | Secret token failed | `403` | `{"detail": "Forbidden"}` | [Secret token](../security/secret-token.md). |
+| Route does not match (bad/missing path or query params) | `404` | `{"detail": "Not found"}` | [Route](../route/overview.md). |
 | Target cannot be resolved | `404` | `{"detail": "Not found"}` | [Route](../route/overview.md) and [Engines](../engines/overview.md). |
 | Bot cannot be resolved | `404` | `{"detail": "Not found"}` | Selected engine and bot registration. |
 | Shutdown already started | `503` | `{"detail": "Service unavailable"}` | Engine startup/shutdown behavior. |
+
+`Route.match()` failures (missing/invalid path params, missing/mismatched/unexpected query params) all raise `RouteMatchError` subclasses and share the same `404`/`{"detail": "Not found"}` response as an unresolved target, but occur earlier in the pipeline, before target/bot resolution.
 
 ## Error boundary
 

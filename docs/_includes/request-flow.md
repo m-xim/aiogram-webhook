@@ -33,8 +33,9 @@ sequenceDiagram
         note over RT,SEC: Engine Processing
         EN->>RT: match(request)
         RT-->>EN: route_params
-        EN->>EN: resolve Target and Bot
+        EN->>EN: resolve Target
         EN->>SEC: verify(...)
+        EN->>EN: resolve Bot
         EN->>EN: parse JSON update
     end
 

@@ -1,4 +1,5 @@
 import json
+from typing import Any
 from unittest.mock import Mock
 
 from aiogram.methods import SendMessage
@@ -9,7 +10,7 @@ from aiogram_webhook.utils._payload import build_webhook_payload
 from aiogram_webhook.web.aiohttp import AiohttpAdapter
 
 
-def test_aiohttp_adapter_exposes_framework_request_data():
+def test_aiohttp_adapter_exposes_framework_request_data() -> None:
     transport = Mock()
     transport.get_extra_info.return_value = ("127.0.0.1", 12345)
     raw_request = make_mocked_request(
@@ -33,13 +34,13 @@ def test_aiohttp_adapter_registers_post_route_and_lifecycle_callbacks():
     adapter = AiohttpAdapter()
     app = Application()
 
-    async def handler(_request):
+    async def handler(_request: Any):
         return adapter.json_response(status_code=200, data={"ok": "yes"})
 
-    async def on_startup(_app):
+    async def on_startup(_app: Any):
         return None
 
-    async def on_shutdown(_app):
+    async def on_shutdown(_app: Any):
         return None
 
     adapter.register(app, "/webhook", handler, on_startup=on_startup, on_shutdown=on_shutdown)
@@ -53,7 +54,7 @@ def test_aiohttp_adapter_registers_post_route_and_lifecycle_callbacks():
     assert app.on_shutdown[-1] is on_shutdown
 
 
-def test_aiohttp_adapter_builds_json_response_with_status_and_headers():
+def test_aiohttp_adapter_builds_json_response_with_status_and_headers() -> None:
     response = AiohttpAdapter().json_response(
         status_code=418,
         data={"detail": "teapot"},
@@ -67,7 +68,7 @@ def test_aiohttp_adapter_builds_json_response_with_status_and_headers():
     assert json.loads(response.text) == {"detail": "teapot"}
 
 
-def test_aiohttp_adapter_builds_multipart_payload_response(bot):
+def test_aiohttp_adapter_builds_multipart_payload_response(bot) -> None:
     method = SendMessage(chat_id=42, text="OK")
     payload = build_webhook_payload(bot=bot, method=method)
 

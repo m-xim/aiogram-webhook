@@ -6,6 +6,7 @@ from aiohttp.payload import Payload
 from multidict import CIMultiDictProxy, MultiMapping
 
 AppT = TypeVar("AppT")
+RawRequestT_co = TypeVar("RawRequestT_co", covariant=True)
 RawRequestT = TypeVar("RawRequestT")
 FrameworkResponseT = TypeVar("FrameworkResponseT")
 
@@ -17,11 +18,11 @@ QueryParams = MultiMapping[str]
 PathParams = Mapping[str, str]
 
 
-class WebRequest(Protocol[RawRequestT]):
+class WebRequest(Protocol[RawRequestT_co]):
     """Framework request behavior required by the web engine."""
 
     @property
-    def raw(self) -> RawRequestT:
+    def raw(self) -> RawRequestT_co:
         """Return the original framework request."""
         ...
 
@@ -40,7 +41,7 @@ class WebRequest(Protocol[RawRequestT]):
     def path_params(self) -> PathParams: ...
 
 
-WebHandler: TypeAlias = Callable[[WebRequest[RawRequestT]], Awaitable[FrameworkResponseT]]
+WebHandler: TypeAlias = Callable[[WebRequest[RawRequestT_co]], Awaitable[FrameworkResponseT]]
 
 
 class WebAdapter(ABC, Generic[AppT, RawRequestT, FrameworkResponseT]):

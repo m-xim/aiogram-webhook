@@ -1,4 +1,4 @@
-from collections.abc import Mapping
+from collections.abc import AsyncGenerator, Mapping
 from contextlib import asynccontextmanager
 from typing import Any
 
@@ -72,7 +72,7 @@ class FastAPIAdapter(WebAdapter[FastAPI, Request, Response]):
             return await handler(self.bind_request(request))
 
         @asynccontextmanager
-        async def lifespan(_router: APIRouter):
+        async def lifespan(_router: APIRouter) -> AsyncGenerator[None, Any]:
             try:
                 await on_startup(app)
                 yield

@@ -1,7 +1,7 @@
 import re
 from abc import ABC, abstractmethod
 from hmac import compare_digest
-from typing import Final
+from typing import Any, Final
 
 from aiogram_webhook.engines.target import Target
 from aiogram_webhook.route.params import RouteParams
@@ -16,7 +16,7 @@ class SecretToken(ABC):
     Base class for secret token verification in webhook requests.
     """
 
-    async def verify(self, target: Target, request: WebRequest, route_params: RouteParams) -> bool:  # noqa: ARG002
+    async def verify(self, target: Target, request: WebRequest[Any], route_params: RouteParams) -> bool:  # noqa: ARG002
         """
         Verify the incoming secret token from the request.
 
