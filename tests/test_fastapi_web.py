@@ -60,7 +60,7 @@ def test_fastapi_adapter_registers_lifecycle_callbacks_via_router(bot):
     adapter = FastAPIAdapter()
 
     engine = SpyEngine(
-        DummyDispatcher(),  # ty:ignore[invalid-argument-type]
+        DummyDispatcher(),
         web=adapter,
         route=Route(base_url="https://example.com", path="/webhook"),
         handle_in_background=False,
