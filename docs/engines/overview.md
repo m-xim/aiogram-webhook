@@ -20,7 +20,7 @@ Shipped engines are convenience defaults, not the only design. Database lookup o
 
 ## Wiring pattern
 
-Every engine takes the same constructor arguments:
+Every engine takes `dispatcher`, `web`, `route`, an optional `security`, and `handle_in_background`:
 
 ```python
 engine = SingleBotEngine(
@@ -29,10 +29,11 @@ engine = SingleBotEngine(
     web=adapter,
     route=route,
     security=security,  # optional, recommended in production
-    webhook_config=webhook_config,  # optional Telegram setWebhook fields
     handle_in_background=True,  # default; see Behavior
 )
 ```
+
+`webhook_config` is not a constructor argument on `SingleBotEngine` — pass it to `set_webhook()` instead (see [SingleBotEngine](single-bot-engine.md)). `TokenEngine` does accept `webhook_config` in its constructor as a default applied to bots added without an explicit override (see [TokenEngine](token-engine.md)).
 
 `engine.register(app)` exposes the local route; `set_webhook()` / `add_bot()` register with Telegram. See [First webhook](../learn/first-webhook.md#2-wire-engine-and-adapter).
 

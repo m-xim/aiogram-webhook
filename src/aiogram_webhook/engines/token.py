@@ -21,6 +21,12 @@ if TYPE_CHECKING:
 class TokenEngine(
     BaseMultiBotEngine[AppT, RawRequestT, FrameworkResponseT], Generic[AppT, RawRequestT, FrameworkResponseT]
 ):
+    """
+    Multi-bot webhook engine that resolves the bot from a `{bot_token}` route param.
+
+    E.g. `Route(path="/webhook/{bot_token}", params={"bot_token": BotTokenParam()})`.
+    """
+
     def __init__(
         self,
         dispatcher,

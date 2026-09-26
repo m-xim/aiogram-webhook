@@ -1,4 +1,4 @@
-from typing import Protocol
+from typing import Any, Protocol
 
 from aiogram_webhook.engines.target import Target
 from aiogram_webhook.route.params import RouteParams
@@ -8,7 +8,7 @@ from aiogram_webhook.web.base import WebRequest
 class SecurityCheck(Protocol):
     """Protocol for security check on webhook requests."""
 
-    async def verify(self, target: Target, request: WebRequest, route_params: RouteParams) -> bool:
+    async def verify(self, target: Target, request: WebRequest[Any], route_params: RouteParams) -> bool:
         """
         Perform a security check on the incoming webhook request.
 

@@ -31,6 +31,9 @@ def build_webhook_payload(bot: Bot, method: TelegramMethod[TelegramType]) -> Mul
     for key, value in files.items():
         file_payload = value.read(bot)
         payload = writer.append(file_payload)
-        payload.set_content_disposition("form-data", name=key, filename=value.filename or key)
+        # quote_fields=False keeps non-ASCII filenames as raw UTF-8 instead of percent-encoding them.
+        # "All queries must be made using UTF-8" — https://core.telegram.org/bots/api#making-requests
+        # Matches aiogram's FormData(quote_fields=False).
+        payload.set_content_disposition("form-data", quote_fields=False, name=key, filename=value.filename or key)
 
     return writer

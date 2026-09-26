@@ -31,7 +31,8 @@ ignore = [
     "PLR2004",
     "N806",
     "E501",
-    "N815"
+    "N815",
+    "CPY001"
 ]
 
 [lint.flake8-tidy-imports]
