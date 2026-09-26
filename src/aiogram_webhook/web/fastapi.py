@@ -72,7 +72,7 @@ class FastAPIAdapter(WebAdapter[FastAPI, Request, Response]):
             return await handler(self.bind_request(request))
 
         @asynccontextmanager
-        async def lifespan(_router: APIRouter) -> AsyncGenerator[None, Any]:
+        async def lifespan(_router: APIRouter) -> AsyncGenerator[None, None]:
             try:
                 await on_startup(app)
                 yield
