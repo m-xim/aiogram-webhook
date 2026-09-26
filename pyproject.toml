@@ -46,6 +46,8 @@ fastapi = [
 aiohttp = [
     "aiohttp>=3.9.0",
 ]
+
+[dependency-groups]
 dev = [
     "ruff",
     "ty",
