@@ -23,6 +23,15 @@ async def test_secret_token_check_verifies_telegram_header(target, request_token
     assert await secret_token.verify(target=target, request=req, route_params={}) is expected
 
 
+@pytest.mark.asyncio
+@pytest.mark.parametrize("request_token", ["секрет", "my-secrét", "\ud800"], ids=["cyrillic", "latin-accent", "surrogate"])
+async def test_secret_token_check_rejects_non_ascii_header_without_error(target, request_token):
+    secret_token = StaticSecretToken("my-secret")
+    req = DummyWebRequest(DummyRequest(headers={SECRET_TOKEN_HEADER: request_token}))
+
+    assert await secret_token.verify(target=target, request=req, route_params={}) is False
+
+
 @pytest.mark.parametrize("secret_token", ["", "has space", "x" * 257])
 def test_secret_token_check_rejects_telegram_incompatible_values(secret_token):
     with pytest.raises(ValueError, match="Invalid secret token format"):

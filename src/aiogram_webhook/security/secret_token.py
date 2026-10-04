@@ -28,7 +28,8 @@ class SecretToken(ABC):
         incoming_secret_token = request.headers.get(SECRET_TOKEN_HEADER)
         if incoming_secret_token is None:
             return False
-        return compare_digest(incoming_secret_token, await self.secret_token(target=target))
+        expected = await self.secret_token(target=target)
+        return compare_digest(incoming_secret_token.encode(), expected.encode())
 
     @abstractmethod
     async def secret_token(self, target: Target) -> str:
