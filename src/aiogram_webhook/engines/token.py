@@ -115,14 +115,7 @@ class TokenEngine(
         self._bots[bot.id] = bot
         return bot
 
-    async def _on_startup(self, app: AppT, *args, **kwargs) -> None:  # noqa: ARG002
-        startup_bots = set(self._bots.values())
-
-        logger.info("Starting token-based webhook engine with %s bot(s)", len(startup_bots))
-        workflow_data = self._build_lifecycle_data(app=app, bots=startup_bots, **kwargs)
-        await self.dispatcher.emit_startup(**workflow_data)
-
-    async def _on_shutdown(self, app: AppT, *args, **kwargs) -> None:  # noqa: ARG002
+    async def _on_shutdown(self, app: AppT, *args, bots: Iterable[Bot] | None = None, **kwargs) -> None:  # noqa: ARG002
         logger.info("Stopping token-based webhook engine with %s bot(s)", len(self._bots))
         await asyncio.gather(
             *(tracker.close(timeout=self.shutdown_timeout) for tracker in self._task_trackers.values()),
@@ -130,7 +123,7 @@ class TokenEngine(
 
         self._task_trackers.clear()
 
-        lifecycle_data = self._build_lifecycle_data(app=app, bots=set(self.bots.values()), **kwargs)
+        lifecycle_data = self._build_lifecycle_data(app=app, bots=set(self.bots.values()) | set(bots or ()), **kwargs)
         await self.dispatcher.emit_shutdown(**lifecycle_data)
 
         self._bots.clear()
