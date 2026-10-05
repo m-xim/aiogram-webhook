@@ -1,4 +1,5 @@
 import asyncio
+from collections.abc import Iterable
 from typing import TYPE_CHECKING, Generic
 
 from aiogram import Bot
@@ -76,9 +77,12 @@ class TokenEngine(
                 "Set delete_webhook=True to delete webhook and optionally drop pending updates."
             )
 
-        if (tracker := self._task_trackers.pop(bot_id, None)) is not None:
-            await tracker.close(timeout=self.shutdown_timeout)
+        # Detach bot and tracker together with no await in between
         self._bots.pop(bot_id, None)
+        tracker = self._task_trackers.pop(bot_id, None)
+
+        if tracker is not None:
+            await tracker.close(timeout=self.shutdown_timeout)
 
         logger.info("Removed bot %s from token engine", bot_id)
 
