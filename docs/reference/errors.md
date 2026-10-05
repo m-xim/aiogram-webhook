@@ -38,7 +38,7 @@ The log message carries more detail so you can debug the actual component that r
 
 - 404
 
-  The route matched at the framework level, but the engine could not resolve a target or bot. For `TokenEngine`, verify that `{bot_token}` is present, valid, and registered when required.
+  `Route.match()` failed (missing/invalid path or query params), or the engine could not resolve a target or bot. For `TokenEngine`, verify that `{bot_token}` is present, valid, and registered when required.
 
 - 503
 

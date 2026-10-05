@@ -25,7 +25,7 @@ class TokenEngine(
     """
     Multi-bot webhook engine that resolves the bot from a `{bot_token}` route param.
 
-    E.g. `Route(path="/webhook/{bot_token}", params={"bot_token": BotTokenParam()})`.
+    E.g. `Route(base_url="https://example.com", path="/webhook/{bot_token}", params={"bot_token": BotTokenParam()})`.
     """
 
     def __init__(
