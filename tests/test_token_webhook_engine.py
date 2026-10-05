@@ -1,10 +1,12 @@
 import asyncio
+from unittest.mock import AsyncMock
 
 import pytest
 
 from aiogram_webhook.configs.bot import BotConfig
 from aiogram_webhook.engines.token import TokenEngine
 from tests.fixtures.shutdown import BlockingShutdownDispatcher
+from tests.fixtures.web_request import DummyRequest, DummyWebRequest
 from tests.fixtures.webhook_engine import DummyDispatcher, DummyRoute
 
 
@@ -116,3 +118,39 @@ async def test_token_foreground_engine_rejects_request_during_shutdown_without_c
     assert response["status_code"] == 503
     assert dispatcher.foreground_updates == []
     assert bot.id not in engine.bots
+
+
+@pytest.mark.asyncio
+async def test_token_engine_does_not_create_bot_when_json_is_invalid(bot, bot_token, adapter):
+    dispatcher = DummyDispatcher()
+    engine = TokenEngine(
+        dispatcher,
+        web=adapter,
+        route=DummyRoute({"bot_token": bot_token}),  # ty:ignore[invalid-argument-type]
+        bot_config=BotConfig(session=bot.session),
+        handle_in_background=False,
+    )
+
+    response = await engine.handle_request(DummyWebRequest(DummyRequest(json_error=ValueError("invalid json"))))
+
+    assert response["status_code"] == 400
+    assert engine.bots == {}
+
+
+@pytest.mark.asyncio
+async def test_token_engine_does_not_create_bot_when_json_is_not_an_object(bot, bot_token, adapter):
+    dispatcher = DummyDispatcher()
+    engine = TokenEngine(
+        dispatcher,
+        web=adapter,
+        route=DummyRoute({"bot_token": bot_token}),  # ty:ignore[invalid-argument-type]
+        bot_config=BotConfig(session=bot.session),
+        handle_in_background=False,
+    )
+    request = DummyWebRequest(DummyRequest())
+    request.json = AsyncMock(return_value=[1, 2])  # ty:ignore[invalid-assignment]
+
+    response = await engine.handle_request(request)
+
+    assert response["status_code"] == 400
+    assert engine.bots == {}

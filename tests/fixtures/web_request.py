@@ -1,3 +1,4 @@
+import asyncio
 from collections.abc import Mapping
 from typing import Any
 
@@ -52,3 +53,15 @@ class DummyWebRequest:
     @property
     def path_params(self) -> dict[str, Any]:
         return self._request.path_params
+
+
+class BlockingJsonWebRequest(DummyWebRequest):
+    def __init__(self, request: DummyRequest) -> None:
+        super().__init__(request)
+        self.json_started = asyncio.Event()
+        self.json_continue = asyncio.Event()
+
+    async def json(self) -> dict[str, Any]:
+        self.json_started.set()
+        await self.json_continue.wait()
+        return await super().json()

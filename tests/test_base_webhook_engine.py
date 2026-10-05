@@ -1,5 +1,6 @@
 import asyncio
 from typing import Any
+from unittest.mock import AsyncMock
 
 import pytest
 from aiogram import Bot
@@ -9,7 +10,7 @@ from aiogram_webhook.engines.base import BaseWebhookEngine
 from aiogram_webhook.engines.target import Target
 from aiogram_webhook.route.params import RouteParams
 from aiogram_webhook.tasks import TaskTracker
-from tests.fixtures.web_request import DummyRequest, DummyWebRequest
+from tests.fixtures.web_request import BlockingJsonWebRequest, DummyRequest, DummyWebRequest
 from tests.fixtures.webhook_engine import CapturingAdapter, DummyDispatcher, DummyRoute
 
 
@@ -150,6 +151,19 @@ async def test_engine_returns_bad_request_when_json_payload_is_invalid(bot, targ
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize("payload", [[1, 2], 123, "text", None], ids=["list", "number", "string", "null"])
+async def test_engine_returns_bad_request_when_json_payload_is_not_an_object(bot, target, adapter, dispatcher, payload):
+    engine = EngineProbe(dispatcher, bot, target=target, web=adapter)
+    request = DummyWebRequest(DummyRequest())
+    request.json = AsyncMock(return_value=payload)  # ty:ignore[invalid-assignment]
+
+    response = await engine.handle_request(request)
+
+    assert response == {"kind": "json", "status_code": 400, "data": {"detail": "Bad request"}, "headers": None}
+    assert dispatcher.webhook_update is None
+
+
+@pytest.mark.asyncio
 async def test_engine_lifespan_runs_startup_then_shutdown(bot, target, adapter, dispatcher, update_request):
     engine = EngineProbe(dispatcher, bot, target=target, web=adapter)
 
@@ -162,3 +176,20 @@ async def test_engine_lifespan_runs_startup_then_shutdown(bot, target, adapter, 
     assert engine._is_shutting_down
     response = await engine.handle_request(update_request)
     assert response["status_code"] == 503
+
+
+@pytest.mark.asyncio
+async def test_engine_rejects_inflight_request_after_shutdown(bot, target, adapter, dispatcher, update_request):
+    engine = EngineProbe(dispatcher, bot, target=target, web=adapter, handle_in_background=True)
+    request = BlockingJsonWebRequest(update_request.raw)
+    request_task = asyncio.create_task(engine.handle_request(request))
+    await request.json_started.wait()
+
+    await engine.on_shutdown(None)
+    request.json_continue.set()
+    response = await request_task
+    await asyncio.sleep(0)
+
+    assert response["status_code"] == 503
+    assert dispatcher.webhook_update is None
+    assert engine.task_tracker._tasks == set()
