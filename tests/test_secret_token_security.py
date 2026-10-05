@@ -24,7 +24,11 @@ async def test_secret_token_check_verifies_telegram_header(target, request_token
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("request_token", ["секрет", "my-secrét", "\ud800"], ids=["cyrillic", "latin-accent", "surrogate"])
+@pytest.mark.parametrize(
+    "request_token",
+    ["секрет", "my-secrét", "\ud800", "my-secret\udc80", "my-secre\ud800", "😀"],
+    ids=["cyrillic", "latin-accent", "surrogate", "surrogate-suffix", "surrogate-in-place", "surrogate-pair"],
+)
 async def test_secret_token_check_rejects_non_ascii_header_without_error(target, request_token):
     secret_token = StaticSecretToken("my-secret")
     req = DummyWebRequest(DummyRequest(headers={SECRET_TOKEN_HEADER: request_token}))

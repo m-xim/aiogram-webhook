@@ -26,7 +26,7 @@ class SecretToken(ABC):
         :return: True if the token is valid, False otherwise.
         """
         incoming_secret_token = request.headers.get(SECRET_TOKEN_HEADER)
-        if incoming_secret_token is None:
+        if incoming_secret_token is None or not incoming_secret_token.isascii():
             return False
         expected = await self.secret_token(target=target)
         return compare_digest(incoming_secret_token.encode(), expected.encode())
