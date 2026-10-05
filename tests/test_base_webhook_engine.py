@@ -155,7 +155,7 @@ async def test_engine_returns_bad_request_when_json_payload_is_invalid(bot, targ
 async def test_engine_returns_bad_request_when_json_payload_is_not_an_object(bot, target, adapter, dispatcher, payload):
     engine = EngineProbe(dispatcher, bot, target=target, web=adapter)
     request = DummyWebRequest(DummyRequest())
-    request.json = AsyncMock(return_value=payload)  # ty:ignore[invalid-assignment]
+    request.json = AsyncMock(return_value=payload)
 
     response = await engine.handle_request(request)
 

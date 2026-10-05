@@ -148,7 +148,7 @@ async def test_token_engine_does_not_create_bot_when_json_is_not_an_object(bot, 
         handle_in_background=False,
     )
     request = DummyWebRequest(DummyRequest())
-    request.json = AsyncMock(return_value=[1, 2])  # ty:ignore[invalid-assignment]
+    request.json = AsyncMock(return_value=[1, 2])
 
     response = await engine.handle_request(request)
 
