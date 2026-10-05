@@ -8,8 +8,8 @@ from aiogram import Bot
 from aiogram_webhook.configs.bot import BotConfig
 from aiogram_webhook.engines.target import Target
 from aiogram_webhook.engines.token import TokenEngine
-from tests.fixtures.shutdown import BlockingShutdownDispatcher
-from tests.fixtures.web_request import DummyRequest, DummyWebRequest
+from tests.fixtures.shutdown import BlockingDispatcher, BlockingShutdownDispatcher
+from tests.fixtures.web_request import BlockingJsonWebRequest, DummyRequest, DummyWebRequest
 from tests.fixtures.webhook_engine import DummyDispatcher, DummyRoute
 
 
@@ -121,6 +121,31 @@ async def test_token_foreground_engine_rejects_request_during_shutdown_without_c
     assert response["status_code"] == 503
     assert dispatcher.foreground_updates == []
     assert bot.id not in engine.bots
+
+
+@pytest.mark.asyncio
+async def test_token_engine_does_not_recreate_bot_or_session_when_shutdown_happens_during_body_read(
+    bot_token, adapter, update_request
+):
+    engine = TokenEngine(
+        BlockingDispatcher(),
+        web=adapter,
+        route=DummyRoute({"bot_token": bot_token}),  # ty:ignore[invalid-argument-type]
+        handle_in_background=False,
+    )
+    request = BlockingJsonWebRequest(update_request.raw)
+    request_task = asyncio.create_task(engine.handle_request(request))
+    await asyncio.wait_for(request.json_started.wait(), timeout=1)
+
+    await engine.on_shutdown(None)
+    assert engine._session is None
+
+    request.json_continue.set()
+    response = await asyncio.wait_for(request_task, timeout=1)
+
+    assert response["status_code"] == 503
+    assert engine.bots == {}
+    assert engine._session is None
 
 
 @pytest.mark.asyncio

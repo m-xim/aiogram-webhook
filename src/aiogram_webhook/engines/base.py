@@ -82,6 +82,9 @@ class BaseWebhookEngine(ABC, Generic[AppT, RawRequestT, FrameworkResponseT]):
             # Parse after security, but before the bot: a bad payload must not create a bot.
             raw_update = await self._read_update(request)
 
+            if self._is_shutting_down:
+                raise RequestHandlingStoppedError
+
             bot = await self._resolve_bot(target=target)
             if bot is None:
                 raise BotNotFoundError(target_bot_id=target.bot_id, target_type=target.__class__.__name__)
