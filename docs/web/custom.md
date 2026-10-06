@@ -73,7 +73,7 @@ Replace `app.post` / lifecycle hooks with your framework's equivalents. The hand
 
 {% note warning %}
 
-`payload_response()` matters when `handle_in_background=False`. Handlers may return a `TelegramMethod` that must be streamed back to Telegram as multipart content. Returning JSON instead will break foreground webhook replies.
+`payload_response()` matters when `handle_in_background=False`. Multipart is required only when the returned `TelegramMethod` uploads files; it must then be streamed back to Telegram as multipart content, and returning JSON instead will break that foreground reply. Methods without files are sent with `json_response()`.
 
 FastAPI bridges aiohttp `Payload` through `AiohttpPayloadResponse` in `aiogram_webhook.web._starlette` — reuse or adapt that approach on ASGI stacks.
 
