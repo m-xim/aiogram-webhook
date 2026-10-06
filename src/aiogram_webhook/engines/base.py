@@ -8,17 +8,17 @@ from aiogram.methods import TelegramMethod
 from aiogram_webhook.engines.errors import (
     BotNotFoundError,
     InvalidJsonError,
-    RequestHandlingStoppedError,
     TargetNotFoundError,
 )
 from aiogram_webhook.engines.target import Target
 from aiogram_webhook.errors import AiogramWebhookError
+from aiogram_webhook.gate import RequestGate
 from aiogram_webhook.logs import get_logger, log_webhook_error
 from aiogram_webhook.route import Route
 from aiogram_webhook.route.params import RouteParams
 from aiogram_webhook.security import Security
 from aiogram_webhook.tasks import TaskTracker
-from aiogram_webhook.utils._payload import build_webhook_payload
+from aiogram_webhook.utils._payload import build_multipart_payload, prepare_webhook_reply
 from aiogram_webhook.web.base import WebAdapter, WebRequest
 
 logger = get_logger("engines")
@@ -45,7 +45,7 @@ class BaseWebhookEngine(ABC, Generic[AppT, RawRequestT, FrameworkResponseT]):
         self.handle_in_background = handle_in_background
 
         self.shutdown_timeout = shutdown_timeout
-        self._is_shutting_down = False
+        self._gate = RequestGate()
 
         if self.security is None:
             warnings.warn(
@@ -66,8 +66,8 @@ class BaseWebhookEngine(ABC, Generic[AppT, RawRequestT, FrameworkResponseT]):
 
     async def handle_request(self, request: WebRequest[RawRequestT]) -> FrameworkResponseT:
         try:
-            if self._is_shutting_down:
-                raise RequestHandlingStoppedError
+            # Fast path: reject early, before match/security.
+            self._gate.ensure_open()
 
             route_params = await self.route.match(request)
 
@@ -78,35 +78,57 @@ class BaseWebhookEngine(ABC, Generic[AppT, RawRequestT, FrameworkResponseT]):
             if self.security is not None:
                 await self.security.verify(target=target, request=request, route_params=route_params)
 
-            bot = await self._resolve_bot(target=target)
-            if bot is None:
-                raise BotNotFoundError(target_bot_id=target.bot_id, target_type=target.__class__.__name__)
+            # Parse after security, but before the bot: a bad payload must not create a bot.
+            raw_update = await self._read_update(request)
 
-            try:
-                update = await request.json()
-            except ValueError as exc:
-                raise InvalidJsonError(original_error=exc) from exc
+            with self._gate.enter():
+                bot = await self._resolve_bot(target=target)
+                if bot is None:
+                    raise BotNotFoundError(target_bot_id=target.bot_id, target_type=target.__class__.__name__)
 
-            if self.handle_in_background:
-                self._get_task_tracker(bot).spawn(self._background_feed(bot, update))
-            else:
-                result = await self.dispatcher.feed_webhook_update(bot=bot, update=update)
-                if isinstance(result, TelegramMethod):
-                    return self.web.payload_response(status_code=200, payload=build_webhook_payload(bot, result))
+                logger.debug("New update: %s", raw_update)
 
-            return self.web.json_response(status_code=200, data={})
+                if self.handle_in_background:
+                    self._get_task_tracker(bot).spawn(self._background_feed(bot, raw_update))
+                else:
+                    result = await self.dispatcher.feed_webhook_update(bot=bot, update=raw_update)
+                    if isinstance(result, TelegramMethod):
+                        data, files = prepare_webhook_reply(bot, result)
+                        logger.debug(
+                            "Replying to webhook with method %s (files: %s)", result.__api_method__, len(files)
+                        )
+                        if files:
+                            # Files can only be uploaded as multipart/form-data.
+                            return self.web.payload_response(
+                                status_code=200, payload=build_multipart_payload(bot, data, files)
+                            )
+                        return self.web.json_response(status_code=200, data=data)
+
+                return self.web.json_response(status_code=200, data={})
 
         except AiogramWebhookError as exc:
             log_webhook_error(logger, exc)
-
             return self.web.json_response(status_code=exc.status_code, data=exc.response_payload())
+
+    @staticmethod
+    async def _read_update(request: WebRequest[RawRequestT]) -> dict[str, Any]:
+        try:
+            raw_update = await request.json()
+        except ValueError as exc:
+            raise InvalidJsonError(original_error=exc) from exc
+
+        # Telegram sends a JSON object: reject arrays/scalars here with 400 instead of a 500 in the dispatcher.
+        if not isinstance(raw_update, dict):
+            raise InvalidJsonError
+
+        return raw_update
 
     async def on_startup(self, app: AppT, *args: Any, **kwargs: Any) -> None:
         await self._on_startup(app, *args, **kwargs)
-        self._is_shutting_down = False
+        self._gate.open()
 
     async def on_shutdown(self, app: AppT, *args: Any, **kwargs: Any) -> None:
-        self._is_shutting_down = True
+        await self._gate.close(self.shutdown_timeout)
         await self._on_shutdown(app, *args, **kwargs)
 
     @abstractmethod

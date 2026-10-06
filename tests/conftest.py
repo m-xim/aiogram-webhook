@@ -39,3 +39,8 @@ def update_request() -> DummyWebRequest:
 @pytest.fixture
 def dispatcher() -> DummyDispatcher:
     return DummyDispatcher()
+
+
+@pytest.fixture
+def other_target() -> Target:
+    return Target(bot_id=7, bot_token="7:OTHER")

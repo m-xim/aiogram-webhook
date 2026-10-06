@@ -1,7 +1,8 @@
+import asyncio
 from collections.abc import Mapping
 from typing import Any
 
-from multidict import CIMultiDict, MultiDict
+from multidict import CIMultiDict, CIMultiDictProxy, MultiDict
 
 
 class DummyRequest:
@@ -10,7 +11,7 @@ class DummyRequest:
         *,
         path_params: Mapping[str, Any] | None = None,
         query: MultiDict[str] | None = None,
-        headers: Mapping[str, str | None] | None = None,
+        headers: Mapping[str, str] | None = None,
         ip: str | None = None,
         json_data: dict[str, Any] | None = None,
         json_error: ValueError | None = None,
@@ -42,13 +43,25 @@ class DummyWebRequest:
         return self._request.json_data
 
     @property
-    def headers(self):
-        return CIMultiDict(self._request.headers.items())
+    def headers(self) -> CIMultiDictProxy[str]:
+        return CIMultiDictProxy(CIMultiDict(self._request.headers.items()))
 
     @property
-    def query_params(self):
+    def query_params(self) -> MultiDict[str]:
         return self._request.query
 
     @property
-    def path_params(self):
+    def path_params(self) -> dict[str, Any]:
         return self._request.path_params
+
+
+class BlockingJsonWebRequest(DummyWebRequest):
+    def __init__(self, request: DummyRequest) -> None:
+        super().__init__(request)
+        self.json_started = asyncio.Event()
+        self.json_continue = asyncio.Event()
+
+    async def json(self) -> dict[str, Any]:
+        self.json_started.set()
+        await self.json_continue.wait()
+        return await super().json()

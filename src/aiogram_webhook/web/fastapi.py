@@ -1,4 +1,4 @@
-from collections.abc import Mapping
+from collections.abc import AsyncGenerator, Mapping
 from contextlib import asynccontextmanager
 from typing import Any
 
@@ -72,7 +72,7 @@ class FastAPIAdapter(WebAdapter[FastAPI, Request, Response]):
             return await handler(self.bind_request(request))
 
         @asynccontextmanager
-        async def lifespan(_router: APIRouter):
+        async def lifespan(_router: APIRouter) -> AsyncGenerator[None, None]:
             try:
                 await on_startup(app)
                 yield
@@ -84,7 +84,7 @@ class FastAPIAdapter(WebAdapter[FastAPI, Request, Response]):
         app.include_router(router)
 
     def json_response(
-        self, status_code: int, data: dict[str, str] | None = None, headers: Mapping[str, str] | None = None
+        self, status_code: int, data: dict[str, Any] | None = None, headers: Mapping[str, str] | None = None
     ) -> Response:
         return JSONResponse(status_code=status_code, content=data, headers=headers)
 

@@ -35,7 +35,7 @@ class AiohttpWebRequest(WebRequest[Request]):
             return None
 
         if peer_name := transport.get_extra_info("peername"):
-            return peer_name[0]
+            return str(peer_name[0])
         return None
 
     async def json(self) -> dict[str, Any]:
@@ -77,7 +77,7 @@ class AiohttpAdapter(WebAdapter[Application, Request, Response]):
         app.on_shutdown.append(on_shutdown)
 
     def json_response(
-        self, status_code: int, data: dict[str, str] | None = None, headers: Mapping[str, str] | None = None
+        self, status_code: int, data: dict[str, Any] | None = None, headers: Mapping[str, str] | None = None
     ) -> Response:
         return json_response(status=status_code, data=data, headers=headers)
 

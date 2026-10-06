@@ -8,7 +8,7 @@ on:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
   contents: read
@@ -28,6 +28,7 @@ jobs:
         uses: astral-sh/setup-uv@v8.1.0
         with:
           python-version: ${{ matrix.python-version }}
+          enable-cache: true
 
       - name: Install the project
         run: uv sync --all-extras
@@ -42,13 +43,36 @@ jobs:
         run: uv run pytest --cov --junitxml=junit.xml -o junit_family=legacy
 
       - name: Upload results to Codecov
+        if: matrix.python-version == '3.14'
         uses: codecov/codecov-action@v6
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Upload test results to Codecov
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && matrix.python-version == '3.14' }}
         uses: codecov/test-results-action@v1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           report-type: test_results
+
+  lowest-direct:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install uv and set the python version
+        uses: astral-sh/setup-uv@v8.1.0
+        with:
+          python-version: "3.10"
+          enable-cache: true
+
+      - name: Install the project with the lowest allowed dependencies
+        run: |
+          uv venv
+          uv pip install --resolution lowest-direct -e ".[fastapi,aiohttp]"
+          # httpx: the starlette that the lowest fastapi brings needs it for TestClient
+          uv pip install pytest pytest-asyncio httpx
+
+      - name: Run pytest
+        run: uv run --no-sync pytest

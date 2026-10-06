@@ -1,7 +1,7 @@
 import re
 from abc import ABC, abstractmethod
 from hmac import compare_digest
-from typing import Final
+from typing import Any, Final
 
 from aiogram_webhook.engines.target import Target
 from aiogram_webhook.route.params import RouteParams
@@ -16,7 +16,7 @@ class SecretToken(ABC):
     Base class for secret token verification in webhook requests.
     """
 
-    async def verify(self, target: Target, request: WebRequest, route_params: RouteParams) -> bool:  # noqa: ARG002
+    async def verify(self, target: Target, request: WebRequest[Any], route_params: RouteParams) -> bool:  # noqa: ARG002
         """
         Verify the incoming secret token from the request.
 
@@ -26,9 +26,10 @@ class SecretToken(ABC):
         :return: True if the token is valid, False otherwise.
         """
         incoming_secret_token = request.headers.get(SECRET_TOKEN_HEADER)
-        if incoming_secret_token is None:
+        if incoming_secret_token is None or not incoming_secret_token.isascii():
             return False
-        return compare_digest(incoming_secret_token, await self.secret_token(target=target))
+        expected = await self.secret_token(target=target)
+        return compare_digest(incoming_secret_token.encode(), expected.encode())
 
     @abstractmethod
     async def secret_token(self, target: Target) -> str:

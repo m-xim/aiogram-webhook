@@ -1,4 +1,5 @@
 import asyncio
+from collections.abc import Iterable
 from typing import TYPE_CHECKING, Generic
 
 from aiogram import Bot
@@ -21,6 +22,12 @@ if TYPE_CHECKING:
 class TokenEngine(
     BaseMultiBotEngine[AppT, RawRequestT, FrameworkResponseT], Generic[AppT, RawRequestT, FrameworkResponseT]
 ):
+    """
+    Multi-bot webhook engine that resolves the bot from a `{bot_token}` route param.
+
+    E.g. `Route(base_url="https://example.com", path="/webhook/{bot_token}", params={"bot_token": BotTokenParam()})`.
+    """
+
     def __init__(
         self,
         dispatcher,
@@ -70,9 +77,12 @@ class TokenEngine(
                 "Set delete_webhook=True to delete webhook and optionally drop pending updates."
             )
 
-        if (tracker := self._task_trackers.pop(bot_id, None)) is not None:
-            await tracker.close(timeout=self.shutdown_timeout)
+        # Detach bot and tracker together with no await in between
         self._bots.pop(bot_id, None)
+        tracker = self._task_trackers.pop(bot_id, None)
+
+        if tracker is not None:
+            await tracker.close(timeout=self.shutdown_timeout)
 
         logger.info("Removed bot %s from token engine", bot_id)
 
@@ -105,14 +115,7 @@ class TokenEngine(
         self._bots[bot.id] = bot
         return bot
 
-    async def _on_startup(self, app: AppT, *args, **kwargs) -> None:  # noqa: ARG002
-        startup_bots = set(self._bots.values())
-
-        logger.info("Starting token-based webhook engine with %s bot(s)", len(startup_bots))
-        workflow_data = self._build_lifecycle_data(app=app, bots=startup_bots, **kwargs)
-        await self.dispatcher.emit_startup(**workflow_data)
-
-    async def _on_shutdown(self, app: AppT, *args, **kwargs) -> None:  # noqa: ARG002
+    async def _on_shutdown(self, app: AppT, *args, bots: Iterable[Bot] | None = None, **kwargs) -> None:  # noqa: ARG002
         logger.info("Stopping token-based webhook engine with %s bot(s)", len(self._bots))
         await asyncio.gather(
             *(tracker.close(timeout=self.shutdown_timeout) for tracker in self._task_trackers.values()),
@@ -120,7 +123,7 @@ class TokenEngine(
 
         self._task_trackers.clear()
 
-        lifecycle_data = self._build_lifecycle_data(app=app, bots=set(self.bots.values()), **kwargs)
+        lifecycle_data = self._build_lifecycle_data(app=app, bots=set(self.bots.values()) | set(bots or ()), **kwargs)
         await self.dispatcher.emit_shutdown(**lifecycle_data)
 
         self._bots.clear()

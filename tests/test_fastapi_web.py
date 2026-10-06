@@ -1,23 +1,27 @@
-from typing import Any
-
+import pytest
 from aiogram.methods import SendDocument, SendMessage
 from aiogram.types import BufferedInputFile
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from aiogram_webhook.engines.base import BaseWebhookEngine
-from aiogram_webhook.engines.target import Target
 from aiogram_webhook.route import Route
-from aiogram_webhook.tasks import TaskTracker
-from aiogram_webhook.utils._payload import build_webhook_payload
+from aiogram_webhook.utils._payload import build_multipart_payload, prepare_webhook_reply
 from aiogram_webhook.web.fastapi import FastAPIAdapter
 from tests.fixtures.multipart_payload import assert_attached_file, assert_multipart_fields
-from tests.fixtures.webhook_engine import DummyDispatcher
+from tests.fixtures.webhook_engine import DummyDispatcher, EngineProbe
 
 
-def test_fastapi_adapter_passes_bound_request_to_registered_post_handler():
-    adapter = FastAPIAdapter()
-    app = FastAPI()
+@pytest.fixture
+def fastapi_adapter() -> FastAPIAdapter:
+    return FastAPIAdapter()
+
+
+@pytest.fixture
+def app() -> FastAPI:
+    return FastAPI()
+
+
+def test_fastapi_adapter_passes_bound_request_to_registered_post_handler(fastapi_adapter, app):
     seen = {}
 
     async def handler(request):
@@ -28,7 +32,7 @@ def test_fastapi_adapter_passes_bound_request_to_registered_post_handler():
         seen["path"] = request.path_params["bot_token"]
         seen["json"] = await request.json()
 
-        return adapter.json_response(
+        return fastapi_adapter.json_response(
             status_code=202,
             data={"ok": "yes"},
             headers={"X-Reply": "done"},
@@ -40,7 +44,7 @@ def test_fastapi_adapter_passes_bound_request_to_registered_post_handler():
     async def on_shutdown(_app):
         return None
 
-    adapter.register(app, "/webhook/{bot_token}", handler, on_startup=on_startup, on_shutdown=on_shutdown)
+    fastapi_adapter.register(app, "/webhook/{bot_token}", handler, on_startup=on_startup, on_shutdown=on_shutdown)
 
     with TestClient(app) as client:
         response = client.post(
@@ -60,36 +64,19 @@ def test_fastapi_adapter_passes_bound_request_to_registered_post_handler():
     assert seen["json"] == {"update_id": 1}
 
 
-def test_fastapi_adapter_registers_lifecycle_callbacks_via_router(bot):
+def test_fastapi_adapter_registers_lifecycle_callbacks_via_router(bot, target, fastapi_adapter, app):
     events = []
-    adapter = FastAPIAdapter()
 
-    class SpyEngine(BaseWebhookEngine[Any, Any, Any]):
-        _task_tracker = TaskTracker()
-
-        async def _on_startup(self, app, *args, **kwargs) -> None:
-            events.append(("engine_startup", app))
-
-        async def _on_shutdown(self, app, *args, **kwargs) -> None:
-            events.append(("engine_shutdown", app))
-
-        async def _resolve_target(self, request, route_params) -> Target:
-            return Target(bot_id=bot.id, bot_token=bot.token)
-
-        async def _resolve_bot(self, target) -> Any:
-            return bot
-
-        def _get_task_tracker(self, bot) -> TaskTracker:
-            return self._task_tracker
-
-    engine = SpyEngine(
-        DummyDispatcher(),  # ty:ignore[invalid-argument-type]
-        web=adapter,
+    engine = EngineProbe(
+        DummyDispatcher(),
+        web=fastapi_adapter,
         route=Route(base_url="https://example.com", path="/webhook"),
         handle_in_background=False,
+        bot=bot,
+        target=target,
+        events=events,
     )
 
-    app = FastAPI()
     engine.register(app)
 
     with TestClient(app) as client:
@@ -101,14 +88,13 @@ def test_fastapi_adapter_registers_lifecycle_callbacks_via_router(bot):
     assert events == [("engine_startup", app), ("engine_shutdown", app)]
 
 
-def test_fastapi_adapter_streams_webhook_method_payload_as_multipart(bot):
-    adapter = FastAPIAdapter()
-    app = FastAPI()
+def test_fastapi_adapter_streams_webhook_method_payload_as_multipart(bot, fastapi_adapter, app):
 
     @app.post("/webhook")
     async def webhook():
         method = SendMessage(chat_id=42, text="OK", disable_notification=False)
-        return adapter.payload_response(status_code=200, payload=build_webhook_payload(bot=bot, method=method))
+        data, files = prepare_webhook_reply(bot, method)
+        return fastapi_adapter.payload_response(status_code=200, payload=build_multipart_payload(bot, data, files))
 
     with TestClient(app) as client:
         response = client.post("/webhook")
@@ -127,9 +113,7 @@ def test_fastapi_adapter_streams_webhook_method_payload_as_multipart(bot):
     )
 
 
-def test_fastapi_adapter_streams_webhook_payload_with_attached_file(bot):
-    adapter = FastAPIAdapter()
-    app = FastAPI()
+def test_fastapi_adapter_streams_webhook_payload_with_attached_file(bot, fastapi_adapter, app):
 
     @app.post("/webhook")
     async def webhook():
@@ -137,7 +121,8 @@ def test_fastapi_adapter_streams_webhook_payload_with_attached_file(bot):
             chat_id=42,
             document=BufferedInputFile(b"hello", filename="hello.txt"),
         )
-        return adapter.payload_response(status_code=200, payload=build_webhook_payload(bot=bot, method=method))
+        data, files = prepare_webhook_reply(bot, method)
+        return fastapi_adapter.payload_response(status_code=200, payload=build_multipart_payload(bot, data, files))
 
     with TestClient(app) as client:
         response = client.post("/webhook")

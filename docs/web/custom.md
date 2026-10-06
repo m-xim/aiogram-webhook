@@ -2,9 +2,9 @@
 
 Create a custom adapter when your web framework is not FastAPI or aiohttp. The adapter is the **only** layer that should know framework-specific request and response types.
 
-`FastAPIAdapter` and `AiohttpAdapter` are shipped reference implementations — useful to read, not mandatory templates. Study their source when you need working lifecycle wiring or multipart reply handling:
+`FastAPIAdapter` and `AiohttpAdapter` are shipped reference implementations — useful to read, not mandatory templates. Study their source when you need working lifecycle wiring or reply payload handling:
 
-* `aiogram_webhook.web.fastapi` — lifespan wiring, Starlette payload bridge
+* `aiogram_webhook.web.fastapi` — lifespan wiring, Starlette multipart bridge
 * `aiogram_webhook.web.aiohttp` — `web.Application` routes and startup/shutdown hooks
 
 See also [Extending overview](../custom-integrations.md) for how adapters fit next to engines and security.
@@ -15,8 +15,8 @@ See also [Extending overview](../custom-integrations.md) for how adapters fit ne
 | --- | --- | --- |
 | `bind_request(raw)` | Wrap the framework request as `WebRequest`. | Every webhook `POST`. |
 | `register(app, path, handler, on_startup, on_shutdown)` | Register `POST` only; wire lifecycle hooks. | `engine.register(app)`. |
-| `json_response(status_code, data, headers)` | Map engine errors and empty `200 {}` success. | Most responses. |
-| `payload_response(status_code, payload, headers)` | Stream aiohttp `Payload` (multipart Telegram method). | `handle_in_background=False` with a returned `TelegramMethod`. |
+| `json_response(status_code, data, headers)` | Send a JSON body with the framework's own response type: engine errors, empty `200 {}` success and a returned `TelegramMethod` without files. | Most responses. |
+| `payload_response(status_code, payload, headers)` | Send an aiohttp `Payload` (multipart) as the response body. | `handle_in_background=False` with a returned `TelegramMethod` that uploads files. |
 
 ## `WebRequest` protocol
 
@@ -73,7 +73,7 @@ Replace `app.post` / lifecycle hooks with your framework's equivalents. The hand
 
 {% note warning %}
 
-`payload_response()` matters when `handle_in_background=False`. Handlers may return a `TelegramMethod` that must be streamed back to Telegram as multipart content. Returning JSON instead will break foreground webhook replies.
+`payload_response()` matters when `handle_in_background=False`. Multipart is required only when the returned `TelegramMethod` uploads files; it must then be streamed back to Telegram as multipart content, and returning JSON instead will break that foreground reply. Methods without files are sent with `json_response()`.
 
 FastAPI bridges aiohttp `Payload` through `AiohttpPayloadResponse` in `aiogram_webhook.web._starlette` — reuse or adapt that approach on ASGI stacks.
 

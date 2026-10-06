@@ -2,9 +2,10 @@ from aiogram_webhook.configs.bot import BotConfig
 from aiogram_webhook.configs.webhook import WebhookConfig
 from aiogram_webhook.engines.single import SingleBotEngine
 from aiogram_webhook.engines.token import TokenEngine
+from aiogram_webhook.route import Route
 from aiogram_webhook.web.aiohttp import AiohttpAdapter
 
-__all__ = ["AiohttpAdapter", "BotConfig", "SingleBotEngine", "TokenEngine", "WebhookConfig"]
+__all__ = ["AiohttpAdapter", "BotConfig", "Route", "SingleBotEngine", "TokenEngine", "WebhookConfig"]
 
 
 try:

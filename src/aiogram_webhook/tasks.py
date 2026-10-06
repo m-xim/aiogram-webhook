@@ -15,9 +15,9 @@ class TaskTracker:
 
     def spawn(self, coro: Coroutine[Any, Any, TaskResultT]) -> asyncio.Task[TaskResultT]:
         """
-        Starts a coroutine in the background and tracks it.
+        Start a coroutine in the background and track it.
 
-        :param coro: Coroutine to be executed.
+        :param coro: Coroutine to execute.
         :return: The created asyncio Task.
         """
         task = asyncio.create_task(coro)
@@ -26,8 +26,8 @@ class TaskTracker:
         task.add_done_callback(self._on_task_done)
         return task
 
-    def _on_task_done(self, task: asyncio.Task) -> None:
-        """Callback to remove the task from the set and log unhandled exceptions."""
+    def _on_task_done(self, task: asyncio.Task[Any]) -> None:
+        """Remove the task from the set and log unhandled exceptions."""
         self._tasks.discard(task)
 
         if not task.cancelled():
@@ -39,8 +39,9 @@ class TaskTracker:
 
     async def close(self, timeout: float | None = 10.0) -> None:
         """
-        Gracefully waits for all tracked tasks to complete.
-        Cancels remaining tasks if the timeout is reached.
+        Gracefully wait for all tracked tasks to complete.
+
+        Cancel remaining tasks if the timeout is reached.
 
         :param timeout: Maximum time (in seconds) to wait before canceling.
         """

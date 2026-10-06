@@ -53,6 +53,4 @@ jobs:
 
       - name: 🐍 Publish to PyPI
         if: steps.release.outputs.released == 'true'
-        env:
-          UV_PUBLISH_TOKEN: ${{ secrets.PYPI_TOKEN }}
-        run: uv publish
+        run: uv publish --trusted-publishing always
