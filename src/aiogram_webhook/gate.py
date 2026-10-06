@@ -1,5 +1,5 @@
 import asyncio
-from collections.abc import Iterator
+from collections.abc import Generator
 from contextlib import contextmanager
 
 from aiogram_webhook.engines.errors import RequestHandlingStoppedError
@@ -22,7 +22,7 @@ class RequestGate:
             raise RequestHandlingStoppedError
 
     @contextmanager
-    def enter(self) -> Iterator[None]:
+    def enter(self) -> Generator[None]:
         self.ensure_open()
         self._active += 1
         self._idle.clear()
