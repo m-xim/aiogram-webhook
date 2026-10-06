@@ -44,7 +44,7 @@ Webhook replies are not available in background mode. Any `TelegramMethod` retur
 
 ## Foreground mode
 
-Engine awaits `dispatcher.feed_webhook_update()` before responding. If a handler returns a `TelegramMethod`, it is streamed back as a Telegram-compatible multipart response — saving one round-trip to the Bot API.
+Engine awaits `dispatcher.feed_webhook_update()` before responding. If a handler returns a `TelegramMethod`, it is sent back as the HTTP response — saving one round-trip to the Bot API. The reply is `application/json`, or `multipart/form-data` when the method uploads files. Telegram does not report whether such a call succeeded or return its result.
 
 ```python
 engine = SingleBotEngine(
