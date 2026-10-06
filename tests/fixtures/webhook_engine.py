@@ -1,6 +1,8 @@
 from collections.abc import Mapping
 from typing import Any
 
+from aiogram import Bot
+
 from aiogram_webhook.engines.base import BaseWebhookEngine
 from aiogram_webhook.engines.target import Target
 from aiogram_webhook.route.params import RouteParams
@@ -38,28 +40,44 @@ class CapturingAdapter(WebAdapter):
         return {"kind": "payload", "status_code": status_code, "headers": headers}
 
 
-class SpyEngine(BaseWebhookEngine[Any, Any, Any]):
-    _task_tracker = TaskTracker()
+class EngineProbe(BaseWebhookEngine[Any, Any, dict[str, Any]]):
+    def __init__(
+        self,
+        dispatcher: Any,
+        bot: Bot | None = None,
+        *,
+        target: Target | None = None,
+        web: WebAdapter,
+        route: Any = None,
+        handle_in_background: bool = False,
+        events: list | None = None,
+    ) -> None:
+        self.bot = bot
+        self.target = target
+        self.events = events if events is not None else []
+        self.task_tracker = TaskTracker()
 
-    def __init__(self, *args: Any, bot: Any, events: list, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-        self._bot = bot
-        self._events = events
+        super().__init__(
+            dispatcher,
+            web=web,
+            route=route or DummyRoute({"bot_token": "42:TEST"}),  # ty:ignore[invalid-argument-type]
+            handle_in_background=handle_in_background,
+        )
 
-    async def _on_startup(self, app, *args, **kwargs) -> None:
-        self._events.append(("engine_startup", app))
+    async def _on_startup(self, app: Any, *args: Any, **kwargs: Any) -> None:
+        self.events.append(("engine_startup", app))
 
-    async def _on_shutdown(self, app, *args, **kwargs) -> None:
-        self._events.append(("engine_shutdown", app))
+    async def _on_shutdown(self, app: Any, *args: Any, **kwargs: Any) -> None:
+        self.events.append(("engine_shutdown", app))
 
-    async def _resolve_target(self, request, route_params) -> Target:
-        return Target(bot_id=self._bot.id, bot_token=self._bot.token)
+    async def _resolve_target(self, request: Any, route_params: RouteParams) -> Target | None:
+        return self.target
 
-    async def _resolve_bot(self, target) -> Any:
-        return self._bot
+    async def _resolve_bot(self, target: Target) -> Bot | None:
+        return self.bot
 
-    def _get_task_tracker(self, bot) -> TaskTracker:
-        return self._task_tracker
+    def _get_task_tracker(self, bot: Bot) -> TaskTracker:
+        return self.task_tracker
 
 
 class DummyDispatcher:

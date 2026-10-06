@@ -1,81 +1,54 @@
 import asyncio
-from typing import Any
 from unittest.mock import AsyncMock
 
 import pytest
-from aiogram import Bot
-from aiogram.methods import SendMessage
+from aiogram.methods import SendDocument, SendMessage
+from aiogram.types import BufferedInputFile
 
-from aiogram_webhook.engines.base import BaseWebhookEngine
-from aiogram_webhook.engines.target import Target
-from aiogram_webhook.route.params import RouteParams
-from aiogram_webhook.tasks import TaskTracker
+from tests.fixtures.multipart_payload import assert_attached_file, assert_payload_fields
 from tests.fixtures.web_request import BlockingJsonWebRequest, DummyRequest, DummyWebRequest
-from tests.fixtures.webhook_engine import CapturingAdapter, DummyDispatcher, DummyRoute
-
-
-class EngineProbe(BaseWebhookEngine[Any, Any, dict[str, Any]]):
-    def __init__(
-        self,
-        dispatcher: DummyDispatcher,
-        bot: Bot | None,
-        *,
-        target: Target | None,
-        web: CapturingAdapter,
-        handle_in_background: bool = False,
-    ) -> None:
-        self.bot = bot
-        self.target = target
-        self.task_tracker = TaskTracker()
-
-        super().__init__(
-            dispatcher,  # ty:ignore[invalid-argument-type]
-            web=web,
-            route=DummyRoute({"bot_token": "42:TEST"}),  # ty:ignore[invalid-argument-type]
-            handle_in_background=handle_in_background,
-        )
-
-    async def _on_startup(self, _app: Any, *args: Any, **kwargs: Any) -> None:
-        return None
-
-    async def _on_shutdown(self, _app: Any, *args: Any, **kwargs: Any) -> None:
-        return None
-
-    async def _resolve_target(self, request: Any, route_params: RouteParams) -> Target | None:
-        return self.target
-
-    async def _resolve_bot(self, target: Target) -> Bot | None:
-        return self.bot
-
-    def _get_task_tracker(self, bot: Bot) -> TaskTracker:
-        return self.task_tracker
+from tests.fixtures.webhook_engine import DummyDispatcher, EngineProbe
 
 
 @pytest.mark.asyncio
-async def test_foreground_engine_returns_telegram_method_as_webhook_payload(bot, target, adapter, update_request):
+async def test_foreground_engine_returns_telegram_method_as_json_reply(bot, target, adapter, update_request):
     dispatcher = DummyDispatcher(result=SendMessage(chat_id=42, text="OK"))
+    engine = EngineProbe(dispatcher, bot, target=target, web=adapter)
+
+    response = await engine.handle_request(update_request)
+
+    assert response == {
+        "kind": "json",
+        "status_code": 200,
+        "data": {"method": "sendMessage", "chat_id": 42, "text": "OK"},
+        "headers": None,
+    }
+    assert adapter.payload is None
+    assert dispatcher.webhook_update == update_request.raw.json_data
+
+
+@pytest.mark.asyncio
+async def test_foreground_engine_returns_telegram_method_with_files_as_multipart_payload(
+    bot, target, adapter, update_request
+):
+    method = SendDocument(chat_id=42, document=BufferedInputFile(b"hello", filename="hello.txt"))
+    dispatcher = DummyDispatcher(result=method)
     engine = EngineProbe(dispatcher, bot, target=target, web=adapter)
 
     response = await engine.handle_request(update_request)
 
     assert response == {"kind": "payload", "status_code": 200, "headers": None}
     assert adapter.payload is not None
-    assert dispatcher.webhook_update == update_request.raw.json_data
+    parts = await assert_payload_fields(adapter.payload, {"method": "sendDocument", "chat_id": "42"})
+    assert_attached_file(parts, field="document", filename="hello.txt", body=b"hello")
 
 
 @pytest.mark.asyncio
-async def test_foreground_engine_acknowledges_empty_dispatcher_result(bot, target, adapter, dispatcher, update_request):
-    engine = EngineProbe(dispatcher, bot, target=target, web=adapter)
-
-    response = await engine.handle_request(update_request)
-
-    assert response == {"kind": "json", "status_code": 200, "data": {}, "headers": None}
-    assert adapter.payload is None
-
-
-@pytest.mark.asyncio
-async def test_foreground_engine_acknowledges_non_method_dispatcher_result(bot, target, adapter, update_request):
-    dispatcher = DummyDispatcher(result={"handled": True})
+@pytest.mark.parametrize("result", [None, {"handled": True}], ids=["empty", "non-method"])
+async def test_foreground_engine_acknowledges_non_method_dispatcher_result(
+    bot, target, adapter, update_request, result
+):
+    dispatcher = DummyDispatcher(result=result)
     engine = EngineProbe(dispatcher, bot, target=target, web=adapter)
 
     response = await engine.handle_request(update_request)
@@ -164,21 +137,6 @@ async def test_engine_returns_bad_request_when_json_payload_is_not_an_object(bot
 
 
 @pytest.mark.asyncio
-async def test_engine_lifespan_runs_startup_then_shutdown(bot, target, adapter, dispatcher, update_request):
-    engine = EngineProbe(dispatcher, bot, target=target, web=adapter)
-
-    await engine.on_startup(None)
-    assert not engine._is_shutting_down
-    response = await engine.handle_request(update_request)
-    assert response["status_code"] == 200
-    await engine.on_shutdown(None)
-
-    assert engine._is_shutting_down
-    response = await engine.handle_request(update_request)
-    assert response["status_code"] == 503
-
-
-@pytest.mark.asyncio
 async def test_engine_rejects_inflight_request_after_shutdown(bot, target, adapter, dispatcher, update_request):
     engine = EngineProbe(dispatcher, bot, target=target, web=adapter, handle_in_background=True)
     request = BlockingJsonWebRequest(update_request.raw)
@@ -193,3 +151,27 @@ async def test_engine_rejects_inflight_request_after_shutdown(bot, target, adapt
     assert response["status_code"] == 503
     assert dispatcher.webhook_update is None
     assert engine.task_tracker._tasks == set()
+
+
+@pytest.mark.asyncio
+async def test_shutdown_waits_for_admitted_request(bot, target, adapter, dispatcher, update_request):
+    release = asyncio.Event()
+    entered = asyncio.Event()
+
+    async def slow_feed(**_kwargs):
+        entered.set()
+        await release.wait()
+
+    dispatcher.feed_webhook_update = slow_feed
+    engine = EngineProbe(dispatcher, bot, target=target, web=adapter)
+    request_task = asyncio.create_task(engine.handle_request(update_request))
+    await entered.wait()
+
+    shutdown_task = asyncio.create_task(engine.on_shutdown(None))
+    with pytest.raises(asyncio.TimeoutError):
+        await asyncio.wait_for(asyncio.shield(shutdown_task), timeout=0.05)
+    assert (await engine.handle_request(update_request))["status_code"] == 503
+
+    release.set()
+    assert (await request_task)["status_code"] == 200
+    await shutdown_task

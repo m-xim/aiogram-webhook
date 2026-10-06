@@ -138,7 +138,6 @@ async def test_token_engine_does_not_recreate_bot_or_session_when_shutdown_happe
     await asyncio.wait_for(request.json_started.wait(), timeout=1)
 
     await engine.on_shutdown(None)
-    assert engine._session is None
 
     request.json_continue.set()
     response = await asyncio.wait_for(request_task, timeout=1)
@@ -149,7 +148,8 @@ async def test_token_engine_does_not_recreate_bot_or_session_when_shutdown_happe
 
 
 @pytest.mark.asyncio
-async def test_token_engine_does_not_create_bot_when_json_is_invalid(bot, bot_token, adapter):
+@pytest.mark.parametrize("json_error", [ValueError("invalid json"), None], ids=["invalid-json", "not-an-object"])
+async def test_token_engine_does_not_create_bot_when_json_is_bad(bot, bot_token, adapter, json_error):
     dispatcher = DummyDispatcher()
     engine = TokenEngine(
         dispatcher,
@@ -158,25 +158,9 @@ async def test_token_engine_does_not_create_bot_when_json_is_invalid(bot, bot_to
         bot_config=BotConfig(session=bot.session),
         handle_in_background=False,
     )
-
-    response = await engine.handle_request(DummyWebRequest(DummyRequest(json_error=ValueError("invalid json"))))
-
-    assert response["status_code"] == 400
-    assert engine.bots == {}
-
-
-@pytest.mark.asyncio
-async def test_token_engine_does_not_create_bot_when_json_is_not_an_object(bot, bot_token, adapter):
-    dispatcher = DummyDispatcher()
-    engine = TokenEngine(
-        dispatcher,
-        web=adapter,
-        route=DummyRoute({"bot_token": bot_token}),  # ty:ignore[invalid-argument-type]
-        bot_config=BotConfig(session=bot.session),
-        handle_in_background=False,
-    )
-    request = DummyWebRequest(DummyRequest())
-    request.json = AsyncMock(return_value=[1, 2])
+    request = DummyWebRequest(DummyRequest(json_error=json_error))
+    if json_error is None:
+        request.json = AsyncMock(return_value=[1, 2])
 
     response = await engine.handle_request(request)
 

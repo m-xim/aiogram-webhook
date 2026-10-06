@@ -2,12 +2,15 @@ import json
 from typing import Any
 from unittest.mock import Mock
 
+import pytest
 from aiogram.methods import SendMessage
+from aiohttp import Payload
 from aiohttp.test_utils import make_mocked_request
 from aiohttp.web import Application
 
-from aiogram_webhook.utils._payload import build_webhook_payload
+from aiogram_webhook.utils._payload import build_multipart_payload, prepare_webhook_reply
 from aiogram_webhook.web.aiohttp import AiohttpAdapter
+from tests.fixtures.multipart_payload import assert_payload_fields
 
 
 def test_aiohttp_adapter_exposes_framework_request_data() -> None:
@@ -57,7 +60,7 @@ def test_aiohttp_adapter_registers_post_route_and_lifecycle_callbacks():
 def test_aiohttp_adapter_builds_json_response_with_status_and_headers() -> None:
     response = AiohttpAdapter().json_response(
         status_code=418,
-        data={"detail": "teapot"},
+        data={"detail": "teapot", "chat_id": 42},
         headers={"X-Test": "yes"},
     )
 
@@ -65,12 +68,14 @@ def test_aiohttp_adapter_builds_json_response_with_status_and_headers() -> None:
     assert response.headers["X-Test"] == "yes"
     assert response.content_type == "application/json"
     assert response.text is not None
-    assert json.loads(response.text) == {"detail": "teapot"}
+    assert json.loads(response.text) == {"detail": "teapot", "chat_id": 42}
 
 
-def test_aiohttp_adapter_builds_multipart_payload_response(bot) -> None:
+@pytest.mark.asyncio
+async def test_aiohttp_adapter_builds_multipart_payload_response(bot) -> None:
     method = SendMessage(chat_id=42, text="OK")
-    payload = build_webhook_payload(bot=bot, method=method)
+    data, files = prepare_webhook_reply(bot, method)
+    payload = build_multipart_payload(bot, data, files)
 
     response = AiohttpAdapter().payload_response(
         status_code=201,
@@ -80,5 +85,6 @@ def test_aiohttp_adapter_builds_multipart_payload_response(bot) -> None:
 
     assert response.status == 201
     assert response.headers["X-Test"] == "yes"
-    assert response.body is payload
     assert response.headers["Content-Type"] == payload.headers["Content-Type"]
+    assert isinstance(response.body, Payload)
+    await assert_payload_fields(response.body, {"method": "sendMessage", "chat_id": "42", "text": "OK"})
