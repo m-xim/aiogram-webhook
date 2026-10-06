@@ -8,11 +8,11 @@ from aiogram.methods import TelegramMethod
 from aiogram_webhook.engines.errors import (
     BotNotFoundError,
     InvalidJsonError,
-    RequestHandlingStoppedError,
     TargetNotFoundError,
 )
 from aiogram_webhook.engines.target import Target
 from aiogram_webhook.errors import AiogramWebhookError
+from aiogram_webhook.gate import RequestGate
 from aiogram_webhook.logs import get_logger, log_webhook_error
 from aiogram_webhook.route import Route
 from aiogram_webhook.route.params import RouteParams
@@ -45,7 +45,7 @@ class BaseWebhookEngine(ABC, Generic[AppT, RawRequestT, FrameworkResponseT]):
         self.handle_in_background = handle_in_background
 
         self.shutdown_timeout = shutdown_timeout
-        self._is_shutting_down = False
+        self._gate = RequestGate()
 
         if self.security is None:
             warnings.warn(
@@ -66,9 +66,8 @@ class BaseWebhookEngine(ABC, Generic[AppT, RawRequestT, FrameworkResponseT]):
 
     async def handle_request(self, request: WebRequest[RawRequestT]) -> FrameworkResponseT:
         try:
-            # Fast path: reject early, before match/security/bot creation.
-            if self._is_shutting_down:
-                raise RequestHandlingStoppedError
+            # Fast path: reject early, before match/security.
+            self._gate.ensure_open()
 
             route_params = await self.route.match(request)
 
@@ -82,27 +81,30 @@ class BaseWebhookEngine(ABC, Generic[AppT, RawRequestT, FrameworkResponseT]):
             # Parse after security, but before the bot: a bad payload must not create a bot.
             raw_update = await self._read_update(request)
 
-            if self._is_shutting_down:
-                raise RequestHandlingStoppedError
+            with self._gate.enter():
+                bot = await self._resolve_bot(target=target)
+                if bot is None:
+                    raise BotNotFoundError(target_bot_id=target.bot_id, target_type=target.__class__.__name__)
 
-            bot = await self._resolve_bot(target=target)
-            if bot is None:
-                raise BotNotFoundError(target_bot_id=target.bot_id, target_type=target.__class__.__name__)
+                logger.debug("New update: %s", raw_update)
 
-            logger.debug("New update: %s", raw_update)
+                if self.handle_in_background:
+                    self._get_task_tracker(bot).spawn(self._background_feed(bot, raw_update))
+                else:
+                    result = await self.dispatcher.feed_webhook_update(bot=bot, update=raw_update)
+                    if isinstance(result, TelegramMethod):
+                        data, files = prepare_webhook_reply(bot, result)
+                        logger.debug(
+                            "Replying to webhook with method %s (files: %s)", result.__api_method__, len(files)
+                        )
+                        if files:
+                            # Files can only be uploaded as multipart/form-data.
+                            return self.web.payload_response(
+                                status_code=200, payload=build_multipart_payload(bot, data, files)
+                            )
+                        return self.web.json_response(status_code=200, data=data)
 
-            # Re-check after the awaits above: shutdown may have closed the trackers, and the task would be lost.
-            if self._is_shutting_down:
-                raise RequestHandlingStoppedError
-
-            if self.handle_in_background:
-                self._get_task_tracker(bot).spawn(self._background_feed(bot, raw_update))
-            else:
-                result = await self.dispatcher.feed_webhook_update(bot=bot, update=raw_update)
-                if isinstance(result, TelegramMethod):
-                    return self.web.payload_response(status_code=200, payload=build_webhook_payload(bot, result))
-
-            return self.web.json_response(status_code=200, data={})
+                return self.web.json_response(status_code=200, data={})
 
         except AiogramWebhookError as exc:
             log_webhook_error(logger, exc)
@@ -123,10 +125,10 @@ class BaseWebhookEngine(ABC, Generic[AppT, RawRequestT, FrameworkResponseT]):
 
     async def on_startup(self, app: AppT, *args: Any, **kwargs: Any) -> None:
         await self._on_startup(app, *args, **kwargs)
-        self._is_shutting_down = False
+        self._gate.open()
 
     async def on_shutdown(self, app: AppT, *args: Any, **kwargs: Any) -> None:
-        self._is_shutting_down = True
+        await self._gate.close(self.shutdown_timeout)
         await self._on_shutdown(app, *args, **kwargs)
 
     @abstractmethod
