@@ -77,7 +77,7 @@ class AiohttpAdapter(WebAdapter[Application, Request, Response]):
         app.on_shutdown.append(on_shutdown)
 
     def json_response(
-        self, status_code: int, data: dict[str, str] | None = None, headers: Mapping[str, str] | None = None
+        self, status_code: int, data: dict[str, Any] | None = None, headers: Mapping[str, str] | None = None
     ) -> Response:
         return json_response(status=status_code, data=data, headers=headers)
 

@@ -84,7 +84,7 @@ class FastAPIAdapter(WebAdapter[FastAPI, Request, Response]):
         app.include_router(router)
 
     def json_response(
-        self, status_code: int, data: dict[str, str] | None = None, headers: Mapping[str, str] | None = None
+        self, status_code: int, data: dict[str, Any] | None = None, headers: Mapping[str, str] | None = None
     ) -> Response:
         return JSONResponse(status_code=status_code, content=data, headers=headers)
 

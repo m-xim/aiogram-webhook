@@ -18,7 +18,7 @@ from aiogram_webhook.route import Route
 from aiogram_webhook.route.params import RouteParams
 from aiogram_webhook.security import Security
 from aiogram_webhook.tasks import TaskTracker
-from aiogram_webhook.utils._payload import build_webhook_payload
+from aiogram_webhook.utils._payload import build_multipart_payload, prepare_webhook_reply
 from aiogram_webhook.web.base import WebAdapter, WebRequest
 
 logger = get_logger("engines")
