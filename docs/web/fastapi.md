@@ -38,6 +38,10 @@ engine.register(app)
 | `path_params` | `request.path_params` |
 | `json()` | `await request.json()` |
 
+{% note warning %}
+By default, Starlette does not limit the request body size, so `request.json()` reads the whole body into memory. Always configure [security](../security/overview.md): the body is read only after verification passes. To cap the size, set a limit at your reverse proxy or use Starlette's built-in `RequestBodyLimitMiddleware` (Starlette 1.6+). More details: [starlette#3431](https://github.com/Kludex/starlette/pull/3431), [fastapi#362](https://github.com/fastapi/fastapi/issues/362).
+{% endnote %}
+
 ## Returning Telegram methods
 
 When `handle_in_background=False`, aiogram may return a `TelegramMethod`.
