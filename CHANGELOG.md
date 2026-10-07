@@ -2,6 +2,171 @@
 
 <!-- version list -->
 
+## v3.2.0 (2026-10-07)
+
+### Bug Fixes
+
+- Add Route to __all__ exports in __init__.py
+  ([`3e971f7`](https://github.com/m-xim/aiogram-webhook/commit/3e971f7072693a9a8b15765508fa7c77e7034d02))
+
+- Allow non-ASCII filenames in content disposition for form-data
+  ([`7cef166`](https://github.com/m-xim/aiogram-webhook/commit/7cef1664fa9608196518ece7df97a225b818bfad))
+
+- Enhance shutdown process by allowing optional bot parameter in _on_shutdown method
+  ([`0b9da4f`](https://github.com/m-xim/aiogram-webhook/commit/0b9da4f76d92de0c3e7d9e51f8e8c07c70c050c3))
+
+- Ensure proper detachment of bot and tracker in token engine
+  ([`5c4abb8`](https://github.com/m-xim/aiogram-webhook/commit/5c4abb80089bf00d9fa35a730f9c58e57939ac7b))
+
+- Improve request handling by validating payload format and ensuring shutdown safety
+  ([`fcae097`](https://github.com/m-xim/aiogram-webhook/commit/fcae097eb978a18b028f676b2a3a2b6eac246d18))
+
+- Raise error when handling requests during shutdown in TokenEngine
+  ([`b2385ab`](https://github.com/m-xim/aiogram-webhook/commit/b2385ab7f2fd8109638e56daec78726bb936a041))
+
+- Update lifespan function signature to use None
+  ([`ab41d78`](https://github.com/m-xim/aiogram-webhook/commit/ab41d786d29533933a53e33ac4ce4204bdb25cba))
+
+- **gate**: Update type hint for enter method to use Generator
+  ([`606f8c2`](https://github.com/m-xim/aiogram-webhook/commit/606f8c2cf97a2aab4fdbb128a25040d6e06bf50b))
+
+- **security**: Enhance secret token validation to reject non-ASCII characters
+  ([`5de91c9`](https://github.com/m-xim/aiogram-webhook/commit/5de91c99f0561058aeb70c1c769aab65b80fde13))
+
+- **security**: Ensure secret token comparison handles encoding for non-ASCII characters
+  ([`742965a`](https://github.com/m-xim/aiogram-webhook/commit/742965a776eb99ed07084c048898a265efc9415b))
+
+- **ty**: Remove type ignore comments from assertions in test files
+  ([`18d5daf`](https://github.com/m-xim/aiogram-webhook/commit/18d5daf7303b3bbd1e8aedd60528ce6ab57702e2))
+
+- **web**: Note about lifespan in fastapi
+  ([`dba27ce`](https://github.com/m-xim/aiogram-webhook/commit/dba27cec09a8e5fdb0847a700f5fdeeaff01ba74))
+
+### Chores
+
+- Add context7
+  ([`7d6b9d6`](https://github.com/m-xim/aiogram-webhook/commit/7d6b9d61bd3264bd0c7945fb3e3edb8584654ac3))
+
+- Reorder imports
+  ([`d48c019`](https://github.com/m-xim/aiogram-webhook/commit/d48c0195f21f00b7d9a3b5c9c08e515b3f1bf612))
+
+- Update .gitignore to include profile
+  ([`0cf924b`](https://github.com/m-xim/aiogram-webhook/commit/0cf924bac6adb05cb2928870380ab95e07efce98))
+
+- Update dependabot configuration for multiple ecosystems
+  ([`a642ae8`](https://github.com/m-xim/aiogram-webhook/commit/a642ae8d592313ae3a120a5493c5f46722267e4b))
+
+- Update dependencies in package-lock.json
+  ([`874dcb0`](https://github.com/m-xim/aiogram-webhook/commit/874dcb0e98edf618fbad3ddf691bbfeb914d7f49))
+
+- Update dependencies in package-lock.json
+  ([`9ff2283`](https://github.com/m-xim/aiogram-webhook/commit/9ff2283846694e1da764c47a755908a0f26d49db))
+
+- Update GitHub Actions workflows
+  ([`2adf54e`](https://github.com/m-xim/aiogram-webhook/commit/2adf54ebe4afc2747f3010a7efe8ce91b1a14ada))
+
+- Update package-lock.json and ruff.toml
+  ([`c28c79c`](https://github.com/m-xim/aiogram-webhook/commit/c28c79c5a1f864359f7dd62f788b5387b990edb6))
+
+- Update package-lock.json with dependency version upgrades
+  ([`bdb5dc7`](https://github.com/m-xim/aiogram-webhook/commit/bdb5dc7339d56e87fa94a4546852bde3af687512))
+
+- Update release workflow to use trusted publishing for PyPI
+  ([`c86588d`](https://github.com/m-xim/aiogram-webhook/commit/c86588da023ab6211ba90e639c55252b3314d98b))
+
+- **ci**: Bump actions/checkout from 6 to 7
+  ([`aedd88a`](https://github.com/m-xim/aiogram-webhook/commit/aedd88a951f7ed3d7ad8b93b03d995ad3d7d4a3c))
+
+- **ci**: Bump actions/configure-pages from 5 to 6
+  ([`2c0ad93`](https://github.com/m-xim/aiogram-webhook/commit/2c0ad9370c3dd2a8a7370d21194c72a6e92c16b9))
+
+- **ci**: Bump actions/deploy-pages from 4 to 5
+  ([`4da8774`](https://github.com/m-xim/aiogram-webhook/commit/4da8774af7251c6ab9f7759bd8ba60a4d1fc4f7d))
+
+- **ci**: Bump actions/setup-node from 4 to 7
+  ([`c9eee9f`](https://github.com/m-xim/aiogram-webhook/commit/c9eee9ff8fd4977c8e320c5c27002bac11a3d8bc))
+
+- **ci**: Bump actions/upload-pages-artifact from 3 to 5
+  ([`b48b2d8`](https://github.com/m-xim/aiogram-webhook/commit/b48b2d887958742e88611e7b578fe3bc79dab9ed))
+
+- **deps**: Bump sanitize-html
+  ([`f172fa1`](https://github.com/m-xim/aiogram-webhook/commit/f172fa1927f6f03bcc82bcf2bf5e08e656815fda))
+
+- **deps**: Bump the npm_and_yarn group across 1 directory with 2 updates
+  ([`a0de4dc`](https://github.com/m-xim/aiogram-webhook/commit/a0de4dca6b975d3a62cb1fb29b457eaae60f4829))
+
+- **deps**: Bump the npm_and_yarn group across 1 directory with 5 updates
+  ([`1a1e781`](https://github.com/m-xim/aiogram-webhook/commit/1a1e7811839840d12ab2099582eba05e33aa54b6))
+
+- **deps**: Update package-lock.json
+  ([`85c91b6`](https://github.com/m-xim/aiogram-webhook/commit/85c91b6ae496961b29c3e9cdd556deeef8777acc))
+
+- **deps-dev**: Update uv-build requirement from <0.12 to <0.13
+  ([`9e6d942`](https://github.com/m-xim/aiogram-webhook/commit/9e6d942f92ea37484e3761ac3d663f2a5b942e34))
+
+### Documentation
+
+- Clarify error messages and update example in TokenEngine documentation
+  ([`ed4fbc3`](https://github.com/m-xim/aiogram-webhook/commit/ed4fbc341f52503d3d5701669eb3b980e9f68c14))
+
+- Clarify multipart content requirements for payload_response in TelegramMethod handling
+  ([`41e3659`](https://github.com/m-xim/aiogram-webhook/commit/41e3659f1dad76c70f6fc2b8c62dd1d49aedc65f))
+
+- Enhance TokenEngine docstring for clarity
+  ([`f26a8df`](https://github.com/m-xim/aiogram-webhook/commit/f26a8dfdce26b0dfb1e42af94e5b0a1f67b488fa))
+
+- Fix examples
+  ([`17701f2`](https://github.com/m-xim/aiogram-webhook/commit/17701f2b85f4feb319f8c0a2ea11c95af9251274))
+
+- Fix warning about request body size limitations in Starlette
+  ([`76cfd09`](https://github.com/m-xim/aiogram-webhook/commit/76cfd09a5119fdb1257ace1a30e83632d7e86caa))
+
+- Format code for better readability in custom-engine.md
+  ([`03074cf`](https://github.com/m-xim/aiogram-webhook/commit/03074cfa14c80a009792531acece707da6ce07f9))
+
+- Update custom adapter on payload handling
+  ([`b965b83`](https://github.com/m-xim/aiogram-webhook/commit/b965b835020749297e67c5b90b80e439b9074022))
+
+- Update diplodoc
+  ([`e8f08b2`](https://github.com/m-xim/aiogram-webhook/commit/e8f08b277fdc496406535b72599cea01d6f64a92))
+
+- Update diplodoc
+  ([`d49d527`](https://github.com/m-xim/aiogram-webhook/commit/d49d527cff6022b99074d3e066dc48522c95f6fb))
+
+- **fastapi**: Add warning about request body size limitations
+  ([`6ec3636`](https://github.com/m-xim/aiogram-webhook/commit/6ec36361b9360393e4d4af097baabe27dd38bea9))
+
+### Features
+
+- Add debug logging for raw update processing
+  ([`a2764a4`](https://github.com/m-xim/aiogram-webhook/commit/a2764a45aa498bedf8c9320035ed6b9dedd313ab))
+
+- **gate**: Implement RequestGate to manage request admission and closure
+  ([`342e416`](https://github.com/m-xim/aiogram-webhook/commit/342e4168adee74f6c5e440b430ba49fb201210ef))
+
+- **gate**: Integrate RequestGate for request management during shutdown
+  ([`e11eb2e`](https://github.com/m-xim/aiogram-webhook/commit/e11eb2edae627267c468173cf731b42c62f161a5))
+
+- **payload**: Refactor webhook payload handling to support JSON-native values
+  ([`fe160b0`](https://github.com/m-xim/aiogram-webhook/commit/fe160b05890a88052e32b7da553d75b49d8acb74))
+
+### Refactoring
+
+- Types, tests, docstring
+  ([`9d9b787`](https://github.com/m-xim/aiogram-webhook/commit/9d9b787fb3c727e6c769bc125e3ad8edc3f93bbe))
+
+### Testing
+
+- Add tests for bot removal and shutdown behavior in TokenEngine
+  ([`abd475a`](https://github.com/m-xim/aiogram-webhook/commit/abd475aece39df76570b8ba78493f6dec2e43a7c))
+
+- Add tests for handling invalid JSON payloads in webhook engine
+  ([`90e523b`](https://github.com/m-xim/aiogram-webhook/commit/90e523b052b579e7f8aae894b7bcab640468810e))
+
+- Remove unnecessary type ignore comments in webhook engine tests
+  ([`ee3abc7`](https://github.com/m-xim/aiogram-webhook/commit/ee3abc7e884fcc5d358d02b996d860251ea6a7cf))
+
+
 ## v3.1.0 (2026-06-10)
 
 ### Features
