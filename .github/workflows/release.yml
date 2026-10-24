@@ -34,7 +34,7 @@ jobs:
 
       - name: 🐍 Setup uv & venv
         if: steps.release.outputs.released == 'true'
-        uses: astral-sh/setup-uv@v8.1.0
+        uses: astral-sh/setup-uv@v10.3.1
 
       - name: 📦 Update uv.lock
         if: steps.release.outputs.released == 'true'
